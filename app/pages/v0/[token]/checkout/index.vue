@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import ExternalCheckout from '~/components/ExternalCheckout.vue'
+import ExternalCheckout from '~/components/ExternalCheckout.vue';
 
-
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 const {
   state,
   loading,
@@ -16,11 +15,10 @@ const {
   selectPaymentMethod,
   selectShippingMethod,
   completeCheckout,
-} = useCheckout()
+} = useCheckout();
 
-const token = route.params.token as string
+const token = route.params.token as string;
 const cart = computed(() => state.cart);
-
 
 // Initialize checkout with token from URL
 onMounted(async () => {
@@ -28,13 +26,13 @@ onMounted(async () => {
     router.push('/')
     return
   }
-  await initializeCheckout(token)
+  await initializeCheckout(token);
 
 })
 
 
 const handleCheckout = async () => {
-  const result = await completeCheckout()
+  const result = await completeCheckout();
 
   if (result?.success) {
     // Store order details in localStorage before redirecting
