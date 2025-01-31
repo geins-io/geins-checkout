@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ExternalCheckout from '~/components/ExternalCheckout.vue';
+import Button from '~/components/ui/button/Button.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -102,11 +103,11 @@ const handleCheckout = async () => {
         <!-- Order Summary -->
         <div class="bg-white p-6 rounded-lg shadow h-fit">
           <OrderSummary v-if="cart" :cart="cart" />
-          <button @click="handleCheckout" v-if="state.showCompleteButton"
-            :disabled="loading || state.disableCompleteButton"
-            class="w-full mt-6 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50">
+          <Button @click="handleCheckout" v-if="state.showCompleteButton"
+            :disabled="loading || state.disableCompleteButton" class="w-full mt-6 py-2 px-4 ">
             {{ loading ? 'Processing...' : 'Complete Checkout' }}
-          </button>
+          </Button>
+
           <p v-if="error" class="mt-2 text-red-600 text-sm">{{ error }}</p>
         </div>
       </div>

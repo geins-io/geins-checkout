@@ -6,8 +6,9 @@
   "tailwind": {
     "config": "tailwind.config.js",
     "css": "assets/css/tailwind.css",
-    "baseColor": "stone",
-    "cssVariables": true
+    "baseColor": "zinc",
+    "cssVariables": true,
+    "prefix": ""
   },
   "framework": "nuxt",
   "aliases": {
