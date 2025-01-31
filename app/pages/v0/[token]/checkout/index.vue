@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import ExternalCheckout from '~/components/ExternalCheckout.vue';
 import Button from '~/components/ui/button/Button.vue';
+import Loading from '~/components/shared/icon/Loading.vue';
+import { ReloadIcon } from '@radix-icons/vue'
+
 
 const route = useRoute();
 const router = useRouter();
@@ -20,6 +23,15 @@ const {
 
 const token = route.params.token as string;
 const cart = computed(() => state.cart);
+const initialLoading = ref(true);
+
+// watch loading state
+watch(loading, (value) => {
+  console.log('loading', value == false)
+  if (value === false) {
+    initialLoading.value = false;
+  }
+})
 
 // Initialize checkout with token from URL
 onMounted(async () => {
@@ -30,6 +42,8 @@ onMounted(async () => {
   await initializeCheckout(token);
 
 })
+
+
 
 
 const handleCheckout = async () => {
@@ -61,7 +75,13 @@ const handleCheckout = async () => {
 
 </script>
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div v-if="initialLoading" class="min-h-screen bg-gray-50">
+    <div class="flex min-h-screen items-center justify-center">
+      <loading class="w-4 h-4 mr-2" />
+      <p>Loading Checkout</p>
+    </div>
+  </div>
+  <div v-else class="min-h-screen bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Checkout Form -->
@@ -105,6 +125,7 @@ const handleCheckout = async () => {
           <OrderSummary v-if="cart" :cart="cart" />
           <Button @click="handleCheckout" v-if="state.showCompleteButton"
             :disabled="loading || state.disableCompleteButton" class="w-full mt-6 py-2 px-4 ">
+            <ReloadIcon v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
             {{ loading ? 'Processing...' : 'Complete Checkout' }}
           </Button>
 
