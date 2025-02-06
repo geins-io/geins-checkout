@@ -82,7 +82,7 @@ export const useCheckout = () => {
 
   const getSummary = async () => {
     const orderSummary = await geinsClient.getSummary();
-    console.log('getSummary::', orderSummary);
+    // console.log('getSummary::', orderSummary);
 
     const summary = {
       cart: orderSummary.cart,
@@ -309,7 +309,7 @@ export const useCheckout = () => {
       error.value = 'Please fill in all billing address fields';
       return false;
     }
-    console.log('billingAddress::', billingAddress);
+    // console.log('billingAddress::', billingAddress);
 
     const shippingAddress = createAddressInputType(state.shippingAddress);
 
@@ -341,6 +341,8 @@ export const useCheckout = () => {
     const retval = {
       success: false,
       orderId: '',
+      publicOrderId: '',
+      redirectUrl: '',
     };
 
     //const validate = await validateCheckout();
@@ -372,7 +374,7 @@ export const useCheckout = () => {
 
       // place order
       const checkoutInput = createCheckoutInput();
-      console.log('checkoutInput::', checkoutInput);
+     // console.log('checkoutInput::', checkoutInput);
 
       retval.success = false;
 
@@ -386,7 +388,9 @@ export const useCheckout = () => {
       const orderResult = await geinsClient.createOrder(checkoutInput);
       if (orderResult) {
         retval.success = true;
-        retval.orderId = orderResult.publicId;
+        retval.orderId = orderResult.orderId;
+        retval.publicOrderId = orderResult.publicId;
+        retval.redirectUrl = orderResult.redirectUrl;
       }
       console.log('orderResult::', orderResult);
     } catch (e) {

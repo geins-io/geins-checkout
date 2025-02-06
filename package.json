@@ -14,12 +14,15 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "lint": "eslint . --fix",
+    "link:geins": "yarn link @geins/core & yarn link @geins/oms & yarn link @geins/cms & yarn link @geins/crm & yarn link @geins/types & yarn link @geins/eslint-config",
+    "link:core": "yarn link @geins/core",
+    "link:oms": "yarn link @geins/oms",
     "docs": "vitepress dev docs --port 3010",
     "changelog:release": "changelogen --bump --release --push"
   },
   "dependencies": {
-    "@geins/core": "0.3.10-canary-041e5f03d0f47a30733c0c2fba70ccb3dba3e26b",
-    "@geins/oms": "0.3.10-canary-041e5f03d0f47a30733c0c2fba70ccb3dba3e26b",
+    "@geins/core": "0.3.10-canary-3e745f6b47a175a01f7ade95b4ac542dfd5327d0",
+    "@geins/oms": "0.3.10-canary-3e745f6b47a175a01f7ade95b4ac542dfd5327d0",
     "@nuxtjs/color-mode": "3.5.2",
     "@nuxtjs/i18n": "^8.3.1",
     "@nuxtjs/tailwindcss": "^6.12.0",
@@ -39,7 +42,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@geins/types": "0.3.10-canary-041e5f03d0f47a30733c0c2fba70ccb3dba3e26b",
+    "@geins/types": "0.3.10-canary-3e745f6b47a175a01f7ade95b4ac542dfd5327d0",
     "@nuxt/devtools": "^1.5.0",
     "@nuxt/eslint-config": "0.6.0",
     "@nuxt/test-utils": "^3.13.1",

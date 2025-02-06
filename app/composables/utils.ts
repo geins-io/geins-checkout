@@ -8,7 +8,7 @@ export function geinsObjectFromToken(token: string): any {
 
 export function geinsSettingsFromToken(token: string): GeinsSettings {
   const payload = geinsObjectFromToken(token);
-  console.log('PAYLOAD::', payload);
+  // console.log('PAYLOAD::', payload);
   return payload.geinsSettings;
 }
 

@@ -1,223 +1,208 @@
 // Mock implementation of Geins client
 import { GeinsCore, RuntimeContext } from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
-import type { CartType, GeinsSettings } from '@geins/types';
+import type { 
+  CartType, 
+  GeinsSettings,
+  PaymentOptionType,
+  ShippingOptionType,
+  CheckoutType,
+  CheckoutInputType,
+  GeinsUserType
+} from '@geins/types';
+import { markRaw } from 'vue';
+
+// Keep core instances outside the composable state
+let geinsCore: GeinsCore;
+let geinsOMS: GeinsOMS;
+
+interface State {
+  geinsSettings: GeinsSettings | null;
+  settings: Record<string, unknown> | null;
+  cartId: string;
+  cartObject: CartType | null;
+  paymentMethods: PaymentOptionType[];
+  shippingMethods: ShippingOptionType[];
+  user: GeinsUserType | null;
+  checkoutObject: CheckoutType | null;
+  orderSummary: unknown | null;
+  redirectUrls: {
+    success: string | null;
+    cancel: string | null;
+    change: string | null;
+    terms: string | null;
+    error: string | null;
+  };
+}
 
 export const useGeinsClient = () => {
-  let geinsSettings: GeinsSettings;
-  let geinsCore: GeinsCore;
-  let geinsOMS: GeinsOMS;
-  let settings: any;
-  let cartId: string;
-  let cartObject: CartType = {} as CartType;
-  let paymentMethods: any[] = [];
-  let shippingMethods: any[] = [];
-  let user: any;
-  let checkoutObject: any;
-  let orderSummary: any;
+  const state: State = {
+    geinsSettings: null,
+    settings: null,
+    cartId: '',
+    cartObject: null,
+    paymentMethods: [],
+    shippingMethods: [],
+    user: null,
+    checkoutObject: null,
+    orderSummary: null,
+  };
 
-  const setGeinsFromToken = (token: any) => {
-    initializFromToken(token);
+  const setGeinsFromToken = async (token: string): Promise<void> => {
+    await initializeFromToken(token);
+
+    if (!state.geinsSettings) {
+      throw new Error('Failed to initialize geinsSettings from token');
+    }
 
     // initialize Geins core
-    geinsCore = new GeinsCore(geinsSettings);
+    geinsCore = markRaw(new GeinsCore(state.geinsSettings));
     // initialize Geins OMS
-    geinsOMS = new GeinsOMS(geinsCore, {
+    geinsOMS = markRaw(new GeinsOMS(geinsCore, {
       omsSettings: { context: RuntimeContext.HYBRID },
-    });
+    }));
   };
 
-  const initializeSummary = async (token: string, orderId: string) => {
+  const initializeSummary = async (token: string, orderId: string): Promise<void> => {
     // set all the settings from the token
     await setGeinsFromToken(token);
-    //console.log('initializeSummary - token ::', token);
-    const order = await geinsOMS.order.get({ orderId: orderId });
-    orderSummary = order;
+    const order = await geinsOMS.order.get({ publicOrderId: orderId });
+    state.orderSummary = order;
   };
 
-  const initializeCheckout = async (token: string) => {
+  const initializeCheckout = async (token: string): Promise<void> => {
     // set all the settings from the token
     await setGeinsFromToken(token);
 
     // get the checkout
     const checkout = await geinsOMS.checkout.get({
-      cartId: cartId,
-      paymentMethodId: settings.paymentId,
-      shippingMethodId: settings.shippingId,
+      cartId: state.cartId,
+      paymentMethodId: state.settings?.paymentId as number | undefined,
+      shippingMethodId: state.settings?.shippingId as number | undefined,
     });
-    let checkoutObject = checkout;
 
     if (checkout) {
-      cartObject = checkout.cart;
-      paymentMethods = setPaymentMethods(checkout.paymentOptions);
-      shippingMethods = setShippingMethods(checkout.shippingOptions);
+      state.cartObject = checkout.cart || null;
+      state.paymentMethods = checkout.paymentOptions || [];
+      state.shippingMethods = checkout.shippingOptions || [];
     }
   };
 
-  const initializFromToken = async (token: string) => {
+  const initializeFromToken = async (token: string): Promise<void> => {
     const payload = GeinsCore.decodeJWT(token);
-    // console.log('useGeinsClient - initializFromToken ::  payload', payload);
-    cartId = payload.cartId;
-    geinsSettings = payload.geinsSettings;
-    user = payload.user;
-    settings = payload.settings;
+    
+    state.cartId = payload.cartId;
+    state.geinsSettings = payload.geinsSettings;
+    state.user = payload.user;
+    state.settings = payload.settings;
+    state.redirectUrls = payload.settings?.redirectUrls;
+    
   };
 
-  const createUpdateArgsFromState = (state: any) => {
-    let args = {
-      cartId: cartId,
-      paymentMethodId: state.selectedPaymentMethod,
-      shippingMethodId: state.selectedShippingMethod,
-    };
-    return args;
-  };
+  interface CheckoutState {
+    selectedPaymentMethod: number;
+    selectedShippingMethod: number;
+  }
 
-  const updateCheckout = async (checkoutState: any) => {
+  const createUpdateArgsFromState = (checkoutState: CheckoutState) => ({
+    cartId: state.cartId,
+    paymentMethodId: checkoutState.selectedPaymentMethod,
+    shippingMethodId: checkoutState.selectedShippingMethod,
+    checkoutUrls: {
+      termsPageUrl: state.settings?.redirectUrls?.terms ?? null,
+      redirectUrl: state.settings?.redirectUrls?.success ?? null,
+      checkoutPageUrl: state.settings?.redirectUrls?.change ?? null,
+    },
+  });
+
+  const updateCheckout = async (checkoutState: CheckoutState): Promise<void> => {
+    const vh : CheckoutInputType = {
+      cartId: state.cartId,
+      paymentMethodId: checkoutState.selectedPaymentMethod,
+      shippingMethodId: checkoutState.selectedShippingMethod,
+      // redirectUrls: state.redirectUrls,
+    }
     const args = createUpdateArgsFromState(checkoutState);
+    console.log('state::', state);
+    console.log('ARGS::', args);
     const checkout = await geinsOMS.checkout.get(args);
-    let checkoutObject = checkout;
+    console.log('checkout::', checkout);
 
-    // set cart
-    cartObject = checkout.cart;
+    if (checkout) {
+      // set cart
+      state.cartObject = checkout.cart || null;
 
-    // set payment and shipping
-    paymentMethods = setPaymentMethods(checkout.paymentOptions);
-    shippingMethods = setShippingMethods(checkout.shippingOptions);
+      // set payment and shipping
+      state.paymentMethods = setPaymentMethods(checkout.paymentOptions || []);
+      state.shippingMethods = setShippingMethods(checkout.shippingOptions || []);
+    }
   };
 
-  const setPaymentMethods = (methods: any[]) => {
-    if (!methods) {
-      return [];
-    }
+  const setPaymentMethods = (methods: PaymentOptionType[]): PaymentOptionType[] => {
+    if (!Array.isArray(methods) || methods.length === 0) return [];
+    if (!Array.isArray(state.settings?.paymentMethods) || state.settings.paymentMethods.length === 0) return methods;
 
-    if (!settings.paymentMethods || settings.paymentMethods.length === 0) {
-      return methods;
-    }
+    const returnMethods: PaymentOptionType[] = [];
+    const order = state.settings.paymentMethods as number[];
 
-    // set order from order of settings array and filter out the rest
-    const returnMethods = [];
-    const order = settings.paymentMethods;
-
-    for (let i = 0; i < order.length; i++) {
-      const method = methods.find((m) => m.id === order[i]);
-      if (method) {
-        returnMethods.push(method);
-      }
+    for (const methodId of order) {
+      const method = methods.find((m) => m.id === methodId);
+      if (method) returnMethods.push(method);
     }
     return returnMethods;
   };
 
-  const setShippingMethods = (methods: any[]) => {
-    if (!methods) {
-      return [];
-    }
+  const setShippingMethods = (methods: ShippingOptionType[]): ShippingOptionType[] => {
+    if (!Array.isArray(methods) || methods.length === 0) return [];
+    if (!Array.isArray(state.settings?.shippingMethods) || state.settings.shippingMethods.length === 0) return methods;
 
-    if (!settings.shippingMethods || settings.shippingMethods.length === 0) {
-      return methods;
-    }
+    const returnMethods: ShippingOptionType[] = [];
+    const order = state.settings.shippingMethods as number[];
 
-    // set order from order of settings array and filter out the rest
-    const returnMethods = [];
-    const order = settings.shippingMethods;
-
-    for (let i = 0; i < order.length; i++) {
-      const method = methods.find((m) => m.id === order[i]);
-      if (method) {
-        returnMethods.push(method);
-      }
+    for (const methodId of order) {
+      const method = methods.find((m) => m.id === methodId);
+      if (method) returnMethods.push(method);
     }
     return returnMethods;
   };
 
-  const getCheckout = async (paymentId?: any) => {
-    const args = { cartId: cartId, paymentProviderId: paymentId };
+  const getCheckout = async (paymentId?: number): Promise<CheckoutType> => {
+    const args = { cartId: state.cartId, paymentProviderId: paymentId };
+    console.log('state::', state);
+    console.log('ARGS::', args);
+
     const checkout = await geinsOMS.checkout.get(args);
 
-    // set cartObject, paymentMethods, and shippingMethods
-    cartObject = checkout.cart;
-    paymentMethods = checkout.paymentOptions;
-    shippingMethods = checkout.shippingOptions;
+    if (!checkout) {
+      throw new Error('Failed to get checkout');
+    }
+
+    state.cartObject = checkout.cart || null;
+    state.paymentMethods = checkout.paymentOptions || [];
+    state.shippingMethods = checkout.shippingOptions || [];
 
     return checkout;
   };
 
-  const getCart = async (): Promise<CartType | undefined> => {
-    if (!cartObject) {
-      return undefined;
-    }
-    return cartObject;
-  };
-
-  const getPaymentMethods = async () => {
-    return paymentMethods;
-  };
-
-  const getShippingMethods = async () => {
-    return shippingMethods;
-  };
-
-  const getSelectedShippingMethod = async () => {
-    return shippingMethods.find((method) => method.isSelected);
-  };
-
-  const getSelectedPaymentMethod = async () => {
-    return paymentMethods.find((method) => method.isSelected);
-  };
-
-  const getUser = async () => {
-    if (!user) {
-      undefined;
-    }
-    return user;
-  };
-
-  const validateCheckout = async (checkoutInput: any) => {
-    return true;
-  };
-
-  const createOrder = async (checkoutInput: any) => {
-    const result = await geinsOMS.order.create(checkoutInput);
-
-    // complete cart
-    //const completeCartResult = await geinsOMS.cart.complete();
-
-    return result;
-  };
-
-  const getBillingAddress = async () => {
-    if (!user) {
-      undefined;
-    }
-    return user.billingAddress;
-  };
-
-  const getShippingAddress = async () => {
-    if (!user) {
-      undefined;
-    }
-    return user.shippingAddress;
-  };
-
-  const getSummary = async () => {
-    // console.log('getSummary - orderSummary ::', orderSummary);
-    if (orderSummary) {
-      return orderSummary;
-    }
-  };
-
+  // Return only data, not functions in the main state
   return {
+    // Methods
     initializeSummary,
     initializeCheckout,
     getCheckout,
     updateCheckout,
-    getCart,
-    getUser,
-    getPaymentMethods,
-    getSelectedPaymentMethod,
-    getShippingMethods,
-    getSelectedShippingMethod,
-    validateCheckout,
-    createOrder,
-    getSummary,
+    // Getters that return current state values
+    getCart: () => state.cartObject,
+    getUser: () => state.user,
+    getPaymentMethods: () => state.paymentMethods,
+    getSelectedPaymentMethod: () => state.paymentMethods.find((method) => method.isSelected),
+    getShippingMethods: () => state.shippingMethods,
+    getSelectedShippingMethod: () => state.shippingMethods.find((method) => method.isSelected),
+    validateCheckout: async () => true,
+    createOrder: async (checkoutInput: { cartId: string; checkout: CheckoutInputType }) => {
+      const result = await geinsOMS.order.create(checkoutInput);
+      return result;
+    },
+    getSummary: () => state.orderSummary,
   };
 };

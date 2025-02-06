@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ExternalCheckout from '~/components/ExternalCheckout.vue';
 import Button from '~/components/ui/button/Button.vue';
-import Loading from '~/components/shared/icon/Loading.vue';
+//import Loading from '~/components/shared/icon/Loading.vue';
 import { ReloadIcon } from '@radix-icons/vue'
-
+const initialLoading = ref(true);
 
 const route = useRoute();
 const router = useRouter();
@@ -23,31 +23,25 @@ const {
 
 const token = route.params.token as string;
 const cart = computed(() => state.cart);
-const initialLoading = ref(true);
 
 // watch loading state
-watch(loading, (value) => {
-  console.log('loading', value == false)
+watch(loading, (value) => {  
   if (value === false) {
     initialLoading.value = false;
   }
-})
-
+});
 // Initialize checkout with token from URL
-onMounted(async () => {
+onMounted(async () => {  
   if (!token) {
     router.push('/')
     return
   }
   await initializeCheckout(token);
-
-})
-
-
-
+});
 
 const handleCheckout = async () => {
   const result = await completeCheckout();
+  console.log(result);
 
   if (result?.success) {
     // Store order details in localStorage before redirecting
@@ -63,19 +57,14 @@ const handleCheckout = async () => {
       shippingMethod: selectedShippingMethod
     }
 
-    localStorage.setItem(`order-${result.orderId}`, JSON.stringify(orderDetails))
-    router.push(`/v0/${token}/thank-you/${result.orderId}`);
+    //localStorage.setItem(`order-${result.orderId}`, JSON.stringify(orderDetails))
+    // router.push(`/v0/${token}/thank-you/${result.orderId}`);
   }
-
-  /*  const result = await completeCheckout()
-   if (result?.success && 'orderId' in result) {
-     router.push(`v0/${token}/thank-you/${result.orderId}`);
-   } */
 }
 
 </script>
 <template>
-  <div v-if="initialLoading" class="min-h-screen bg-gray-50">
+  <div v-if="false" class="min-h-screen bg-gray-50">
     <div class="flex min-h-screen items-center justify-center">
       <loading class="w-4 h-4 mr-2" />
       <p>Loading Checkout</p>
