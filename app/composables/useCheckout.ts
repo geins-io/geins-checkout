@@ -69,48 +69,28 @@ export const useCheckout = () => {
   };
 
   const initializeSummary = async (token: string, orderId: string) => {
+    let summary = null;
     try {
       loading.value = true;
-      await geinsClient.initializeSummary(token, orderId);
+      summary = await geinsClient.initializeSummary(token, orderId);
     } catch (e) {
       error.value = 'Failed to initialize checkout';
       console.error(e);
     } finally {
       loading.value = false;
     }
+    return summary;
   };
 
   const getSummary = async () => {
     const orderSummary = await geinsClient.getSummary();
-    console.log('getSummary::', orderSummary);
+    // console.log('getSummary::', orderSummary);
 
     const summary = {
       cart: orderSummary.cart,
     };
 
     return summary;
-
-    /*
-    try {
-      loading.value = true;
-      console.log('getSummary::', publicOrderId);
-      const summary = await geinsClient.getSummary(publicOrderId);
-      if (summary) {
-        state.cart = summary.cart;
-        state.billingAddress = summary.billingAddress;
-        state.shippingAddress = summary.shippingAddress;
-        state.selectedPaymentMethod = summary.selectedPaymentMethod;
-        state.selectedShippingMethod = summary.selectedShippingMethod;
-        state.showCompleteButton = summary.showCompleteButton;
-        state.disableCompleteButton = summary.disableCompleteButton;
-        state.externalCheckoutHTML = summary.externalCheckoutHTML;
-      }
-    } catch (e) {
-      error.value = 'Failed to get summary';
-      console.error(e);
-    } finally {
-      loading.value = false;
-    } */
   };
 
   const createAddressInputType = (address: Address): AddressInputType => {
@@ -173,8 +153,13 @@ export const useCheckout = () => {
     }
   };
 
-  const setExternalCheckout = async (html: string) => {
-    if (html.includes('avarda')) {
+  const setExternalCheckout = async (paymentMethod: any) => {
+    if (paymentMethod.paymentData === null) {
+      return;
+    }
+    let html = paymentMethod.paymentData;
+
+    if (paymentMethod.paymentType) {
       html =
         `<script src="https:/stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>` +
         html;
@@ -253,7 +238,10 @@ export const useCheckout = () => {
 
       // update
       if (reload) {
-        await geinsClient.updateCheckout(state);
+        await geinsClient.updateCheckout({
+          paymentMethodId: state.selectedPaymentMethod,
+          shippingMethodId: state.selectedShippingMethod,
+        });
       }
 
       // set cart
@@ -279,7 +267,7 @@ export const useCheckout = () => {
         if (selectedPaymentMethod.paymentData) {
           state.showCompleteButton = false;
           state.disableCompleteButton = true;
-          setExternalCheckout(selectedPaymentMethod.paymentData);
+          setExternalCheckout(selectedPaymentMethod);
         }
       }
 
@@ -309,7 +297,7 @@ export const useCheckout = () => {
       error.value = 'Please fill in all billing address fields';
       return false;
     }
-    console.log('billingAddress::', billingAddress);
+    // console.log('billingAddress::', billingAddress);
 
     const shippingAddress = createAddressInputType(state.shippingAddress);
 
@@ -337,14 +325,16 @@ export const useCheckout = () => {
     };
   };
 
+  // place order
   const completeCheckout = async () => {
     const retval = {
       success: false,
       orderId: '',
+      publicOrderId: '',
+      redirectUrl: '',
     };
 
     //const validate = await validateCheckout();
-
     //console.log('completeCheckout::', validate);
 
     try {
@@ -372,31 +362,43 @@ export const useCheckout = () => {
 
       // place order
       const checkoutInput = createCheckoutInput();
-      console.log('checkoutInput::', checkoutInput);
-
+      // console.log('checkoutInput::', checkoutInput);
       retval.success = false;
-
       loading.value = true;
       const valid = await geinsClient.validateCheckout(checkoutInput);
       if (!valid) {
         error.value = 'Failed to validate checkout';
         return { success: false };
       }
-
       const orderResult = await geinsClient.createOrder(checkoutInput);
       if (orderResult) {
         retval.success = true;
-        retval.orderId = orderResult.publicId;
+        retval.orderId = orderResult.orderId;
+        retval.publicOrderId = orderResult.publicId;
       }
-      console.log('orderResult::', orderResult);
+      //retval.redirectUrl = await getRedirectUrl(retval);
     } catch (e) {
       error.value = 'Failed to complete checkout';
       console.error(e);
-      return { success: false };
+      retval.redirectUrl = await getRedirectUrl({ success: false });
     } finally {
       loading.value = false;
     }
     return retval;
+  };
+
+  const getRedirectUrl = async (orderResult: any) => {
+    const redirectUrls = await geinsClient.getRedirectUrls();
+    if (orderResult.success) {
+      if (redirectUrls.success) {
+        return `${redirectUrls.success}?order=${orderResult.publicOrderId}`;
+      }
+    } else {
+      if (redirectUrls.error) {
+        return `${redirectUrls.error}`;
+      }
+    }
+    return undefined;
   };
 
   return {
@@ -414,5 +416,7 @@ export const useCheckout = () => {
     isExternalCheckout,
     initializeSummary,
     getSummary,
+    getSettings: () => geinsClient.getSettings(),
+    getRedirectUrls: () => geinsClient.getRedirectUrls(),
   };
 };
