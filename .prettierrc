@@ -8,4 +8,5 @@
   "endOfLine": "auto",
   "singleQuote": true,
   "semi": true,
+  "printWidth": 300
 }

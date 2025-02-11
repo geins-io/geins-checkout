@@ -1,5 +1,3 @@
-
-
 const nitroPreset = {
   nitro: {
     preset: process.env.NITRO_PRESET,
@@ -43,5 +41,5 @@ export default defineNuxtConfig({
 
   ...(process.env.NITRO_PRESET ? nitroPreset : {}),
 
-  compatibilityDate: '2025-01-01',
+  compatibilityDate: '2025-02-11',
 });

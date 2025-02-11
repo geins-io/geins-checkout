@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, reactive, computed } from 'vue';
 import type { Address, PaymentMethod, ShippingMethod } from '#shared/types';
 
@@ -20,8 +21,8 @@ export const useCheckout = () => {
   const loading = ref(false);
   const error = ref('');
   const useShippingAddress = ref(false);
-  const paymentMethods = ref<PaymentMethod[]>([]);
-  const shippingMethods = ref<ShippingMethod[]>([]);
+  const paymentMethods = ref<any[]>([]);
+  const shippingMethods = ref<any[]>([]);
 
   const state = reactive<{
     cart: CartType | null;
@@ -43,9 +44,7 @@ export const useCheckout = () => {
     externalCheckoutHTML: '',
   });
 
-  const isExternalCheckout = computed(
-    () => state.externalCheckoutHTML.length > 0,
-  );
+  const isExternalCheckout = computed(() => state.externalCheckoutHTML.length > 0);
 
   const initializeCheckout = async (token: string) => {
     try {
@@ -64,31 +63,6 @@ export const useCheckout = () => {
     } finally {
       loading.value = false;
     }
-  };
-
-  const initializeSummary = async (token: string, orderId: string) => {
-    let summary = null;
-    try {
-      loading.value = true;
-      summary = await geinsClient.initializeSummary(token, orderId);
-    } catch (e) {
-      error.value = 'Failed to initialize checkout';
-      console.error(e);
-    } finally {
-      loading.value = false;
-    }
-    return summary;
-  };
-
-  const getSummary = async () => {
-    const orderSummary = await geinsClient.getSummary();
-    // console.log('getSummary::', orderSummary);
-
-    const summary = {
-      cart: orderSummary.cart,
-    };
-
-    return summary;
   };
 
   const createAddressInputType = (address: Address): AddressInputType => {
@@ -129,10 +103,7 @@ export const useCheckout = () => {
     }
   };
 
-  const updateAddress = async (
-    type: 'billing' | 'shipping',
-    address: Address,
-  ) => {
+  const updateAddress = async (type: 'billing' | 'shipping', address: Address) => {
     try {
       loading.value = true;
       if (type === 'billing') {
@@ -152,15 +123,17 @@ export const useCheckout = () => {
   };
 
   const setExternalCheckout = async (paymentMethod: any) => {
+    //console.log('🚀 ~ useCheckout.ts:164 ~ setExternalCheckout ~ paymentMethod:', paymentMethod);
+
     if (paymentMethod.paymentData === null) {
       return;
     }
     let html = paymentMethod.paymentData;
 
-    if (paymentMethod.paymentType) {
-      html =
-        `<script src="https:/stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>` +
-        html;
+    //console.log('🚀 ~ setExternalCheckout ~ paymentMethod:', paymentMethod);
+
+    if (paymentMethod.paymentType === 'AVARDA') {
+      html = `<script src="https:/stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>` + html;
     }
 
     shippingMethods.value = [];
@@ -168,7 +141,6 @@ export const useCheckout = () => {
     state.showCompleteButton = false;
     state.disableCompleteButton = true;
 
-    // console.log('html::', html);
     // Wait for Vue to update the DOM
     await nextTick();
 
@@ -251,16 +223,14 @@ export const useCheckout = () => {
 
       // shipping methods
       shippingMethods.value = await geinsClient.getShippingMethods();
-      const selectedShippingMethod =
-        await geinsClient.getSelectedShippingMethod();
+      const selectedShippingMethod = await geinsClient.getSelectedShippingMethod();
       if (selectedShippingMethod) {
         state.selectedShippingMethod = Number(selectedShippingMethod.id);
       }
 
       // paymenent methods
       paymentMethods.value = await geinsClient.getPaymentMethods();
-      const selectedPaymentMethod =
-        await geinsClient.getSelectedPaymentMethod();
+      const selectedPaymentMethod = await geinsClient.getSelectedPaymentMethod();
       if (selectedPaymentMethod) {
         state.selectedPaymentMethod = Number(selectedPaymentMethod.id);
         if (selectedPaymentMethod.paymentData) {
@@ -285,14 +255,7 @@ export const useCheckout = () => {
 
     const billingAddress = createAddressInputType(state.billingAddress);
     // validate billing address all fields must have a length over 1
-    if (
-      billingAddress.firstName.length === 0 ||
-      billingAddress.lastName.length === 0 ||
-      billingAddress.addressLine1.length === 0 ||
-      billingAddress.city.length === 0 ||
-      billingAddress.zip.length === 0 ||
-      billingAddress.country.length === 0
-    ) {
+    if (billingAddress.firstName.length === 0 || billingAddress.lastName.length === 0 || billingAddress.addressLine1.length === 0 || billingAddress.city.length === 0 || billingAddress.zip.length === 0 || billingAddress.country.length === 0) {
       error.value = 'Please fill in all billing address fields';
       return false;
     }
@@ -315,9 +278,7 @@ export const useCheckout = () => {
         paymentId: state.selectedPaymentMethod,
         billingAddress: createAddressInputType(state.billingAddress),
         acceptedConsents: ['order'],
-        shippingAddress: useShippingAddress.value
-          ? createAddressInputType(state.shippingAddress)
-          : createAddressInputType(state.billingAddress),
+        shippingAddress: useShippingAddress.value ? createAddressInputType(state.shippingAddress) : createAddressInputType(state.billingAddress),
         merchantData: '{"extraData":"","extraNumber":1}', //'JSON.stringify(merchantData)',
         message: 'hello',
       },
@@ -347,14 +308,7 @@ export const useCheckout = () => {
       const billingAddress = createAddressInputType(state.billingAddress);
       const shippingAddress = createAddressInputType(state.shippingAddress);
 
-      if (
-        billingAddress.firstName.length === 0 ||
-        billingAddress.firstName.length === 0 ||
-        billingAddress.addressLine1.length === 0 ||
-        billingAddress.city.length === 0 ||
-        billingAddress.zip.length === 0 ||
-        billingAddress.country.length === 0
-      ) {
+      if (billingAddress.firstName.length === 0 || billingAddress.firstName.length === 0 || billingAddress.addressLine1.length === 0 || billingAddress.city.length === 0 || billingAddress.zip.length === 0 || billingAddress.country.length === 0) {
         error.value = 'Please fill in all billing address fields';
         return { success: false };
       }
@@ -414,8 +368,6 @@ export const useCheckout = () => {
     selectShippingMethod,
     completeCheckout,
     isExternalCheckout,
-    initializeSummary,
-    getSummary,
     getSettings: () => geinsClient.getSettings(),
     getRedirectUrls: () => geinsClient.getRedirectUrls(),
   };

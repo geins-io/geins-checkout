@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import type {
-  Address,
-  Cart,
-  PaymentMethod,
-  ShippingMethod,
-} from '@/shared/types/checkout';
+import type { Address, Cart, PaymentMethod, ShippingMethod } from '@/shared/types/checkout';
 
 const { initializeSummary } = useCheckout();
 
@@ -24,6 +19,7 @@ const route = useRoute();
 const router = useRouter();
 const token = route.params.token as string;
 const orderId = route.params.orderId as string;
+const querystrings = route.query;
 
 const cart = computed(() => orderDetails.value?.cart);
 
@@ -33,30 +29,30 @@ onMounted(async () => {
     return;
   }
   if (!orderId) {
-    //router.push('/');
+    router.push('/');
     return;
   }
 
   // TODO:: complete checkout
-  const summary = await initializeSummary(token, orderId);
+  const summary = await initializeSummary(token, orderId, querystrings);
 
   orderDetails.value = {
     orderId,
-    cart: summary.cart,
-    billingAddress: summary.billingAddress,
-    shippingAddress: summary.shippingAddress,
+    cart: summary?.cart,
+    billingAddress: summary?.billingAddress,
+    shippingAddress: summary?.shippingAddress,
     paymentMethod: {
-      displayName: summary.paymentDetails[0]?.displayName || '',
+      displayName: summary?.paymentDetails[0]?.displayName || '',
       logoUrl: '',
     },
     shippingMethod: {
-      displayName: summary.shippingDetails[0]?.name || '',
+      displayName: summary?.shippingDetails[0]?.name || '',
       logoUrl: '',
       shippingData: {
         estimatedDays: '',
       },
     },
-    status: summary.status,
+    status: summary?.status,
   };
 });
 </script>
@@ -70,9 +66,7 @@ onMounted(async () => {
           <div class="flex items-center justify-center">
             <div class="text-center">
               <h1 class="text-3xl font-bold">Thank you for your order!</h1>
-              <p class="mt-2 text-blue-100">
-                Order #{{ orderDetails?.orderId }}
-              </p>
+              <p class="mt-2 text-blue-100">Order #{{ orderDetails?.orderId }}</p>
             </div>
           </div>
         </div>
@@ -81,9 +75,9 @@ onMounted(async () => {
           <!-- Order Status -->
           <div class="mb-8">
             <h2 class="mb-2 text-lg font-semibold">Order Status</h2>
-            <p class="text-gray-600">
-              Status: {{ orderDetails?.status || 'Processing' }}
-            </p>
+            <p class="text-gray-600">Status: {{ orderDetails?.status || 'Processing' }}</p>
+            <h1>CR Action: {{ orderId }}</h1>
+            <p v-for="(value, key) in querystrings" :key="key">{{ key }}: {{ value }}</p>
           </div>
 
           <!-- Addresses -->
@@ -153,12 +147,7 @@ onMounted(async () => {
               <h2 class="mb-2 text-lg font-semibold">Payment Method</h2>
               <div class="rounded-lg border p-4">
                 <div class="flex items-center">
-                  <img
-                    v-if="orderDetails?.paymentMethod?.logoUrl"
-                    :src="orderDetails?.paymentMethod?.logoUrl"
-                    :alt="orderDetails?.paymentMethod?.displayName"
-                    class="mr-3 h-8 w-auto"
-                  />
+                  <img v-if="orderDetails?.paymentMethod?.logoUrl" :src="orderDetails?.paymentMethod?.logoUrl" :alt="orderDetails?.paymentMethod?.displayName" class="mr-3 h-8 w-auto" />
                   <span>{{ orderDetails?.paymentMethod?.displayName }}</span>
                 </div>
               </div>
@@ -168,12 +157,7 @@ onMounted(async () => {
               <h2 class="mb-2 text-lg font-semibold">Shipping Method</h2>
               <div class="rounded-lg border p-4">
                 <div class="flex items-center">
-                  <img
-                    v-if="orderDetails?.shippingMethod?.logoUrl"
-                    :src="orderDetails?.shippingMethod?.logoUrl"
-                    :alt="orderDetails?.shippingMethod?.displayName"
-                    class="mr-3 h-8 w-auto"
-                  />
+                  <img v-if="orderDetails?.shippingMethod?.logoUrl" :src="orderDetails?.shippingMethod?.logoUrl" :alt="orderDetails?.shippingMethod?.displayName" class="mr-3 h-8 w-auto" />
                   <div>
                     <p>{{ orderDetails?.shippingMethod?.displayName }}</p>
                   </div>
@@ -184,12 +168,7 @@ onMounted(async () => {
 
           <!-- Back to Home -->
           <div class="mt-8 text-center">
-            <NuxtLink
-              to="/"
-              class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              Continue Shopping
-            </NuxtLink>
+            <NuxtLink to="/" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"> Continue Shopping </NuxtLink>
           </div>
         </div>
       </div>
