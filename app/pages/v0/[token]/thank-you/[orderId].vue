@@ -24,6 +24,7 @@ const route = useRoute();
 const router = useRouter();
 const token = route.params.token as string;
 const orderId = route.params.orderId as string;
+
 const cart = computed(() => orderDetails.value?.cart);
 
 onMounted(async () => {
@@ -32,10 +33,11 @@ onMounted(async () => {
     return;
   }
   if (!orderId) {
-    router.push('/');
+    //router.push('/');
     return;
   }
 
+  // TODO:: complete checkout
   const summary = await initializeSummary(token, orderId);
 
   orderDetails.value = {

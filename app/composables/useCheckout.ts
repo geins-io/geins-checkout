@@ -42,6 +42,7 @@ export const useCheckout = () => {
     disableCompleteButton: false,
     externalCheckoutHTML: '',
   });
+
   const isExternalCheckout = computed(
     () => state.externalCheckoutHTML.length > 0,
   );
@@ -49,15 +50,12 @@ export const useCheckout = () => {
   const initializeCheckout = async (token: string) => {
     try {
       loading.value = true;
-
       await geinsClient.initializeCheckout(token);
-
       // if user is logged in, load user data
       const user = await geinsClient.getUser();
       if (user) {
         await loadUser(user);
       }
-
       // run update checkout with current client data
       updateCheckout(false);
     } catch (e) {
@@ -238,6 +236,7 @@ export const useCheckout = () => {
 
       // update
       if (reload) {
+        //console.log('updateCheckout::', state.selectedPaymentMethod);
         await geinsClient.updateCheckout({
           paymentMethodId: state.selectedPaymentMethod,
           shippingMethodId: state.selectedShippingMethod,
@@ -388,6 +387,7 @@ export const useCheckout = () => {
   };
 
   const getRedirectUrl = async (orderResult: any) => {
+    // console.log('getRedirectUrl::', orderResult);
     const redirectUrls = await geinsClient.getRedirectUrls();
     if (orderResult.success) {
       if (redirectUrls.success) {
