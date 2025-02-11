@@ -1,5 +1,10 @@
-// Mock implementation of Geins client
-import { GeinsCore, RuntimeContext } from '@geins/core';
+import { markRaw } from 'vue';
+import {
+  GeinsCore,
+  RuntimeContext,
+  CHECKOUT_PARAMETER,
+  extractParametersFromUrl,
+} from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
 import type {
   CartType,
@@ -14,13 +19,47 @@ import type {
   CheckoutRedirectsType,
   CheckoutStyleType,
 } from '@geins/types';
-import { markRaw } from 'vue';
+
+interface OrderSummary {
+  cart: CartType;
+  billingAddress: {
+    firstName: string;
+    lastName: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    zip: string;
+    country: string;
+    mobile?: string;
+    phone?: string;
+  };
+  shippingAddress: {
+    firstName: string;
+    lastName: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    zip: string;
+    country: string;
+    mobile?: string;
+    phone?: string;
+  };
+  paymentDetails: Array<{
+    displayName: string;
+  }>;
+  shippingDetails: Array<{
+    name: string;
+  }>;
+  status: string;
+}
+const CHECKOUT_URL = 'https://checkout-qa.geins.services';
 
 // Keep core instances outside the composable state
 let geinsCore: GeinsCore;
 let geinsOMS: GeinsOMS;
 
 interface State {
+  token: string;
   styles: CheckoutStyleType | undefined;
   geinsSettings: GeinsSettings | null;
   settings: Record<string, unknown> | null;
@@ -36,6 +75,7 @@ interface State {
 
 export const useGeinsClient = () => {
   const state: State = {
+    token: '',
     styles: undefined,
     geinsSettings: null,
     settings: null,
@@ -51,14 +91,15 @@ export const useGeinsClient = () => {
 
   const initializeStateFromToken = async (token: string): Promise<void> => {
     const payload = GeinsCore.decodeJWT(token) as CheckoutTokenPayload;
+    // console.log('initializeStateFromToken', payload);
 
     state.styles = payload.checkoutSettings.style;
     state.cartId = payload.cartId;
     state.geinsSettings = payload.geinsSettings;
     state.user = payload.user;
     state.settings = payload.checkoutSettings;
-
     state.redirectUrls = payload.checkoutSettings?.redirectUrls;
+    state.token = token;
   };
 
   const setGeinsFromToken = async (token: string): Promise<void> => {
@@ -81,9 +122,10 @@ export const useGeinsClient = () => {
   const initializeSummary = async (
     token: string,
     orderId: string,
-  ): Promise<any> => {
+  ): Promise<OrderSummary> => {
     // set all the settings from the token
     await setGeinsFromToken(token);
+    // GeinsMerchantApiQuery.checkout(
     const order = await geinsOMS.order.get({ publicOrderId: orderId });
     state.orderSummary = order;
     return order;
@@ -92,6 +134,8 @@ export const useGeinsClient = () => {
   const initializeCheckout = async (token: string): Promise<void> => {
     // set all the settings from the token
     await setGeinsFromToken(token);
+    // get the checkout
+    //console.log('initializeCheckout');
     const checkout = await getCheckout();
 
     if (checkout) {
@@ -136,17 +180,16 @@ export const useGeinsClient = () => {
         shippingMethodId = options.shippingMethodId;
       }
     }
+    // console.log('CLIENT getCheckout() - paymentMethodId', paymentMethodId);
 
+    const checkoutUrls = getCheckouUrls(paymentMethodId ?? 0);
+    // console.log('CLIENT getCheckout() - checkoutUrls', checkoutUrls);
     const args = {
       cartId: state.cartId,
       paymentMethodId,
       shippingMethodId,
       checkout: {
-        checkoutUrls: {
-          termsPageUrl: state.redirectUrls?.terms ?? null,
-          redirectUrl: state.redirectUrls?.success ?? null,
-          checkoutPageUrl: state.redirectUrls?.change ?? null,
-        } as CheckoutUrlsInputType,
+        checkoutUrls,
       } as CheckoutInputType,
     };
 
@@ -155,6 +198,61 @@ export const useGeinsClient = () => {
       throw new Error('Failed to get checkout');
     }
     return checkout;
+  };
+
+  const getCheckouUrls = (
+    paymentMethodId: number,
+  ): CheckoutUrlsInputType | undefined => {
+    const urls = {} as CheckoutUrlsInputType;
+    // console.log('CLIENT getCheckouUrls() - paymentMethod', paymentMethodId);
+    if (paymentMethodId === 0) {
+      throw new Error('Payment method ID is required.');
+    }
+
+    // add success if any
+    if (state.redirectUrls?.success) {
+      // Use the success URL directly without adding parameters again
+      urls.redirectUrl = state.redirectUrls.success;
+    } else {
+      urls.redirectUrl = `${CHECKOUT_URL}/v0/${state.token}/thank-you/{payment.uid}`;
+    }
+    urls.redirectUrl = updateCheckoutUrlWithParameters({
+      url: urls.redirectUrl,
+      paymentMethodId,
+    });
+
+    // add change / cancel if any
+    if (state.redirectUrls?.change) {
+      urls.checkoutPageUrl = state.redirectUrls.change;
+    }
+
+    // add terms if any
+    if (state.redirectUrls?.terms) {
+      urls.termsPageUrl = state.redirectUrls.terms;
+    }
+
+    return urls;
+  };
+
+  const updateCheckoutUrlWithParameters = (args: {
+    url: string;
+    paymentMethodId: number;
+  }): string => {
+    const { url, params } = extractParametersFromUrl(args.url);
+    const parameters =
+      geinsOMS.checkout.generateExternalCheckoutUrlParameters(params);
+    if (!parameters) {
+      return url;
+    }
+    const queryParams = Array.from(parameters.entries())
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
+    let newUrl = `${url}?${queryParams}`;
+    newUrl = newUrl.replace(
+      '{geins.paymentMethodId}',
+      args.paymentMethodId.toString(),
+    );
+    return newUrl;
   };
 
   const setPaymentMethods = (
