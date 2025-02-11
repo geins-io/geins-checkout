@@ -42,6 +42,8 @@ export const useSummary = () => {
 
   const initializeSummary = async (token: string, orderId: string, paymentdata: CheckoutQueryParameters) => {
     let summary: OrderSummary | null = null;
+
+    /*  
     try {
       loading.value = true;
       summary = await geinsClient.initializeSummary(token, orderId, paymentdata);
@@ -51,7 +53,7 @@ export const useSummary = () => {
       console.error(e);
     } finally {
       loading.value = false;
-    }
+    } */
     return summary;
   };
 

@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router';
 import type { Address, Cart, PaymentMethod, ShippingMethod } from '@/shared/types/checkout';
 
-const { initializeSummary } = useCheckout();
+const { initializeSummary } = useSummary();
 
 interface OrderDetails {
   orderId: string;
@@ -28,14 +28,13 @@ onMounted(async () => {
     router.push('/');
     return;
   }
+
   if (!orderId) {
     router.push('/');
     return;
   }
 
-  // TODO:: complete checkout
   const summary = await initializeSummary(token, orderId, querystrings);
-
   orderDetails.value = {
     orderId,
     cart: summary?.cart,
