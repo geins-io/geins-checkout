@@ -15,9 +15,8 @@ const defaultAddress: Address = {
   postalCode: '',
   country: '',
 };
-
+const geinsClient = useGeinsClient();
 export const useCheckout = () => {
-  const geinsClient = useGeinsClient();
   const loading = ref(false);
   const error = ref('');
   const useShippingAddress = ref(false);

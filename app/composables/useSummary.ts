@@ -1,21 +1,17 @@
-export const useCheckout = () => {
-  const geinsClient = useGeinsClient();
+import { ref } from 'vue';
+import type { PaymentOptionType } from '@geins/types';
+
+const geinsClient = useGeinsClient();
+
+export const useSummary = () => {
   const loading = ref(false);
   const error = ref('');
 
-  const initializeSummary = async (
-    token: string,
-    orderId: string,
-    paymentdata: any,
-  ) => {
+  const initializeSummary = async (token: string, orderId: string, paymentdata: PaymentOptionType) => {
     let summary = null;
     try {
       loading.value = true;
-      summary = await geinsClient.initializeSummary(
-        token,
-        orderId,
-        paymentdata,
-      );
+      summary = await geinsClient.initializeSummary(token, orderId, paymentdata);
       console.log('initializeSummary::', summary);
     } catch (e) {
       error.value = 'Failed to initialize summary';
