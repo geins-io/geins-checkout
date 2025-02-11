@@ -132,7 +132,7 @@ export const useCheckout = () => {
     //console.log('🚀 ~ setExternalCheckout ~ paymentMethod:', paymentMethod);
 
     if (paymentMethod.paymentType === 'AVARDA') {
-      html = `<script src="https:/stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>` + html;
+      html = `<script src="https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>` + html;
     }
 
     shippingMethods.value = [];
