@@ -46,6 +46,7 @@ onMounted(async () => {
       // build <style> tag for custom CSS rules
       const styleTag = document.createElement('style');
       styleTag.innerHTML = state.css;
+      //console.log(state.css);
       document.head.appendChild(styleTag);
     }
   });

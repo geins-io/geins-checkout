@@ -84,7 +84,6 @@ export const useGeinsClient = () => {
     state.settings = payload.checkoutSettings;
     state.redirectUrls = payload.checkoutSettings?.redirectUrls;
     state.token = token;
-    console.log('initializeStateFromToken', state);
   };
 
   const setGeinsFromToken = async (token: string): Promise<void> => {
@@ -108,7 +107,6 @@ export const useGeinsClient = () => {
     // set all the settings from the token
     await setGeinsFromToken(token);
     // GeinsMerchantApiQuery.checkout(§
-    console.log('initializeSummary payementData', paymentdata);
 
     const order = await getSummary(orderId, paymentdata);
 
@@ -119,7 +117,6 @@ export const useGeinsClient = () => {
     // set all the settings from the token
     await setGeinsFromToken(token);
     const checkout = await getCheckout({ paymentMethodId: state.settings?.selectedPaymentMethodId as number });
-    console.log('initializeCheckout() - checkout', checkout);
     if (checkout) {
       state.cartObject = checkout.cart || null;
       state.paymentMethods = setPaymentMethods(checkout.paymentOptions || []);

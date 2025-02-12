@@ -27,14 +27,20 @@ export const useCheckoutStyling = () => {
     const classes = [];
 
     if (style?.cards) {
-      const cardClass = buildClass('card', style?.cards);
-      classes.push(cardClass);
+      const cardClass = buildClass('class', 'card', style?.cards);
+      if (cardClass) {
+        classes.push(cardClass);
+      }
     }
-    // build css
-
+    if (style?.buttons) {
+      const buttonClass = buildClass('elemnet', 'button', style?.buttons);
+      if (buttonClass) {
+        classes.push(buttonClass);
+      }
+    }
     state.css = classes.join('\n');
   };
-  const buildClass = (className: string, styleObject: unknown) => {
+  const buildClass = (type: string, name: string, styleObject: unknown) => {
     const styles = [];
     for (const [key, value] of Object.entries(styleObject)) {
       console.log('key', key, value);
@@ -47,8 +53,9 @@ export const useCheckoutStyling = () => {
       }
       styles.push(`${cssKey.name}: ${value}${cssKey.unit} !important`);
     }
+    const prefix = type === 'class' ? '.' : '';
 
-    return `.${className} {${styles.join(';')}}`;
+    return styles.length > 0 ? `${prefix}${name} {${styles.join(';')}}` : undefined;
   };
 
   return {
