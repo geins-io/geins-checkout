@@ -119,6 +119,7 @@ export const useGeinsClient = () => {
     // set all the settings from the token
     await setGeinsFromToken(token);
     const checkout = await getCheckout({ paymentMethodId: state.settings?.selectedPaymentMethodId as number });
+    console.log('initializeCheckout() - checkout', checkout);
     if (checkout) {
       state.cartObject = checkout.cart || null;
       state.paymentMethods = setPaymentMethods(checkout.paymentOptions || []);
@@ -229,24 +230,24 @@ export const useGeinsClient = () => {
 
   const setPaymentMethods = (methods: PaymentOptionType[]): PaymentOptionType[] => {
     if (!Array.isArray(methods) || methods.length === 0) return [];
-    if (!Array.isArray(state.settings?.paymentMethods) || state.settings.paymentMethods.length === 0) return methods;
-
+    if (!Array.isArray(state.settings?.availablePaymentMethodIds) || state.settings.availablePaymentMethodIds.length === 0) return methods;
     const returnMethods: PaymentOptionType[] = [];
-    const order = state.settings.paymentMethods as number[];
+    const order = state.settings.availablePaymentMethodIds as number[];
 
     for (const methodId of order) {
       const method = methods.find((m) => m.id === methodId);
       if (method) returnMethods.push(method);
     }
+
     return returnMethods;
   };
 
   const setShippingMethods = (methods: ShippingOptionType[]): ShippingOptionType[] => {
     if (!Array.isArray(methods) || methods.length === 0) return [];
-    if (!Array.isArray(state.settings?.shippingMethods) || state.settings.shippingMethods.length === 0) return methods;
+    if (!Array.isArray(state.settings?.availableShippingMethodIds) || state.settings.availableShippingMethodIds.length === 0) return methods;
 
     const returnMethods: ShippingOptionType[] = [];
-    const order = state.settings.shippingMethods as number[];
+    const order = state.settings.availableShippingMethodIds as number[];
 
     for (const methodId of order) {
       const method = methods.find((m) => m.id === methodId);
