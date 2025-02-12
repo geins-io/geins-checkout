@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute();
 
-const { state, initialize } = useCheckoutStyling();
+const { state, initialize, topbarVisible, topbarTitle } = useCheckoutStyling();
 
 onMounted(async () => {
   watchEffect(async () => {
@@ -14,40 +14,7 @@ onMounted(async () => {
       if (!token) {
         return;
       }
-      // Initialize your styling service
       await initialize(token);
-
-      // page background color
-      const bgColor = state.style.backgroundColor;
-      if (bgColor && typeof bgColor === 'string') {
-        document.body.style.backgroundColor = bgColor;
-      } else {
-        document.body.style.backgroundColor = '';
-      }
-
-      // header background color
-      const header = document.querySelector('header');
-      if (header) {
-        const headerColor = state.style?.topbar?.backgroundColor;
-
-        if (headerColor && typeof headerColor === 'string') {
-          header.style.backgroundColor = headerColor;
-        } else {
-          header.style.backgroundColor = '';
-        }
-        const headerTextColor = state.style?.topbar?.textColor;
-        if (headerTextColor && typeof headerTextColor === 'string') {
-          header.style.color = headerTextColor;
-        } else {
-          header.style.color = '';
-        }
-      }
-
-      // build <style> tag for custom CSS rules
-      const styleTag = document.createElement('style');
-      styleTag.innerHTML = state.css;
-      //console.log(state.css);
-      document.head.appendChild(styleTag);
     }
   });
 });
@@ -55,12 +22,11 @@ onMounted(async () => {
 
 <template>
   <div>
-    <header class="border-b bg-white shadow-sm">
+    <header class="header border-b shadow-sm" v-if="topbarVisible()">
       <div class="mx-auto max-w-4xl px-6 py-4">
-        <h1 class="text-center text-xl font-bold">{{ state?.style?.title }}</h1>
+        <h1 class="text-center text-xl font-bold">{{ topbarTitle() }}</h1>
       </div>
     </header>
     <slot />
   </div>
 </template>
-<style></style>
