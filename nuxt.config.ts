@@ -8,19 +8,14 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+
   devtools: { enabled: true },
-  modules: [ 
-    '@nuxtjs/tailwindcss',   
-    '@nuxtjs/i18n',    
-    'shadcn-nuxt',
-    'nuxt-svgo',
-    'nuxt-lucide-icons',
-  ],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/i18n', 'shadcn-nuxt', 'nuxt-svgo', 'nuxt-lucide-icons'],
 
   shadcn: {
     prefix: '',
     componentDir: './app/components/ui',
-  }, 
+  },
 
   i18n: {
     defaultLocale: 'en',
@@ -29,8 +24,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    public: {
-    },
+    public: {},
     private: {},
   },
 

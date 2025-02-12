@@ -2,7 +2,7 @@
 import { ref, reactive, computed } from 'vue';
 import type { Address, PaymentMethod, ShippingMethod } from '#shared/types';
 
-import type { CartType, AddressInputType, GeinsUserType } from '@geins/types';
+import type { CartType, AddressInputType, GeinsUserType, CheckoutStyleType } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
 const defaultAddress: Address = {
@@ -32,6 +32,7 @@ export const useCheckout = () => {
     showCompleteButton: boolean;
     disableCompleteButton: boolean;
     externalCheckoutHTML: string;
+    style: CheckoutStyleType | undefined;
   }>({
     cart: null,
     billingAddress: { ...defaultAddress },
@@ -41,6 +42,7 @@ export const useCheckout = () => {
     showCompleteButton: true,
     disableCompleteButton: false,
     externalCheckoutHTML: '',
+    style: undefined,
   });
 
   const isExternalCheckout = computed(() => state.externalCheckoutHTML.length > 0);

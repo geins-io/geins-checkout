@@ -2,6 +2,7 @@ import { markRaw } from 'vue';
 import { GeinsCore, RuntimeContext, CHECKOUT_PARAMETER, extractParametersFromUrl } from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
 import type { CartType, GeinsSettings, PaymentOptionType, ShippingOptionType, CheckoutType, CheckoutInputType, GeinsUserType, CheckoutUrlsInputType, CheckoutTokenPayload, CheckoutRedirectsType, CheckoutStyleType, CheckoutQueryParameters } from '@geins/types';
+import { settings } from 'eslint-plugin-prettier/recommended';
 
 interface OrderSummary {
   cart: CartType;
@@ -44,7 +45,7 @@ let geinsOMS: GeinsOMS;
 
 interface State {
   token: string;
-  styles: CheckoutStyleType | undefined;
+
   geinsSettings: GeinsSettings | null;
   settings: Record<string, unknown> | null;
   cartId: string;
@@ -55,12 +56,13 @@ interface State {
   checkoutObject: CheckoutType | null;
   orderSummary: unknown | null;
   redirectUrls: CheckoutRedirectsType | undefined;
+  style: CheckoutStyleType | undefined;
 }
 
 export const useGeinsClient = () => {
   const state: State = {
     token: '',
-    styles: undefined,
+    style: undefined,
     geinsSettings: null,
     settings: null,
     cartId: '',
@@ -82,6 +84,7 @@ export const useGeinsClient = () => {
     state.settings = payload.checkoutSettings;
     state.redirectUrls = payload.checkoutSettings?.redirectUrls;
     state.token = token;
+    console.log('initializeStateFromToken', state);
   };
 
   const setGeinsFromToken = async (token: string): Promise<void> => {

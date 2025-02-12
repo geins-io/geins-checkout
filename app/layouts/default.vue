@@ -1,42 +1,58 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
-const styling = useCheckoutStyling();
 const route = useRoute();
-const style = ref({
-  'background-color': '#000000',
-});
 
-const setStyling = async (styleObject: CheckoutStyleType) => {
-  style.value = {
-    'background-color': styleObject.backgroundColor,
-  };
-  // get elements with id "checkout"
-  await nextTick();
-  const checkoutElement = document.getElementById('checkout');
+const { state, initialize } = useCheckoutStyling();
 
-  if (checkoutElement) {
-    checkoutElement.style.backgroundColor = styleObject.backgroundColor;
-  }
-};
+onMounted(async () => {
+  watchEffect(async () => {
+    if (import.meta.client) {
+      const segments = route.path.split('/');
+      if (segments.length < 3) {
+        return;
+      }
+      const token = segments[2];
+      if (!token) {
+        return;
+      }
+      // Initialize your styling service
+      await initialize(token);
 
-onBeforeMount(async () => {
-  const segments = route.path.split('/');
-  if (segments.length < 3) {
-    return;
-  }
+      // page background color
+      const bgColor = state.style.backgroundColor;
+      if (bgColor && typeof bgColor === 'string') {
+        document.body.style.backgroundColor = bgColor;
+      } else {
+        document.body.style.backgroundColor = '';
+      }
 
-  const token = segments[2];
-  if (token) {
-    await styling.initialize(token);
-    const styles = styling.getStyleObject();
-    await setStyling(styles);
-  }
+      // header background color
+      const header = document.querySelector('header');
+      if (header) {
+        const headerColor = state.style.topbar.backgroundColor;
+        if (headerColor && typeof headerColor === 'string') {
+          header.style.backgroundColor = headerColor;
+        } else {
+          header.style.backgroundColor = '';
+        }
+      }
+
+      // build <style> tag for custom CSS rules
+      const styleTag = document.createElement('style');
+      styleTag.innerHTML = state.css;
+      document.head.appendChild(styleTag);
+    }
+  });
 });
 </script>
 
 <template>
-  <div id="checkout" :style="style">
+  <div>
+    <header class="border-b bg-white shadow-sm">
+      <div class="mx-auto max-w-4xl px-6 py-4">
+        <h1 class="text-center text-xl font-bold text-gray-900">{{ state?.style?.title }}</h1>
+      </div>
+    </header>
     <slot />
   </div>
 </template>
+<style></style>
