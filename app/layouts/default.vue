@@ -28,14 +28,14 @@ onMounted(async () => {
       // header background color
       const header = document.querySelector('header');
       if (header) {
-        const headerColor = state.style.topbar.backgroundColor;
+        const headerColor = state.style?.topbar?.backgroundColor;
 
         if (headerColor && typeof headerColor === 'string') {
           header.style.backgroundColor = headerColor;
         } else {
           header.style.backgroundColor = '';
         }
-        const headerTextColor = state.style.topbar.textColor;
+        const headerTextColor = state.style?.topbar?.textColor;
         if (headerTextColor && typeof headerTextColor === 'string') {
           header.style.color = headerTextColor;
         } else {
