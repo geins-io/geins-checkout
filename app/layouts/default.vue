@@ -29,10 +29,17 @@ onMounted(async () => {
       const header = document.querySelector('header');
       if (header) {
         const headerColor = state.style.topbar.backgroundColor;
+
         if (headerColor && typeof headerColor === 'string') {
           header.style.backgroundColor = headerColor;
         } else {
           header.style.backgroundColor = '';
+        }
+        const headerTextColor = state.style.topbar.textColor;
+        if (headerTextColor && typeof headerTextColor === 'string') {
+          header.style.color = headerTextColor;
+        } else {
+          header.style.color = '';
         }
       }
 
@@ -49,7 +56,7 @@ onMounted(async () => {
   <div>
     <header class="border-b bg-white shadow-sm">
       <div class="mx-auto max-w-4xl px-6 py-4">
-        <h1 class="text-center text-xl font-bold text-gray-900">{{ state?.style?.title }}</h1>
+        <h1 class="text-center text-xl font-bold">{{ state?.style?.title }}</h1>
       </div>
     </header>
     <slot />
