@@ -12,6 +12,7 @@ const orderId = route.params.orderId as string;
 const querystrings = route.query;
 const orderDetails = ref<CheckoutOrderSummary | null>(null);
 const externalSummaryHTML = ref<string | undefined>(undefined);
+
 onMounted(async () => {
   if (!token) {
     router.push('/');
@@ -24,11 +25,13 @@ onMounted(async () => {
   }
 
   const summary = await initializeSummary(token, orderId, querystrings);
-  if (summary.htmlSnippet) {
-    externalSummaryHTML.value = summary.htmlSnippet;
+  if (state.isExternalSummary) {
+    if (summary.htmlSnippet) {
+      externalSummaryHTML.value = summary.htmlSnippet;
+    }
+  } else {
+    orderDetails.value = summary.order;
   }
-
-  orderDetails.value = summary.order;
 });
 </script>
 
@@ -46,9 +49,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="px-6 py-8">
-          <ClientOnly>
-            <ExternalSummary :html="externalSummaryHTML" />
-          </ClientOnly>
+          <ExternalSummary :html="externalSummaryHTML" />
         </div>
         <div v-if="!state.loading && !state.isExternalSummary" class="px-6 py-8">
           <!-- Order Status -->
@@ -146,8 +147,8 @@ onMounted(async () => {
           </div> -->
 
           <!-- Back to Home -->
-          <div class="mt-8 text-center">
-            <NuxtLink :to="continueShoppingUrl" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <div v-if="state.continueShoppingUrl" class="mt-8 text-center">
+            <NuxtLink :to="state.continueShoppingUrl" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               Continue Shopping
             </NuxtLink>
           </div>

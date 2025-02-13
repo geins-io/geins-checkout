@@ -1,7 +1,5 @@
-import { ref } from 'vue';
-
 import type { CheckoutQueryParameters } from '@geins/types';
-import type { CheckoutOrderSummary } from '@/shared/types/checkout';
+import type { CheckoutOrderSummary } from '../../../shared/types/checkout';
 
 const geinsClient = useGeinsClient();
 
@@ -25,6 +23,7 @@ export const useSummary = () => {
       state.loading = true;
       await geinsClient.initializeSummary(token);
       state.continueShoppingUrl = (await getContinueShoppingUrl()) ?? '';
+
       orderSummary = await getCheckoutSummary({ orderId, paymentdata });
     } catch (e) {
       state.error = 'Failed to initialize summary';
@@ -49,44 +48,10 @@ export const useSummary = () => {
     }
     if (orderSummary.htmlSnippet) {
       state.isExternalSummary = true;
-      await setExternalSummary(orderSummary.htmlSnippet);
+      // await setExternalSummary(orderSummary.htmlSnippet);
     }
 
     return orderSummary;
-  };
-
-  const setExternalSummary = async (html: string) => {
-    // Wait for Vue to update the DOM
-    await nextTick();
-
-    const container = document.createElement('div');
-    container.innerHTML = html;
-
-    console.log('html', html);
-
-    const scriptTags = container.querySelectorAll('script');
-    scriptTags.forEach(async (scriptTag) => {
-      const newScript = document.createElement('script');
-      if (scriptTag.src) {
-        // External script
-        newScript.src = scriptTag.src;
-        newScript.async = true;
-      } else {
-        // Inline script
-        newScript.textContent = scriptTag.innerHTML;
-      }
-      await nextTick();
-      // Append the script to the container or body
-      const target = document.getElementById('summary-external');
-      console.log('add scriptTag', scriptTag);
-      console.log('add to target', target);
-      target?.appendChild(newScript);
-      if (target) {
-        //target.appendChild(newScript);
-      } else {
-        console.error('Container not found');
-      }
-    });
   };
 
   const getContinueShoppingUrl = async () => {
