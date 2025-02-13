@@ -1,75 +1,112 @@
 import { ref } from 'vue';
-import type { CartType, CheckoutQueryParameters } from '@geins/types';
+
+import type { CheckoutQueryParameters } from '@geins/types';
+import type { CheckoutOrderSummary } from '@/shared/types/checkout';
 
 const geinsClient = useGeinsClient();
 
-interface OrderSummary {
-  cart: CartType;
-  billingAddress: {
-    firstName: string;
-    lastName: string;
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    zip: string;
-    country: string;
-    mobile?: string;
-    phone?: string;
-  };
-  shippingAddress: {
-    firstName: string;
-    lastName: string;
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    zip: string;
-    country: string;
-    mobile?: string;
-    phone?: string;
-  };
-  paymentDetails: Array<{
-    displayName: string;
-  }>;
-  shippingDetails: Array<{
-    name: string;
-  }>;
-  status: string;
-}
-
 export const useSummary = () => {
-  const loading = ref(false);
-  const error = ref('');
+  const state = reactive<{
+    loading: boolean;
+    isExternalSummary: boolean;
+    continueShoppingUrl: string;
+    error: string;
+  }>({
+    loading: true,
+    isExternalSummary: false,
+    continueShoppingUrl: '',
+    error: '',
+  });
 
-  const initializeSummary = async (token: string, orderId: string, paymentdata: CheckoutQueryParameters) => {
-    let summary: OrderSummary | null = null;
+  const initializeSummary = async (token: string, orderId: string, paymentdata: CheckoutQueryParameters): Promise<CheckoutOrderSummary> => {
+    let orderSummary: CheckoutOrderSummary | null = null;
 
-    /*  
     try {
-      loading.value = true;
-      summary = await geinsClient.initializeSummary(token, orderId, paymentdata);
-      console.log('initializeSummary::', summary);
+      state.loading = true;
+      await geinsClient.initializeSummary(token);
+      state.continueShoppingUrl = (await getContinueShoppingUrl()) ?? '';
+      orderSummary = await getCheckoutSummary({ orderId, paymentdata });
     } catch (e) {
-      error.value = 'Failed to initialize summary';
+      state.error = 'Failed to initialize summary';
       console.error(e);
     } finally {
-      loading.value = false;
-    } */
-    return summary;
+      state.loading = false;
+    }
+    return orderSummary;
   };
 
-  const getSummary = async () => {
-    const orderSummary = await geinsClient.getSummary();
-    // console.log('getSummary::', orderSummary);
+  const getCheckoutSummary = async (args: { orderId: string; paymentdata: CheckoutQueryParameters }): Promise<CheckoutOrderSummary> => {
+    const queryStringArgs = parseQueryParameters(args.paymentdata);
+    if (args.orderId === undefined || queryStringArgs.orderId === undefined) {
+      throw new Error('Missing orderId');
+    }
+    const orderId = args.orderId ?? queryStringArgs.orderId;
+    const paymentType = queryStringArgs.paymentType;
+    const orderSummary = await geinsClient.getCheckoutSummary(orderId, paymentType);
 
-    const summary = {
-      cart: orderSummary.cart,
-    };
+    if (!orderSummary) {
+      throw new Error('Failed to get order summary');
+    }
+    if (orderSummary.htmlSnippet) {
+      state.isExternalSummary = true;
+      await setExternalSummary(orderSummary.htmlSnippet);
+    }
 
-    return summary;
+    return orderSummary;
+  };
+
+  const setExternalSummary = async (html: string) => {
+    // Wait for Vue to update the DOM
+    await nextTick();
+
+    const container = document.createElement('div');
+    container.innerHTML = html;
+
+    console.log('html', html);
+
+    const scriptTags = container.querySelectorAll('script');
+    scriptTags.forEach(async (scriptTag) => {
+      const newScript = document.createElement('script');
+      if (scriptTag.src) {
+        // External script
+        newScript.src = scriptTag.src;
+        newScript.async = true;
+      } else {
+        // Inline script
+        newScript.textContent = scriptTag.innerHTML;
+      }
+      await nextTick();
+      // Append the script to the container or body
+      const target = document.getElementById('summary-external');
+      console.log('add scriptTag', scriptTag);
+      console.log('add to target', target);
+      target?.appendChild(newScript);
+      if (target) {
+        //target.appendChild(newScript);
+      } else {
+        console.error('Container not found');
+      }
+    });
+  };
+
+  const getContinueShoppingUrl = async () => {
+    const urls = geinsClient.getRedirectUrls();
+    if (!urls) {
+      return '';
+    }
+    return urls?.cancel || urls?.change;
+  };
+
+  const parseQueryParameters = (paymentdata: CheckoutQueryParameters) => {
+    const orderId = paymentdata['geins-uid'] ?? '';
+    const paymentType = paymentdata['geins-pt'] ?? 'STANDARD';
+
+    return { orderId, paymentType };
   };
 
   return {
+    state,
     initializeSummary,
-    getSummary,
+    getContinueShoppingUrl,
   };
 };

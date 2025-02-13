@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import type { CartItemType, CartType } from '@geins/types';
+import type { CheckoutOrderRowSummary } from '@geins/types';
 
 const props = defineProps<{
-  cart: CartType;
+  order: CheckoutOrderSummary;
 }>();
 
-const imgUrl = (item: CartItemType): string => {
-  if (!item.product?.productImages) return '';
+const imgUrl = (item: CheckoutOrderRowSummary): string => {
+  if (!item.product?.imageUrl) return '';
 
-  if (item.product?.productImages.length > 0) {
-    return `https://labs.commerce.services/product/raw/${item.product?.productImages[0].fileName || ''}`;
-  }
-  return '';
+  return `https://labs.commerce.services/product/raw/${item.product.imageUrl}`;
 };
 </script>
 
@@ -19,16 +16,16 @@ const imgUrl = (item: CartItemType): string => {
   <div class="space-y-6">
     <!-- Cart Items -->
     <div class="space-y-4">
-      <h3 class="text-lg font-medium">Cart Items</h3>
-      <div v-for="item in cart.items" :key="item.id" class="flex gap-4 border-b py-4">
+      <h3 class="text-lg font-medium">Items</h3>
+      <div v-for="item in order.rows" :key="item.skuId" class="flex gap-4 border-b py-4">
         <!-- Product Image -->
-        <div v-if="item.product?.productImages" class="h-20 w-20 flex-shrink-0">
+        <div v-if="item.product?.imageUrl" class="h-20 w-20 flex-shrink-0">
           <img :src="imgUrl(item)" class="h-full w-full rounded object-cover" />
         </div>
 
         <!-- Product Details -->
         <div class="flex-grow">
-          <h4 class="font-medium">{{ item.title }}</h4>
+          <h4 class="font-medium">{{ item.name }}</h4>
 
           <!-- Package Items -->
           <!--           <div v-if="item.isPackage && item.packageItems" class="mt-2 text-sm text-gray-600">
@@ -47,8 +44,8 @@ const imgUrl = (item: CartItemType): string => {
 
           <!-- Price Info -->
           <div class="mt-2 flex justify-between text-sm">
-            <span>{{ item.quantity }} × {{ item.unitPrice?.regularPriceIncVatFormatted }}</span>
-            <span class="font-medium">{{ item.totalPrice?.regularPriceIncVatFormatted }}</span>
+            <span>{{ item.quantity }} pcs</span>
+            <span class="font-medium">{{ item.price?.priceIncVatFormatted }}</span>
           </div>
         </div>
       </div>
@@ -58,10 +55,19 @@ const imgUrl = (item: CartItemType): string => {
     <div class="space-y-4">
       <h3 class="text-lg font-medium">Order Summary</h3>
 
+      <div v-if="order.appliedCampaigns?.length" class="flex justify-between text-green-600">
+        <ul v-if="Array.isArray(order.appliedCampaigns)">
+          <li v-for="campaign in order.appliedCampaigns" :key="campaign">
+            {{ campaign }}
+          </li>
+        </ul>
+        <span>-{{ order.total.discountIncVatFormatted }}</span>
+      </div>
+
       <!-- Subtotal -->
       <div class="flex justify-between">
         <span>Subtotal</span>
-        <span>{{ cart.summary.subTotal.regularPriceIncVatFormatted }}</span>
+        <span>{{ order.total.itemValueIncVatFormatted }}</span>
       </div>
 
       <!-- VAT -->
@@ -69,15 +75,15 @@ const imgUrl = (item: CartItemType): string => {
         <span>VAT ({{ vat.rate }}%)</span>
         <span>{{ formatPrice(vat.amount) }}</span>
       </div> -->
-      <div class="flex justify-between text-sm text-gray-600">
-        <span>VAT (X<!-- {{ cart.summary.subTotal.vat / cart.summary.subTotal.regularPriceIncVat }} -->%)</span>
-        <span>{{ cart.summary.subTotal.vatFormatted }}</span>
-      </div>
+      <!--       <div class="flex justify-between text-sm text-gray-600">
+        <span>VAT (X%)</span>
+        <span>{{ orderSummary.summary.subTotal.vatFormatted }}</span>
+      </div> -->
 
       <!-- Shipping -->
       <div class="flex justify-between">
         <span>Shipping</span>
-        <span>{{ cart.summary.shipping.feeIncVatFormatted }}</span>
+        <span>{{ order.total.shippingFeeIncVatFormatted }}</span>
       </div>
 
       <!-- Payment Fee -->
@@ -87,19 +93,11 @@ const imgUrl = (item: CartItemType): string => {
       </div>
  -->
       <!-- Discounts -->
-      <div class="flex justify-between text-green-600">
-        <ul v-if="Array.isArray(cart.appliedCampaigns)">
-          <li v-for="campaign in cart.appliedCampaigns" :key="campaign.name">
-            {{ campaign.name }}
-          </li>
-        </ul>
-        <span>-{{ cart.summary.total.discountIncVatFormatted }}</span>
-      </div>
 
       <!-- Total -->
       <div class="flex justify-between border-t pt-4 text-lg font-bold">
         <span>Total</span>
-        <span>{{ cart.summary.total.sellingPriceIncVatFormatted }}</span>
+        <span>{{ order.total.sumFormatted }}</span>
       </div>
     </div>
   </div>

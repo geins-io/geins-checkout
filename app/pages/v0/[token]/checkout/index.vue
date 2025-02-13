@@ -69,7 +69,7 @@ const handleCheckout = async () => {
             </div>
 
             <div class="card rounded-lg bg-white p-6 shadow" v-if="state.externalCheckoutHTML.length > 0">
-              <ExternalCheckout :html="state.externalCheckoutHTML" @select="selectPaymentMethod" />
+              <ExternalCheckout :html="state.externalCheckoutHTML" />
             </div>
 
             <!-- Billing Information -->

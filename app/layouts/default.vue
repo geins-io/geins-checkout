@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute();
 
-const { state, initialize, topbarVisible, topbarTitle } = useCheckoutStyling();
+const { initialize, topbarVisible, topbarTitle } = useCheckoutStyling();
 
 onMounted(async () => {
   watchEffect(async () => {

@@ -1,8 +1,7 @@
 import { markRaw } from 'vue';
 import { GeinsCore, RuntimeContext, CHECKOUT_PARAMETER, extractParametersFromUrl } from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
-import type { CartType, GeinsSettings, PaymentOptionType, ShippingOptionType, CheckoutType, CheckoutInputType, GeinsUserType, CheckoutUrlsInputType, CheckoutTokenPayload, CheckoutRedirectsType, CheckoutStyleType, CheckoutQueryParameters } from '@geins/types';
-import { settings } from 'eslint-plugin-prettier/recommended';
+import type { CartType, GeinsSettings, PaymentOptionType, ShippingOptionType, CheckoutType, CheckoutInputType, GeinsUserType, CheckoutUrlsInputType, CheckoutTokenPayload, CheckoutRedirectsType, CheckoutStyleType, CheckoutQueryParameters, CheckoutOrderSummary } from '@geins/types';
 
 interface OrderSummary {
   cart: CartType;
@@ -77,7 +76,7 @@ export const useGeinsClient = () => {
 
   const initializeStateFromToken = async (token: string): Promise<void> => {
     const payload = GeinsCore.decodeJWT(token) as CheckoutTokenPayload;
-    state.styles = payload.checkoutSettings.style;
+    state.style = payload.checkoutSettings.style;
     state.cartId = payload.cartId;
     state.geinsSettings = payload.geinsSettings;
     state.user = payload.user;
@@ -103,14 +102,15 @@ export const useGeinsClient = () => {
     );
   };
 
-  const initializeSummary = async (token: string, orderId: string, paymentdata: CheckoutQueryParameters): Promise<OrderSummary | undefined> => {
+  const initializeSummary = async (token: string): Promise<boolean> => {
     // set all the settings from the token
-    await setGeinsFromToken(token);
-    // GeinsMerchantApiQuery.checkout(§
-
-    const order = await getSummary(orderId, paymentdata);
-
-    return order as OrderSummary | undefined;
+    try {
+      await setGeinsFromToken(token);
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+    return true;
   };
 
   const initializeCheckout = async (token: string): Promise<void> => {
@@ -124,18 +124,12 @@ export const useGeinsClient = () => {
     }
   };
 
-  const getSummary = async (orderId: string, paymentData: CheckoutQueryParameters): Promise<OrderSummary | undefined> => {
-    const isExternal = typeof paymentData === 'object' && paymentData !== null && 'geins-pt' in paymentData;
-
-    const summary = await geinsOMS.order.getFromExternalPaymentData({
-      pspOrderId: paymentData['geins-uid'] ?? orderId,
-      paymentType: paymentData['geins-pt'] ?? 'STANDARD',
-    });
-
+  const getCheckoutSummary = async (orderId: string, paymentType: string): Promise<CheckoutOrderSummary | undefined> => {
+    const summary = await geinsOMS.checkout.getSummary({ orderId, paymentType });
     if (!summary) {
       throw new Error('Failed to get order summary');
     }
-    return summary as OrderSummary;
+    return summary;
   };
 
   const updateCheckout = async (options?: { paymentMethodId?: number; shippingMethodId?: number }): Promise<void> => {
@@ -259,6 +253,7 @@ export const useGeinsClient = () => {
     initializeSummary,
     initializeCheckout,
     getCheckout,
+    getCheckoutSummary,
     updateCheckout,
     // Getters that return current state values
     getCart: () => state.cartObject,
