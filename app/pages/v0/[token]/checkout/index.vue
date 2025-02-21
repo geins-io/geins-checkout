@@ -7,7 +7,19 @@ const initialLoading = ref(true);
 
 const route = useRoute();
 const router = useRouter();
-const { state, loading, error, useShippingAddress, paymentMethods, shippingMethods, initializeCheckout, updateAddress, selectPaymentMethod, selectShippingMethod, completeCheckout } = useCheckout();
+const {
+  state,
+  loading,
+  error,
+  useShippingAddress,
+  paymentMethods,
+  shippingMethods,
+  initializeCheckout,
+  updateAddress,
+  selectPaymentMethod,
+  selectShippingMethod,
+  completeCheckout,
+} = useCheckout();
 const token = route.params.token as string;
 const cart = computed(() => state.cart);
 
@@ -54,7 +66,7 @@ const handleCheckout = async () => {
   <div>
     <div v-if="false" class="min-h-screen">
       <div class="flex min-h-screen items-center justify-center">
-        <loading class="mr-2 h-4 w-4" />
+        <loading class="mr-2 size-4" />
         <p>Loading Checkout</p>
       </div>
     </div>
@@ -64,11 +76,11 @@ const handleCheckout = async () => {
           <!-- Checkout Form -->
           <div class="space-y-8">
             <!-- Payment Methods -->
-            <div class="card rounded-lg bg-white p-6 shadow" v-if="paymentMethods.length > 1">
+            <div v-if="paymentMethods.length > 1" class="card rounded-lg bg-white p-6 shadow">
               <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
             </div>
 
-            <div class="card rounded-lg bg-white p-6 shadow" v-if="state.externalCheckoutHTML.length > 0">
+            <div v-if="state.externalCheckoutHTML.length > 0" class="card rounded-lg bg-white p-6 shadow">
               <ExternalCheckout :html="state.externalCheckoutHTML" />
             </div>
 
@@ -78,7 +90,11 @@ const handleCheckout = async () => {
               <AddressForm :address="state.billingAddress" @update="updateAddress('billing', $event)" />
               <div class="mt-4">
                 <label class="flex items-center">
-                  <input type="checkbox" v-model="useShippingAddress" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                  <input
+                    v-model="useShippingAddress"
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200/50"
+                  />
                   <span class="ml-2 text-sm text-gray-600">Use different shipping address</span>
                 </label>
               </div>
@@ -91,7 +107,7 @@ const handleCheckout = async () => {
             </div>
 
             <!-- Shipping Methods -->
-            <div class="rounded-lg bg-white p-6 shadow" v-if="shippingMethods.length > 0">
+            <div v-if="shippingMethods.length > 0" class="rounded-lg bg-white p-6 shadow">
               <ShippingMethodSelector :methods="shippingMethods" @select="selectShippingMethod" />
             </div>
           </div>
@@ -99,8 +115,13 @@ const handleCheckout = async () => {
           <!-- Order Summary -->
           <div class="card h-fit rounded-lg bg-white p-6 shadow">
             <OrderSummary v-if="cart" :cart="cart" />
-            <Button @click="handleCheckout" v-if="state.showCompleteButton" :disabled="loading || state.disableCompleteButton" class="mt-6 w-full px-4 py-2">
-              <ReloadIcon v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
+            <Button
+              v-if="state.showCompleteButton"
+              :disabled="loading || state.disableCompleteButton"
+              class="mt-6 w-full px-4 py-2"
+              @click="handleCheckout"
+            >
+              <ReloadIcon v-if="loading" class="mr-2 size-4 animate-spin" />
               {{ loading ? 'Processing...' : 'Complete Checkout' }}
             </Button>
 

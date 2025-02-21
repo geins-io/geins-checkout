@@ -1,9 +1,8 @@
+import type { CheckoutOrderSummary } from '#shared/types';
 import type { CheckoutQueryParameters } from '@geins/types';
-import type { CheckoutOrderSummary } from '../../../shared/types/checkout';
-
-const geinsClient = useGeinsClient();
 
 export const useSummary = () => {
+  const geinsClient = useGeinsClient();
   const state = reactive<{
     loading: boolean;
     isExternalSummary: boolean;
@@ -16,7 +15,11 @@ export const useSummary = () => {
     error: '',
   });
 
-  const initializeSummary = async (token: string, orderId: string, paymentdata: CheckoutQueryParameters): Promise<CheckoutOrderSummary> => {
+  const initializeSummary = async (
+    token: string,
+    orderId: string,
+    paymentdata: CheckoutQueryParameters,
+  ): Promise<CheckoutOrderSummary | null> => {
     let orderSummary: CheckoutOrderSummary | null = null;
 
     try {
@@ -34,7 +37,10 @@ export const useSummary = () => {
     return orderSummary;
   };
 
-  const getCheckoutSummary = async (args: { orderId: string; paymentdata: CheckoutQueryParameters }): Promise<CheckoutOrderSummary> => {
+  const getCheckoutSummary = async (args: {
+    orderId: string;
+    paymentdata: CheckoutQueryParameters;
+  }): Promise<CheckoutOrderSummary> => {
     const queryStringArgs = parseQueryParameters(args.paymentdata);
     if (args.orderId === undefined || queryStringArgs.orderId === undefined) {
       throw new Error('Missing orderId');

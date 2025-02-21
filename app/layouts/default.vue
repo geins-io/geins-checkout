@@ -22,7 +22,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <header class="header border-b shadow-sm" v-if="topbarVisible()">
+    <header v-if="topbarVisible()" class="header border-b shadow-sm">
       <div class="mx-auto max-w-4xl px-6 py-4">
         <h1 class="text-center text-xl font-bold">{{ topbarTitle() }}</h1>
       </div>

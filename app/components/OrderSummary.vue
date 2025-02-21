@@ -22,12 +22,12 @@ const imgUrl = (item: CartItemType): string => {
       <h3 class="text-lg font-medium">Cart Items</h3>
       <div v-for="item in cart.items" :key="item.id" class="flex gap-4 border-b py-4">
         <!-- Product Image -->
-        <div v-if="item.product?.productImages" class="h-20 w-20 flex-shrink-0">
-          <img :src="imgUrl(item)" class="h-full w-full rounded object-cover" />
+        <div v-if="item.product?.productImages" class="size-20 shrink-0">
+          <img :src="imgUrl(item)" class="size-full rounded object-cover" />
         </div>
 
         <!-- Product Details -->
-        <div class="flex-grow">
+        <div class="grow">
           <h4 class="font-medium">{{ item.title }}</h4>
 
           <!-- Package Items -->
@@ -70,7 +70,9 @@ const imgUrl = (item: CartItemType): string => {
         <span>{{ formatPrice(vat.amount) }}</span>
       </div> -->
       <div class="flex justify-between text-sm text-gray-600">
-        <span>VAT (X<!-- {{ cart.summary.subTotal.vat / cart.summary.subTotal.regularPriceIncVat }} -->%)</span>
+        <span
+          >VAT (X<!-- {{ cart.summary.subTotal.vat / cart.summary.subTotal.regularPriceIncVat }} -->%)</span
+        >
         <span>{{ cart.summary.subTotal.vatFormatted }}</span>
       </div>
 

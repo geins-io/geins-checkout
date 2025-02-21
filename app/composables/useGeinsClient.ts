@@ -15,14 +15,6 @@ import type {
   ShippingOptionType,
 } from '@geins/types';
 import { markRaw } from 'vue';
-
-const config = useRuntimeConfig();
-const CHECKOUT_URL = config.public.URL;
-
-// Keep core instances outside the composable state
-let geinsCore: GeinsCore;
-let geinsOMS: GeinsOMS;
-
 interface State {
   token: string;
   geinsSettings: GeinsSettings | null;
@@ -38,7 +30,14 @@ interface State {
   style: CheckoutStyleType | undefined;
 }
 
+// Keep core instances outside the composable state
+let geinsCore: GeinsCore;
+let geinsOMS: GeinsOMS;
+
 export const useGeinsClient = () => {
+  const config = useRuntimeConfig();
+  const CHECKOUT_URL = config.public.URL;
+
   const state: State = {
     token: '',
     style: undefined,

@@ -1,22 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ref, reactive, computed } from 'vue';
-import type { Address, PaymentMethod, ShippingMethod } from '#shared/types';
+import type { Address } from '#shared/types';
+import { computed, reactive, ref } from 'vue';
 
-import type { CartType, AddressInputType, GeinsUserType, CheckoutStyleType } from '@geins/types';
+import type { AddressInputType, CartType, CheckoutStyleType, GeinsUserType } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
-const defaultAddress: Address = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  street: '',
-  city: '',
-  postalCode: '',
-  country: '',
-};
-const geinsClient = useGeinsClient();
 export const useCheckout = () => {
+  const geinsClient = useGeinsClient();
+
+  const defaultAddress: Address = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    street: '',
+    city: '',
+    postalCode: '',
+    country: '',
+  };
+
   const loading = ref(false);
   const error = ref('');
   const useShippingAddress = ref(false);
@@ -251,7 +253,14 @@ export const useCheckout = () => {
 
     const billingAddress = createAddressInputType(state.billingAddress);
     // validate billing address all fields must have a length over 1
-    if (billingAddress.firstName.length === 0 || billingAddress.lastName.length === 0 || billingAddress.addressLine1.length === 0 || billingAddress.city.length === 0 || billingAddress.zip.length === 0 || billingAddress.country.length === 0) {
+    if (
+      billingAddress.firstName.length === 0 ||
+      billingAddress.lastName.length === 0 ||
+      billingAddress.addressLine1.length === 0 ||
+      billingAddress.city.length === 0 ||
+      billingAddress.zip.length === 0 ||
+      billingAddress.country.length === 0
+    ) {
       error.value = 'Please fill in all billing address fields';
       return false;
     }
@@ -274,7 +283,9 @@ export const useCheckout = () => {
         paymentId: state.selectedPaymentMethod,
         billingAddress: createAddressInputType(state.billingAddress),
         acceptedConsents: ['order'],
-        shippingAddress: useShippingAddress.value ? createAddressInputType(state.shippingAddress) : createAddressInputType(state.billingAddress),
+        shippingAddress: useShippingAddress.value
+          ? createAddressInputType(state.shippingAddress)
+          : createAddressInputType(state.billingAddress),
         merchantData: '{"extraData":"","extraNumber":1}', //'JSON.stringify(merchantData)',
         message: 'hello',
       },
@@ -304,7 +315,14 @@ export const useCheckout = () => {
       const billingAddress = createAddressInputType(state.billingAddress);
       const shippingAddress = createAddressInputType(state.shippingAddress);
 
-      if (billingAddress.firstName.length === 0 || billingAddress.firstName.length === 0 || billingAddress.addressLine1.length === 0 || billingAddress.city.length === 0 || billingAddress.zip.length === 0 || billingAddress.country.length === 0) {
+      if (
+        billingAddress.firstName.length === 0 ||
+        billingAddress.firstName.length === 0 ||
+        billingAddress.addressLine1.length === 0 ||
+        billingAddress.city.length === 0 ||
+        billingAddress.zip.length === 0 ||
+        billingAddress.country.length === 0
+      ) {
         error.value = 'Please fill in all billing address fields';
         return { success: false };
       }

@@ -11,7 +11,7 @@ const props = defineProps<{
 <template>
   <div class="space-y-4">
     <div class="space-y-3">
-      <div id="checkout-external" v-html="html"></div>
+      <div id="checkout-external" v-html="html" />
     </div>
   </div>
 </template>

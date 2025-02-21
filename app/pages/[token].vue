@@ -10,7 +10,7 @@ onMounted(() => {
   console.log('Redirecting to checkout page');
   const url = `/${currentVersion}/${token}/checkout`;
   console.log('Redirecting to', url);
-  router.push(`/${currentVersion}/${token}/checkout`);
+  router.push(url);
 });
 </script>
 <template>
