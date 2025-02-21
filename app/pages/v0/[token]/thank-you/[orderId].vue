@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import type { Address, Cart, PaymentMethod, ShippingMethod, CheckoutOrderSummary } from '@/shared/types/checkout';
-import type { AddressType } from '@geins/types';
+import type { CheckoutOrderSummary } from '#shared/types';
 
 const { state, initializeSummary } = useSummary();
 

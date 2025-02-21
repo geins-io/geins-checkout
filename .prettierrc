@@ -1,12 +1,13 @@
 {
   "plugins": [
     "prettier-plugin-vue",
-    "prettier-plugin-tailwindcss"
+    "prettier-plugin-tailwindcss",
+    "prettier-plugin-organize-imports"
   ],
   "tabWidth": 2,
   "useTabs": false,
   "endOfLine": "auto",
   "singleQuote": true,
   "semi": true,
-  "printWidth": 300
+  "printWidth": 110
 }

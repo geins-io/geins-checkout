@@ -1,10 +1,23 @@
-import { markRaw } from 'vue';
-import { GeinsCore, RuntimeContext, CHECKOUT_PARAMETER, extractParametersFromUrl } from '@geins/core';
+import { useRuntimeConfig } from '#imports';
+import { extractParametersFromUrl, GeinsCore, RuntimeContext } from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
-import type { CartType, GeinsSettings, PaymentOptionType, ShippingOptionType, CheckoutType, CheckoutInputType, GeinsUserType, CheckoutUrlsInputType, CheckoutTokenPayload, CheckoutRedirectsType, CheckoutStyleType, CheckoutQueryParameters, CheckoutOrderSummary } from '@geins/types';
+import type {
+  CartType,
+  CheckoutInputType,
+  CheckoutRedirectsType,
+  CheckoutStyleType,
+  CheckoutTokenPayload,
+  CheckoutType,
+  CheckoutUrlsInputType,
+  GeinsSettings,
+  GeinsUserType,
+  PaymentOptionType,
+  ShippingOptionType,
+} from '@geins/types';
+import { markRaw } from 'vue';
 
 const config = useRuntimeConfig();
-const CHECKOUT_URL = config.public.CURRENT_VERSION;
+const CHECKOUT_URL = config.public.URL;
 
 // Keep core instances outside the composable state
 let geinsCore: GeinsCore;
@@ -40,16 +53,22 @@ export const useGeinsClient = () => {
     orderSummary: undefined,
     redirectUrls: undefined,
   };
+  const copyCart = (cartId: string): string => {
+    return 'copy-cart-id ';
+  };
 
   const initializeStateFromToken = async (token: string): Promise<void> => {
     const payload = GeinsCore.decodeJWT(token) as CheckoutTokenPayload;
-    state.style = payload.checkoutSettings.style;
-    state.cartId = payload.cartId;
+    state.token = token;
     state.geinsSettings = payload.geinsSettings;
+    state.style = payload.checkoutSettings.style;
     state.user = payload.user;
     state.settings = payload.checkoutSettings;
     state.redirectUrls = payload.checkoutSettings?.redirectUrls;
-    state.token = token;
+
+    if (payload.checkoutSettings?.copyCart) state.cartId = payload.cartId;
+
+    // copy cart???
   };
 
   const setGeinsFromToken = async (token: string): Promise<void> => {
@@ -83,7 +102,9 @@ export const useGeinsClient = () => {
   const initializeCheckout = async (token: string): Promise<void> => {
     // set all the settings from the token
     await setGeinsFromToken(token);
-    const checkout = await getCheckout({ paymentMethodId: state.settings?.selectedPaymentMethodId as number });
+    const checkout = await getCheckout({
+      paymentMethodId: state.settings?.selectedPaymentMethodId as number,
+    });
     if (checkout) {
       state.cartObject = checkout.cart || null;
       state.paymentMethods = setPaymentMethods(checkout.paymentOptions || []);
@@ -91,7 +112,10 @@ export const useGeinsClient = () => {
     }
   };
 
-  const getCheckoutSummary = async (orderId: string, paymentType: string): Promise<CheckoutOrderSummary | undefined> => {
+  const getCheckoutSummary = async (
+    orderId: string,
+    paymentType: string,
+  ): Promise<CheckoutOrderSummary | undefined> => {
     const summary = await geinsOMS.checkout.getSummary({ orderId, paymentType });
     if (!summary) {
       throw new Error('Failed to get order summary');
@@ -99,7 +123,10 @@ export const useGeinsClient = () => {
     return summary;
   };
 
-  const updateCheckout = async (options?: { paymentMethodId?: number; shippingMethodId?: number }): Promise<void> => {
+  const updateCheckout = async (options?: {
+    paymentMethodId?: number;
+    shippingMethodId?: number;
+  }): Promise<void> => {
     const checkout = await getCheckout(options);
 
     if (checkout) {
@@ -109,7 +136,10 @@ export const useGeinsClient = () => {
     }
   };
 
-  const getCheckout = async (options?: { paymentMethodId?: number; shippingMethodId?: number }): Promise<CheckoutType> => {
+  const getCheckout = async (options?: {
+    paymentMethodId?: number;
+    shippingMethodId?: number;
+  }): Promise<CheckoutType> => {
     let paymentMethodId = state.settings?.selectedPaymentMethodId as number | undefined;
     let shippingMethodId = state.settings?.selectedShippingMethodId as number | undefined;
 
@@ -191,7 +221,11 @@ export const useGeinsClient = () => {
 
   const setPaymentMethods = (methods: PaymentOptionType[]): PaymentOptionType[] => {
     if (!Array.isArray(methods) || methods.length === 0) return [];
-    if (!Array.isArray(state.settings?.availablePaymentMethodIds) || state.settings.availablePaymentMethodIds.length === 0) return methods;
+    if (
+      !Array.isArray(state.settings?.availablePaymentMethodIds) ||
+      state.settings.availablePaymentMethodIds.length === 0
+    )
+      return methods;
     const returnMethods: PaymentOptionType[] = [];
     const order = state.settings.availablePaymentMethodIds as number[];
 
@@ -205,7 +239,11 @@ export const useGeinsClient = () => {
 
   const setShippingMethods = (methods: ShippingOptionType[]): ShippingOptionType[] => {
     if (!Array.isArray(methods) || methods.length === 0) return [];
-    if (!Array.isArray(state.settings?.availableShippingMethodIds) || state.settings.availableShippingMethodIds.length === 0) return methods;
+    if (
+      !Array.isArray(state.settings?.availableShippingMethodIds) ||
+      state.settings.availableShippingMethodIds.length === 0
+    )
+      return methods;
 
     const returnMethods: ShippingOptionType[] = [];
     const order = state.settings.availableShippingMethodIds as number[];
