@@ -25,9 +25,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      DEBUG: process.env.GEINS_DEBUG === 'true',
-      CURRENT_VERSION: process.env.CURRENT_VERSION,
-      URL: process.env.URL,
+      debug: process.env.GEINS_DEBUG === 'true',
+      currentVersion: process.env.CURRENT_VERSION,
+      url: process.env.URL,
     },
     private: {},
   },

@@ -1,12 +1,8 @@
 <script setup lang="ts">
-const route = useRoute();
-const router = useRouter();
-const token = route.params.token as string;
-const currentVersion = 'v0';
+const { token } = useCheckout();
+const currentVersion = useRuntimeConfig().public.currentVersion;
 
-onMounted(() => {
-  router.push(`/${currentVersion}/${token}/checkout`);
-});
+navigateTo(`/${currentVersion}/${token.value}/checkout`);
 </script>
 <template>
   <div />

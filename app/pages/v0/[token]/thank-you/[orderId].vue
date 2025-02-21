@@ -1,29 +1,17 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import type { CheckoutOrderSummary } from '#shared/types';
-
 const { state, initializeSummary } = useSummary();
-
-const route = useRoute();
-const router = useRouter();
-const token = route.params.token as string;
-const orderId = route.params.orderId as string;
-const querystrings = route.query;
+const { token } = useCheckout();
+const { query, params } = useRoute();
+const orderId = params.orderId?.toString() || '';
 const orderDetails = ref<CheckoutOrderSummary | null>(null);
 const externalSummaryHTML = ref<string | undefined>(undefined);
 
+if (!orderId) {
+  navigateTo('/');
+}
+
 onMounted(async () => {
-  if (!token) {
-    router.push('/');
-    return;
-  }
-
-  if (!orderId) {
-    router.push('/');
-    return;
-  }
-
-  const summary = await initializeSummary(token, orderId, querystrings);
+  const summary = await initializeSummary(token.value, orderId, query);
   console.log('Summary', summary.htmlSnippet);
   if (summary.htmlSnippet) {
     externalSummaryHTML.value = summary.htmlSnippet;
@@ -146,7 +134,10 @@ onMounted(async () => {
 
           <!-- Back to Home -->
           <div v-if="state.continueShoppingUrl" class="mt-8 text-center">
-            <NuxtLink :to="state.continueShoppingUrl" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <NuxtLink
+              :to="state.continueShoppingUrl"
+              class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
               Continue Shopping
             </NuxtLink>
           </div>

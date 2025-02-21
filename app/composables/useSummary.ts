@@ -1,4 +1,3 @@
-import type { CheckoutOrderSummary } from '#shared/types';
 import type { CheckoutQueryParameters } from '@geins/types';
 
 export const useSummary = () => {

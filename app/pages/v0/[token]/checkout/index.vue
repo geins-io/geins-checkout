@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import ExternalCheckout from '~/components/ExternalCheckout.vue';
-import Button from '~/components/ui/button/Button.vue';
-//import Loading from '~/components/shared/icon/Loading.vue';
 import { ReloadIcon } from '@radix-icons/vue';
-const initialLoading = ref(true);
 
-const route = useRoute();
-const router = useRouter();
 const {
+  token,
   state,
   loading,
   error,
@@ -20,7 +15,8 @@ const {
   selectShippingMethod,
   completeCheckout,
 } = useCheckout();
-const token = route.params.token as string;
+
+const initialLoading = ref(true);
 const cart = computed(() => state.cart);
 
 // watch loading state
@@ -32,11 +28,7 @@ watch(loading, (value) => {
 
 // Initialize checkout with token from URL
 onMounted(async () => {
-  if (!token) {
-    router.push('/');
-    return;
-  }
-  await initializeCheckout(token);
+  await initializeCheckout(token.value);
 });
 
 const handleCheckout = async () => {
@@ -55,7 +47,7 @@ const handleCheckout = async () => {
   if (typedResult.redirectUrl) {
     window.location.href = typedResult.redirectUrl;
   } else if (typedResult.success && typedResult.publicOrderId) {
-    router.push(`/v0/${token}/thank-you/${typedResult.publicOrderId}`);
+    navigateTo(`/v0/${token.value}/thank-you/${typedResult.publicOrderId}`);
   } else if (typedResult.error) {
     console.error(typedResult.error);
   }

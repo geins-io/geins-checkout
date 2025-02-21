@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Address } from '#shared/types';
-import { computed, reactive, ref } from 'vue';
-
 import type { AddressInputType, CartType, CheckoutStyleType, GeinsUserType } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
@@ -19,6 +15,7 @@ export const useCheckout = () => {
     country: '',
   };
 
+  const token = useState<string>('checkout-token');
   const loading = ref(false);
   const error = ref('');
   const useShippingAddress = ref(false);
@@ -369,6 +366,7 @@ export const useCheckout = () => {
   };
 
   return {
+    token,
     state,
     loading,
     error,

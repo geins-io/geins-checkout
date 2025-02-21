@@ -1,30 +1,17 @@
 <script setup lang="ts">
-const route = useRoute();
+const { token } = useCheckout();
+const { initialize, topBarVisible, topBarTitle } = useCheckoutStyling();
 
-const { initialize, topbarVisible, topbarTitle } = useCheckoutStyling();
-
-onMounted(async () => {
-  watchEffect(async () => {
-    if (import.meta.client) {
-      const segments = route.path.split('/');
-      if (segments.length < 3) {
-        return;
-      }
-      const token = segments[2];
-      if (!token) {
-        return;
-      }
-      await initialize(token);
-    }
-  });
+watchEffect(async () => {
+  initialize(token.value);
 });
 </script>
 
 <template>
   <div>
-    <header v-if="topbarVisible()" class="header border-b shadow-sm">
+    <header v-if="topBarVisible" class="header border-b shadow-sm">
       <div class="mx-auto max-w-4xl px-6 py-4">
-        <h1 class="text-center text-xl font-bold">{{ topbarTitle() }}</h1>
+        <h1 class="text-center text-xl font-bold">{{ topBarTitle }}</h1>
       </div>
     </header>
     <slot />

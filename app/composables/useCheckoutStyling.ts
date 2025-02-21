@@ -1,55 +1,51 @@
-import { reactive } from 'vue';
-import type { CheckoutStyleType } from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
-
-const cssNameTranslate = {
-  backgroundColor: { name: 'background-color', unit: '' },
-  textColor: { name: 'color', unit: '' },
-  fontSize: { name: 'font-size', unit: 'px' },
-  borderRadius: { name: 'border-radius', unit: 'px' },
-};
+import type { CheckoutStyleType } from '@geins/types';
 
 export const useCheckoutStyling = () => {
-  const state = reactive<any>({
-    loading: true,
-    style: undefined,
-    css: '',
-  });
+  const loading = ref(false);
+  const style = ref<CheckoutStyleType | undefined>(undefined);
+  const css = ref('');
+  const cssNameTranslate = {
+    backgroundColor: { name: 'background-color', unit: '' },
+    textColor: { name: 'color', unit: '' },
+    fontSize: { name: 'font-size', unit: 'px' },
+    borderRadius: { name: 'border-radius', unit: 'px' },
+  };
 
   const initialize = async (token: string) => {
     const payload = await GeinsOMS.parseCheckoutToken(token);
-    const style = payload?.checkoutSettings?.style;
-    if (!style) {
+    style.value = payload?.checkoutSettings?.style;
+    if (!style.value) {
       return;
     }
-    state.style = style;
 
     const classes = [];
-    if (style?.body) {
-      const bodyClass = buildClass('elemnet', 'body', style?.body);
+    if (style.value.body) {
+      const bodyClass = buildClass('element', 'body', style.value.body);
       if (bodyClass) {
         classes.push(bodyClass);
       }
     }
-    if (style?.topbar) {
-      const topbarClass = buildClass('elemnet', 'header', style?.topbar);
+    if (style.value.topbar) {
+      const topbarClass = buildClass('element', 'header', style.value.topbar);
       if (topbarClass) {
         classes.push(topbarClass);
       }
     }
-    if (style?.cards) {
-      const cardClass = buildClass('class', 'card', style?.cards);
+    if (style.value?.cards) {
+      const cardClass = buildClass('class', 'card', style.value?.cards);
       if (cardClass) {
         classes.push(cardClass);
       }
     }
-    if (style?.buttons) {
-      const buttonClass = buildClass('elemnet', 'button', style?.buttons);
+    if (style.value?.buttons) {
+      const buttonClass = buildClass('element', 'button', style.value?.buttons);
       if (buttonClass) {
         classes.push(buttonClass);
       }
     }
-    state.css = classes.join('\n');
+    css.value = `${classes.join('\n')}`;
+
     setStylesToDocument();
   };
 
@@ -71,26 +67,25 @@ export const useCheckoutStyling = () => {
   };
 
   const setStylesToDocument = () => {
-    // page background color
-    const bgColor = state.style.backgroundColor;
-    if (bgColor && typeof bgColor === 'string') {
-      document.body.style.backgroundColor = bgColor;
-    } else {
-      //document.body.style.backgroundColor = '';
+    if (import.meta.server) {
+      return;
     }
-    // build <style> tag for custom CSS rules
     const styleTag = document.createElement('style');
-    styleTag.innerHTML = state.css;
-    console.log(state.css);
+    styleTag.innerHTML = css.value;
     document.head.appendChild(styleTag);
   };
 
+  const topBarVisible = computed(() => style.value?.topbar?.visible ?? false);
+  const topBarTitle = computed(() => style.value?.title ?? '');
+
   return {
-    state,
+    loading,
+    css,
+    style,
     initialize,
     setStylesToDocument,
-    topbarVisible: () => state.style?.topbar?.visible ?? false,
-    topbarTitle: () => state.style?.title ?? '',
+    topBarVisible,
+    topBarTitle,
   };
 };
 
