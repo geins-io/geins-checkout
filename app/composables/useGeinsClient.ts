@@ -3,40 +3,8 @@ import { GeinsCore, RuntimeContext, CHECKOUT_PARAMETER, extractParametersFromUrl
 import { GeinsOMS } from '@geins/oms';
 import type { CartType, GeinsSettings, PaymentOptionType, ShippingOptionType, CheckoutType, CheckoutInputType, GeinsUserType, CheckoutUrlsInputType, CheckoutTokenPayload, CheckoutRedirectsType, CheckoutStyleType, CheckoutQueryParameters, CheckoutOrderSummary } from '@geins/types';
 
-interface OrderSummary {
-  cart: CartType;
-  billingAddress: {
-    firstName: string;
-    lastName: string;
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    zip: string;
-    country: string;
-    mobile?: string;
-    phone?: string;
-  };
-  shippingAddress: {
-    firstName: string;
-    lastName: string;
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    zip: string;
-    country: string;
-    mobile?: string;
-    phone?: string;
-  };
-  paymentDetails: Array<{
-    displayName: string;
-  }>;
-  shippingDetails: Array<{
-    name: string;
-  }>;
-  status: string;
-}
-const CHECKOUT_URL = 'https://checkout-qa.geins.services';
-//const CHECKOUT_URL = 'http://localhost:3005';
+const config = useRuntimeConfig();
+const CHECKOUT_URL = config.public.CURRENT_VERSION;
 
 // Keep core instances outside the composable state
 let geinsCore: GeinsCore;
@@ -44,7 +12,6 @@ let geinsOMS: GeinsOMS;
 
 interface State {
   token: string;
-
   geinsSettings: GeinsSettings | null;
   settings: Record<string, unknown> | null;
   cartId: string;
@@ -134,6 +101,7 @@ export const useGeinsClient = () => {
 
   const updateCheckout = async (options?: { paymentMethodId?: number; shippingMethodId?: number }): Promise<void> => {
     const checkout = await getCheckout(options);
+
     if (checkout) {
       state.cartObject = checkout.cart || null;
       state.paymentMethods = setPaymentMethods(checkout.paymentOptions || []);
@@ -156,15 +124,17 @@ export const useGeinsClient = () => {
     // console.log('CLIENT getCheckout() - paymentMethodId', paymentMethodId);
 
     const checkoutUrls = getCheckouUrls(paymentMethodId ?? 0);
-    // console.log('CLIENT getCheckout() - checkoutUrls', checkoutUrls);
+
     const args = {
       cartId: state.cartId,
       paymentMethodId,
       shippingMethodId,
-      checkout: {
+      checkoutOptions: {
         checkoutUrls,
       } as CheckoutInputType,
     };
+
+    console.log('CLIENT getCheckout() - checkoutUrls', args);
 
     const checkout = await geinsOMS.checkout.get(args);
     if (!checkout) {
@@ -265,8 +235,8 @@ export const useGeinsClient = () => {
     getShippingMethods: () => state.shippingMethods,
     getSelectedShippingMethod: () => state.shippingMethods.find((method) => method.isSelected),
     validateCheckout: async () => true,
-    createOrder: async (checkoutInput: { cartId: string; checkout: CheckoutInputType }) => {
-      const result = await geinsOMS.order.create(checkoutInput);
+    createOrder: async (checkoutInput: { cartId: string; checkoutOptions: CheckoutInputType }) => {
+      const result = await geinsOMS.checkout.createOrder(checkoutInput);
       return result;
     },
     getSummary: () => state.orderSummary,

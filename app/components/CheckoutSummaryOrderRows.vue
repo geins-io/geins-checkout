@@ -25,7 +25,9 @@ const imgUrl = (item: CheckoutOrderRowSummary): string => {
 
         <!-- Product Details -->
         <div class="flex-grow">
-          <h4 class="font-medium">{{ item.name }}</h4>
+          <h4 class="font-medium">
+            {{ item.product.name }} <i>{{ item.name }}</i>
+          </h4>
 
           <!-- Package Items -->
           <!--           <div v-if="item.isPackage && item.packageItems" class="mt-2 text-sm text-gray-600">

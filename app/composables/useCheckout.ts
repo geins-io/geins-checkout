@@ -124,15 +124,10 @@ export const useCheckout = () => {
   };
 
   const setExternalCheckout = async (paymentMethod: any) => {
-    //console.log('🚀 ~ useCheckout.ts:164 ~ setExternalCheckout ~ paymentMethod:', paymentMethod);
-
     if (paymentMethod.paymentData === null) {
       return;
     }
     let html = paymentMethod.paymentData;
-
-    //console.log('🚀 ~ setExternalCheckout ~ paymentMethod:', paymentMethod);
-
     if (paymentMethod.paymentType === 'AVARDA') {
       html = `<script src="https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>` + html;
     }
@@ -273,7 +268,7 @@ export const useCheckout = () => {
 
     return {
       cartId: cartId,
-      checkout: {
+      checkoutOptions: {
         email: state.billingAddress.email,
         customerType: CustomerType.PERSON,
         paymentId: state.selectedPaymentMethod,
@@ -316,7 +311,7 @@ export const useCheckout = () => {
 
       // place order
       const checkoutInput = createCheckoutInput();
-      // console.log('checkoutInput::', checkoutInput);
+
       retval.success = false;
       loading.value = true;
       const valid = await geinsClient.validateCheckout(checkoutInput);
@@ -330,7 +325,6 @@ export const useCheckout = () => {
         retval.orderId = orderResult.orderId;
         retval.publicOrderId = orderResult.publicId;
       }
-      //retval.redirectUrl = await getRedirectUrl(retval);
     } catch (e) {
       error.value = 'Failed to complete checkout';
       console.error(e);

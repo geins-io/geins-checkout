@@ -25,10 +25,9 @@ onMounted(async () => {
   }
 
   const summary = await initializeSummary(token, orderId, querystrings);
-  if (state.isExternalSummary) {
-    if (summary.htmlSnippet) {
-      externalSummaryHTML.value = summary.htmlSnippet;
-    }
+  console.log('Summary', summary.htmlSnippet);
+  if (summary.htmlSnippet) {
+    externalSummaryHTML.value = summary.htmlSnippet;
   } else {
     orderDetails.value = summary.order;
   }
