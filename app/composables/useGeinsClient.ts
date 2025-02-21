@@ -66,7 +66,11 @@ export const useGeinsClient = () => {
     state.settings = payload.checkoutSettings;
     state.redirectUrls = payload.checkoutSettings?.redirectUrls;
 
-    if (payload.checkoutSettings?.copyCart) state.cartId = payload.cartId;
+    if (payload.checkoutSettings?.copyCart) {
+      console.log('CLIENT initializeStateFromToken() - copyCart', payload.checkoutSettings.copyCart);
+    }
+
+    state.cartId = payload.cartId;
 
     // copy cart???
   };
