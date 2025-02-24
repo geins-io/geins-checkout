@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Logo from '@/assets/logos/geins.svg';
+const { path } = useRoute();
 const { token } = useCheckout();
 const { initialize, topBarVisible, topBarTitle, logoUrl } = useCheckoutStyling();
 
@@ -10,7 +11,7 @@ watchEffect(async () => {
 
 <template>
   <div>
-    <header v-if="topBarVisible" class="bg-background py-5">
+    <header v-if="topBarVisible && path !== '/'" class="bg-background py-5">
       <div class="mx-auto flex items-center justify-center">
         <img v-if="logoUrl" :src="logoUrl" class="max-h-8 w-auto" />
         <Logo v-else :font-controlled="false" class="max-h-8 w-auto" />

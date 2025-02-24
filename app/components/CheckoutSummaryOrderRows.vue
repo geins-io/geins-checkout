@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { CheckoutOrderRowSummary } from '@geins/types';
+const { imgBaseUrl } = useCheckoutStyling();
 
-const props = defineProps<{
+const _props = defineProps<{
   order: CheckoutOrderSummary;
 }>();
 
 const imgUrl = (item: CheckoutOrderRowSummary): string => {
   if (!item.product?.imageUrl) return '';
 
-  return `https://labs.commerce.services/product/raw/${item.product.imageUrl}`;
+  return `${imgBaseUrl}${item.product.imageUrl}`;
 };
 </script>
 

@@ -1,6 +1,7 @@
 import { GeinsOMS } from '@geins/oms';
 import type { CheckoutStyleType } from '@geins/types';
 
+// TODO: re-do styles so that it integrates with tailwind/shadcn instead of basic css
 export const useCheckoutStyling = () => {
   const loading = ref(false);
   const style = ref<CheckoutStyleType>();
@@ -11,6 +12,8 @@ export const useCheckoutStyling = () => {
     fontSize: { name: 'font-size', unit: '' },
     borderRadius: { name: 'border-radius', unit: 'px' },
   };
+  // TODO: send this with token
+  const imgBaseUrl = ref('https://labs.commerce.services/product/raw/');
 
   const initialize = async (token: string) => {
     const payload = await GeinsOMS.parseCheckoutToken(token);
@@ -73,7 +76,7 @@ export const useCheckoutStyling = () => {
     return styles.length > 0 ? `${prefix}${name} {${styles.join(';')}}` : undefined;
   };
 
-  const topBarVisible = computed(() => style.value?.topbar?.visible ?? false);
+  const topBarVisible = computed(() => style.value?.topbar?.visible ?? true);
   const topBarTitle = computed(() => style.value?.title ?? 'Checkout');
   const logoUrl = computed(() => style.value?.logoUrl ?? '');
 
@@ -81,6 +84,7 @@ export const useCheckoutStyling = () => {
     loading,
     css,
     style,
+    imgBaseUrl,
     initialize,
     topBarVisible,
     topBarTitle,

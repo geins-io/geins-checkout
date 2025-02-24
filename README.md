@@ -6,7 +6,7 @@
 
 - [ ] Copy cart if settings says so
 - [x] Render logo from the `logo` field in checkout settings
-- [ ] Fix image urls from - https://labs.commerce.services/product/raw/
+- [ ] Fix image urls from - https://labs.commerce.services/product/raw/ (Add base img url to token!)
 - [ ] Address inputs and validation in components
 - [ ] Add a way to add custom fields to the checkout form
 - [ ] Proofing for external checkout rendering (avarda?).
@@ -14,6 +14,7 @@
 - [ ] Add VAT sums to cart summary
 - [ ] Use Types from `@geins/types`
 - [ ] Debug mode with logging to console
+- [ ] Re-do styles so that it integrates with tailwind/shadcn instead of basic css
 
 ### Before v0 release
 
