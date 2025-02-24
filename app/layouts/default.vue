@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import Logo from '@/assets/logos/geins.svg';
 const { token } = useCheckout();
-const { initialize, topBarVisible, topBarTitle } = useCheckoutStyling();
+const { initialize, topBarVisible, topBarTitle, logoUrl } = useCheckoutStyling();
 
 watchEffect(async () => {
   initialize(token.value);
@@ -9,9 +10,11 @@ watchEffect(async () => {
 
 <template>
   <div>
-    <header v-if="topBarVisible" class="header border-b shadow-sm">
-      <div class="mx-auto max-w-4xl px-6 py-4">
-        <h1 class="text-center text-xl font-bold">{{ topBarTitle }}</h1>
+    <header v-if="topBarVisible" class="bg-background py-5">
+      <div class="mx-auto flex items-center justify-center">
+        <img v-if="logoUrl" :src="logoUrl" class="max-h-8 w-auto" />
+        <Logo v-else :font-controlled="false" class="max-h-8 w-auto" />
+        <h1 class="ml-6 border-l-2 pl-6 pr-4 text-center text-xl">{{ topBarTitle }}</h1>
       </div>
     </header>
     <slot />

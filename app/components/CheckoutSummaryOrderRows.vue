@@ -20,7 +20,7 @@ const imgUrl = (item: CheckoutOrderRowSummary): string => {
       <div v-for="item in order.rows" :key="item.skuId" class="flex gap-4 border-b py-4">
         <!-- Product Image -->
         <div v-if="item.product?.imageUrl" class="size-20 shrink-0">
-          <img :src="imgUrl(item)" class="size-full rounded object-cover" />
+          <NuxtImg :src="imgUrl(item)" class="size-full rounded object-cover" />
         </div>
 
         <!-- Product Details -->

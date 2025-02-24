@@ -1,8 +1,8 @@
 <script setup lang="ts">
-onMounted(() => {});
+import Logo from '@/assets/logos/geins.svg';
 </script>
 <template>
   <div class="flex min-h-screen items-center justify-center">
-    <p>Geins Checkout</p>
+    <Logo :font-controlled="false" class="h-28 w-auto" />
   </div>
 </template>

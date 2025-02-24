@@ -3,12 +3,12 @@ import type { CheckoutStyleType } from '@geins/types';
 
 export const useCheckoutStyling = () => {
   const loading = ref(false);
-  const style = ref<CheckoutStyleType | undefined>(undefined);
+  const style = ref<CheckoutStyleType>();
   const css = ref('');
   const cssNameTranslate = {
     backgroundColor: { name: 'background-color', unit: '' },
     textColor: { name: 'color', unit: '' },
-    fontSize: { name: 'font-size', unit: 'px' },
+    fontSize: { name: 'font-size', unit: '' },
     borderRadius: { name: 'border-radius', unit: 'px' },
   };
 
@@ -20,13 +20,13 @@ export const useCheckoutStyling = () => {
     }
 
     const classes = [];
-    if (style.value.body) {
+    if (style.value?.body) {
       const bodyClass = buildClass('element', 'body', style.value.body);
       if (bodyClass) {
         classes.push(bodyClass);
       }
     }
-    if (style.value.topbar) {
+    if (style.value?.topbar) {
       const topbarClass = buildClass('element', 'header', style.value.topbar);
       if (topbarClass) {
         classes.push(topbarClass);
@@ -44,9 +44,16 @@ export const useCheckoutStyling = () => {
         classes.push(buttonClass);
       }
     }
+
     css.value = `${classes.join('\n')}`;
 
-    setStylesToDocument();
+    useHead({
+      style: [
+        {
+          innerHTML: css.value,
+        },
+      ],
+    });
   };
 
   const buildClass = (type: string, name: string, styleObject: unknown) => {
@@ -66,26 +73,18 @@ export const useCheckoutStyling = () => {
     return styles.length > 0 ? `${prefix}${name} {${styles.join(';')}}` : undefined;
   };
 
-  const setStylesToDocument = () => {
-    if (import.meta.server) {
-      return;
-    }
-    const styleTag = document.createElement('style');
-    styleTag.innerHTML = css.value;
-    document.head.appendChild(styleTag);
-  };
-
   const topBarVisible = computed(() => style.value?.topbar?.visible ?? false);
-  const topBarTitle = computed(() => style.value?.title ?? '');
+  const topBarTitle = computed(() => style.value?.title ?? 'Checkout');
+  const logoUrl = computed(() => style.value?.logoUrl ?? '');
 
   return {
     loading,
     css,
     style,
     initialize,
-    setStylesToDocument,
     topBarVisible,
     topBarTitle,
+    logoUrl,
   };
 };
 

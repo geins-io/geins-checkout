@@ -5,7 +5,7 @@
 ### Todo
 
 - [ ] Copy cart if settings says so
-- [ ] Render logo from the `logo` field in checkout settings
+- [x] Render logo from the `logo` field in checkout settings
 - [ ] Fix image urls from - https://labs.commerce.services/product/raw/
 - [ ] Address inputs and validation in components
 - [ ] Add a way to add custom fields to the checkout form
