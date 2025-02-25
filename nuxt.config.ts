@@ -10,7 +10,18 @@ export default defineNuxtConfig({
   },
 
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/i18n', 'shadcn-nuxt', 'nuxt-svgo', 'nuxt-lucide-icons'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/i18n',
+    'shadcn-nuxt',
+    'nuxt-svgo',
+    'nuxt-lucide-icons',
+    '@nuxt/image',
+  ],
+
+  image: {
+    domains: ['labs.commerce.services'],
+  },
 
   shadcn: {
     prefix: '',
@@ -25,9 +36,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      DEBUG: process.env.GEINS_DEBUG === 'true',
-      CURRENT_VERSION: process.env.CURRENT_VERSION,
-      URL: process.env.URL,
+      debug: process.env.GEINS_DEBUG === 'true',
+      currentVersion: process.env.CURRENT_VERSION,
+      url: process.env.URL,
     },
     private: {},
   },

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { CheckoutOrderRowSummary } from '@geins/types';
+const { imgBaseUrl } = useCheckoutToken();
 
-const props = defineProps<{
+const _props = defineProps<{
   order: CheckoutOrderSummary;
 }>();
 
 const imgUrl = (item: CheckoutOrderRowSummary): string => {
   if (!item.product?.imageUrl) return '';
 
-  return `https://labs.commerce.services/product/raw/${item.product.imageUrl}`;
+  return `${imgBaseUrl}${item.product.imageUrl}`;
 };
 </script>
 
@@ -19,12 +20,12 @@ const imgUrl = (item: CheckoutOrderRowSummary): string => {
       <h3 class="text-lg font-medium">Items</h3>
       <div v-for="item in order.rows" :key="item.skuId" class="flex gap-4 border-b py-4">
         <!-- Product Image -->
-        <div v-if="item.product?.imageUrl" class="h-20 w-20 flex-shrink-0">
-          <img :src="imgUrl(item)" class="h-full w-full rounded object-cover" />
+        <div v-if="item.product?.imageUrl" class="size-20 shrink-0">
+          <NuxtImg :src="imgUrl(item)" class="size-full rounded object-cover" />
         </div>
 
         <!-- Product Details -->
-        <div class="flex-grow">
+        <div class="grow">
           <h4 class="font-medium">
             {{ item.product.name }} <i>{{ item.name }}</i>
           </h4>

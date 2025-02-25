@@ -1,4 +1,3 @@
-import { useRuntimeConfig } from '#imports';
 import { extractParametersFromUrl, GeinsCore, RuntimeContext } from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
 import type {
@@ -14,15 +13,6 @@ import type {
   PaymentOptionType,
   ShippingOptionType,
 } from '@geins/types';
-import { markRaw } from 'vue';
-
-const config = useRuntimeConfig();
-const CHECKOUT_URL = config.public.URL;
-
-// Keep core instances outside the composable state
-let geinsCore: GeinsCore;
-let geinsOMS: GeinsOMS;
-
 interface State {
   token: string;
   geinsSettings: GeinsSettings | null;
@@ -38,7 +28,13 @@ interface State {
   style: CheckoutStyleType | undefined;
 }
 
+// Keep core instances outside the composable state
+let geinsCore: GeinsCore;
+let geinsOMS: GeinsOMS;
+
 export const useGeinsClient = () => {
+  const CHECKOUT_URL = useRuntimeConfig().public.url;
+
   const state: State = {
     token: '',
     style: undefined,

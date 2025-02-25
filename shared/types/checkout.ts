@@ -186,3 +186,24 @@ export interface CheckoutOrderRowSummary {
     currency: string;
   };
 }
+
+export interface CheckoutTokenSettings {
+  styles?: CheckoutStyleType;
+  logo?: string;
+  avatar?: string;
+  name?: string;
+  source?: string;
+}
+
+export interface CheckoutStyleType {
+  fontSize: string;
+  radius: string;
+  background: string;
+  foreground: string;
+  card: string;
+  cardForeground: string;
+  accent: string;
+  accentForeground: string;
+  border: string;
+  sale: string;
+}
