@@ -62,7 +62,7 @@ watch(
         <input
           v-model="formData.firstName"
           type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
           :class="{ 'border-red-500': errors.firstName }"
         />
         <p v-if="errors.firstName" class="mt-1 text-sm text-red-600">{{ errors.firstName }}</p>
@@ -72,7 +72,7 @@ watch(
         <input
           v-model="formData.lastName"
           type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
           :class="{ 'border-red-500': errors.lastName }"
         />
         <p v-if="errors.lastName" class="mt-1 text-sm text-red-600">{{ errors.lastName }}</p>
@@ -84,7 +84,7 @@ watch(
       <input
         v-model="formData.email"
         type="email"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
         :class="{ 'border-red-500': errors.email }"
       />
       <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
@@ -95,7 +95,7 @@ watch(
       <input
         v-model="formData.phone"
         type="tel"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
         :class="{ 'border-red-500': errors.phone }"
       />
       <p v-if="errors.phone" class="mt-1 text-sm text-red-600">{{ errors.phone }}</p>
@@ -106,7 +106,7 @@ watch(
       <input
         v-model="formData.street"
         type="text"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
         :class="{ 'border-red-500': errors.street }"
       />
       <p v-if="errors.street" class="mt-1 text-sm text-red-600">{{ errors.street }}</p>
@@ -118,7 +118,7 @@ watch(
         <input
           v-model="formData.city"
           type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
           :class="{ 'border-red-500': errors.city }"
         />
         <p v-if="errors.city" class="mt-1 text-sm text-red-600">{{ errors.city }}</p>
@@ -128,7 +128,7 @@ watch(
         <input
           v-model="formData.postalCode"
           type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
           :class="{ 'border-red-500': errors.postalCode }"
         />
         <p v-if="errors.postalCode" class="mt-1 text-sm text-red-600">{{ errors.postalCode }}</p>
@@ -138,7 +138,7 @@ watch(
         <input
           v-model="formData.country"
           type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
           :class="{ 'border-red-500': errors.country }"
         />
         <p v-if="errors.country" class="mt-1 text-sm text-red-600">{{ errors.country }}</p>

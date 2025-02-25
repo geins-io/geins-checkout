@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { state, initializeSummary } = useSummary();
-const { token } = useCheckout();
+const { token } = useCheckoutToken();
 const { query, params } = useRoute();
 const orderId = params.orderId?.toString() || '';
 const orderDetails = ref<CheckoutOrderSummary | null>(null);
@@ -26,11 +26,11 @@ onMounted(async () => {
     <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <div class="overflow-hidden rounded-lg bg-white shadow">
         <!-- Order Confirmation Header -->
-        <div class="bg-blue-600 px-6 py-8 text-white">
+        <div class="bg-accent px-6 py-8 text-white">
           <div class="flex items-center justify-center">
             <div class="text-center">
               <h1 class="text-3xl font-bold">Thank you for your order!</h1>
-              <p class="mt-2 text-blue-100">Order #{{ orderDetails?.orderId }}</p>
+              <p class="mt-2 text-accent">Order #{{ orderDetails?.orderId }}</p>
             </div>
           </div>
         </div>
@@ -131,16 +131,6 @@ onMounted(async () => {
               </div>
             </div>
           </div> -->
-
-          <!-- Back to Home -->
-          <div v-if="state.continueShoppingUrl" class="mt-8 text-center">
-            <NuxtLink
-              :to="state.continueShoppingUrl"
-              class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              Continue Shopping
-            </NuxtLink>
-          </div>
         </div>
       </div>
     </div>

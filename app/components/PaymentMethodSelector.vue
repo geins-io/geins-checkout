@@ -15,16 +15,15 @@ const selectMethod = (methodId: string) => {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <h2 class="text-lg font-medium">Payment Method</h2>
+  <div class="space-y-2 text-xs">
     <div class="space-y-3">
       <div
         v-for="method in methods"
         :key="method.id"
         class="cursor-pointer rounded-lg border p-4 transition-colors duration-200"
         :class="{
-          'border-blue-500 bg-blue-50': method.isSelected,
-          'border-gray-200 hover:border-blue-200': !method.isSelected,
+          'border-accent bg-accent/10': method.isSelected,
+          'border-gray-200 hover:border-accent': !method.isSelected,
         }"
         @click="selectMethod(method.id)"
       >
@@ -33,9 +32,9 @@ const selectMethod = (methodId: string) => {
             <div class="size-6 shrink-0">
               <div
                 class="flex size-6 items-center justify-center rounded-full border-2"
-                :class="{ 'border-blue-500': method.isSelected, 'border-gray-300': !method.isSelected }"
+                :class="{ 'border-accent': method.isSelected, 'border-gray-300': !method.isSelected }"
               >
-                <div v-if="method.isSelected" class="size-3 rounded-full bg-blue-500" />
+                <div v-if="method.isSelected" class="size-3 rounded-full bg-accent" />
               </div>
             </div>
             <div class="flex items-center space-x-3">

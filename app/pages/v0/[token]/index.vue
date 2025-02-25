@@ -1,8 +1,6 @@
 <script setup lang="ts">
-const { token } = useCheckout();
-const currentVersion = useRuntimeConfig().public.currentVersion;
-
-navigateTo(`/${currentVersion}/${token.value}/checkout`);
+const { currentCheckoutUrl } = useCheckoutToken();
+navigateTo(currentCheckoutUrl.value);
 </script>
 <template>
   <div />

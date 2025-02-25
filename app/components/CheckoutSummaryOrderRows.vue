@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CheckoutOrderRowSummary } from '@geins/types';
-const { imgBaseUrl } = useCheckoutStyling();
+const { imgBaseUrl } = useCheckoutToken();
 
 const _props = defineProps<{
   order: CheckoutOrderSummary;

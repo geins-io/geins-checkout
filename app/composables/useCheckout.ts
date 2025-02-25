@@ -15,14 +15,13 @@ export const useCheckout = () => {
     country: '',
   };
 
-  const token = useState<string>('checkout-token');
   const loading = ref(false);
   const error = ref('');
   const useShippingAddress = ref(false);
-  const paymentMethods = ref<any[]>([]);
-  const shippingMethods = ref<any[]>([]);
+  const paymentMethods = ref([]);
+  const shippingMethods = ref([]);
 
-  const state = reactive<{
+  const state = ref<{
     cart: CartType | null;
     billingAddress: Address;
     shippingAddress: Address;
@@ -38,13 +37,13 @@ export const useCheckout = () => {
     shippingAddress: { ...defaultAddress },
     selectedPaymentMethod: 0,
     selectedShippingMethod: 0,
-    showCompleteButton: true,
+    showCompleteButton: false,
     disableCompleteButton: false,
     externalCheckoutHTML: '',
     style: undefined,
   });
 
-  const isExternalCheckout = computed(() => state.externalCheckoutHTML.length > 0);
+  const isExternalCheckout = computed(() => state.value.externalCheckoutHTML.length > 0);
 
   const initializeCheckout = async (token: string) => {
     try {
@@ -86,16 +85,16 @@ export const useCheckout = () => {
 
   const loadUser = async (user: GeinsUserType) => {
     try {
-      state.billingAddress.email = user.email;
+      state.value.billingAddress.email = user.email;
       if (user.address) {
-        state.billingAddress.firstName = user.address.firstName;
-        state.billingAddress.lastName = user.address.lastName;
-        state.billingAddress.email = user.email;
-        state.billingAddress.phone = user.address.phone;
-        state.billingAddress.street = user.address.addressLine1;
-        state.billingAddress.city = user.address.city;
-        state.billingAddress.postalCode = user.address.zip;
-        state.billingAddress.country = user.address.country;
+        state.value.billingAddress.firstName = user.address.firstName;
+        state.value.billingAddress.lastName = user.address.lastName;
+        state.value.billingAddress.email = user.email;
+        state.value.billingAddress.phone = user.address.phone;
+        state.value.billingAddress.street = user.address.addressLine1;
+        state.value.billingAddress.city = user.address.city;
+        state.value.billingAddress.postalCode = user.address.zip;
+        state.value.billingAddress.country = user.address.country;
       }
     } catch (e) {
       error.value = 'Failed to initialize user';
@@ -107,12 +106,12 @@ export const useCheckout = () => {
     try {
       loading.value = true;
       if (type === 'billing') {
-        state.billingAddress = address;
+        state.value.billingAddress = address;
         if (!useShippingAddress.value) {
-          state.shippingAddress = { ...address };
+          state.value.shippingAddress = { ...address };
         }
       } else {
-        state.shippingAddress = address;
+        state.value.shippingAddress = address;
       }
     } catch (e) {
       error.value = `Failed to update ${type} address`;
@@ -132,9 +131,9 @@ export const useCheckout = () => {
     }
 
     shippingMethods.value = [];
-    state.externalCheckoutHTML = html;
-    state.showCompleteButton = false;
-    state.disableCompleteButton = true;
+    state.value.externalCheckoutHTML = html;
+    state.value.showCompleteButton = false;
+    state.value.disableCompleteButton = true;
 
     // Wait for Vue to update the DOM
     await nextTick();
@@ -170,7 +169,7 @@ export const useCheckout = () => {
   const selectPaymentMethod = async (methodId: number) => {
     try {
       loading.value = true;
-      state.selectedPaymentMethod = methodId;
+      state.value.selectedPaymentMethod = methodId;
 
       await updateCheckout(true);
     } catch (e) {
@@ -184,7 +183,7 @@ export const useCheckout = () => {
   const selectShippingMethod = async (methodId: number) => {
     try {
       loading.value = true;
-      state.selectedShippingMethod = methodId;
+      state.value.selectedShippingMethod = methodId;
 
       await updateCheckout(true);
     } catch (e) {
@@ -198,45 +197,44 @@ export const useCheckout = () => {
   const updateCheckout = async (reload: boolean = true) => {
     try {
       loading.value = true;
-      state.disableCompleteButton = false;
-      state.externalCheckoutHTML = '';
+      state.value.disableCompleteButton = false;
+      state.value.externalCheckoutHTML = '';
 
       // update
       if (reload) {
-        //console.log('updateCheckout::', state.selectedPaymentMethod);
+        //console.log('updateCheckout::', state.value.selectedPaymentMethod);
         await geinsClient.updateCheckout({
-          paymentMethodId: state.selectedPaymentMethod,
-          shippingMethodId: state.selectedShippingMethod,
+          paymentMethodId: state.value.selectedPaymentMethod,
+          shippingMethodId: state.value.selectedShippingMethod,
         });
       }
 
       // set cart
-      const cart = await geinsClient.getCart();
-      if (cart) {
-        state.cart = cart ?? null;
-      }
+      const cart = geinsClient.getCart();
+
+      state.value.cart = cart ?? null;
 
       // shipping methods
       shippingMethods.value = await geinsClient.getShippingMethods();
       const selectedShippingMethod = await geinsClient.getSelectedShippingMethod();
       if (selectedShippingMethod) {
-        state.selectedShippingMethod = Number(selectedShippingMethod.id);
+        state.value.selectedShippingMethod = Number(selectedShippingMethod.id);
       }
 
       // paymenent methods
       paymentMethods.value = await geinsClient.getPaymentMethods();
       const selectedPaymentMethod = await geinsClient.getSelectedPaymentMethod();
       if (selectedPaymentMethod) {
-        state.selectedPaymentMethod = Number(selectedPaymentMethod.id);
+        state.value.selectedPaymentMethod = Number(selectedPaymentMethod.id);
         if (selectedPaymentMethod.paymentData) {
-          state.showCompleteButton = false;
-          state.disableCompleteButton = true;
+          state.value.showCompleteButton = false;
+          state.value.disableCompleteButton = true;
           setExternalCheckout(selectedPaymentMethod);
         }
       }
 
       // set button state
-      state.showCompleteButton = !isExternalCheckout.value;
+      state.value.showCompleteButton = !isExternalCheckout.value;
     } catch (e) {
       error.value = 'Failed to update checkout';
       console.error(e);
@@ -248,7 +246,7 @@ export const useCheckout = () => {
   const validateCheckout = async () => {
     const retval = false;
 
-    const billingAddress = createAddressInputType(state.billingAddress);
+    const billingAddress = createAddressInputType(state.value.billingAddress);
     // validate billing address all fields must have a length over 1
     if (
       billingAddress.firstName.length === 0 ||
@@ -263,26 +261,26 @@ export const useCheckout = () => {
     }
     // console.log('billingAddress::', billingAddress);
 
-    const shippingAddress = createAddressInputType(state.shippingAddress);
+    const shippingAddress = createAddressInputType(state.value.shippingAddress);
 
     return true;
   };
 
   const createCheckoutInput = () => {
-    const cartId = state.cart?.id ?? '';
-    const merchantData = state.cart?.merchantData ?? { test: 'test' };
+    const cartId = state.value.cart?.id ?? '';
+    const merchantData = state.value.cart?.merchantData ?? { test: 'test' };
 
     return {
       cartId: cartId,
       checkoutOptions: {
-        email: state.billingAddress.email,
+        email: state.value.billingAddress.email,
         customerType: CustomerType.PERSON,
-        paymentId: state.selectedPaymentMethod,
-        billingAddress: createAddressInputType(state.billingAddress),
+        paymentId: state.value.selectedPaymentMethod,
+        billingAddress: createAddressInputType(state.value.billingAddress),
         acceptedConsents: ['order'],
         shippingAddress: useShippingAddress.value
-          ? createAddressInputType(state.shippingAddress)
-          : createAddressInputType(state.billingAddress),
+          ? createAddressInputType(state.value.shippingAddress)
+          : createAddressInputType(state.value.billingAddress),
         merchantData: '{"extraData":"","extraNumber":1}', //'JSON.stringify(merchantData)',
         message: 'hello',
       },
@@ -303,14 +301,14 @@ export const useCheckout = () => {
 
     try {
       // Validate shipping selection
-      if (!state.selectedShippingMethod) {
+      if (!state.value.selectedShippingMethod) {
         error.value = 'Please select a shipping method';
         return { success: false };
       }
 
       // validate addresses
-      const billingAddress = createAddressInputType(state.billingAddress);
-      const shippingAddress = createAddressInputType(state.shippingAddress);
+      const billingAddress = createAddressInputType(state.value.billingAddress);
+      const shippingAddress = createAddressInputType(state.value.shippingAddress);
 
       if (
         billingAddress.firstName.length === 0 ||
@@ -366,7 +364,6 @@ export const useCheckout = () => {
   };
 
   return {
-    token,
     state,
     loading,
     error,

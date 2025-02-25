@@ -19,7 +19,6 @@ const imgUrl = (item: CartItemType): string => {
   <div class="space-y-6">
     <!-- Cart Items -->
     <div class="space-y-4">
-      <h3 class="text-lg font-medium">Cart Items</h3>
       <div v-for="item in cart.items" :key="item.id" class="flex gap-4 border-b py-4">
         <!-- Product Image -->
         <div v-if="item.product?.productImages" class="size-20 shrink-0">
@@ -89,7 +88,7 @@ const imgUrl = (item: CartItemType): string => {
       </div>
  -->
       <!-- Discounts -->
-      <div class="flex justify-between text-green-600">
+      <div class="flex justify-between text-sale">
         <ul v-if="Array.isArray(cart.appliedCampaigns)">
           <li v-for="campaign in cart.appliedCampaigns" :key="campaign.name">
             {{ campaign.name }}
