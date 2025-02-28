@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 0 0% 97%;
-    --foreground: 0 0% 67%;
+    --foreground: 0 0% 61%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 19%;
@@ -18,15 +18,6 @@
 
     --radius: 0.5rem;
     --font-size: 0.875rem;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-body text-foreground;
   }
 }
 

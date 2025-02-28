@@ -27,7 +27,7 @@ watchEffect(async () => {
         <img v-if="logo" :src="logo" :class="cn(`h-12 w-auto pr-6 mr-6`, `${!!name ? 'border-r' : ''}`)" />
         <Avatar
           v-else-if="avatar || avatarFallback"
-          :class="cn('mr-4 size-14', `${!!avatar ? '' : 'bg-accent color-accent-foreground'}`)"
+          :class="cn('mr-4 size-12', `${!!avatar ? '' : 'bg-accent color-accent-foreground'}`)"
         >
           <AvatarImage v-if="avatar" :src="avatar" :alt="name" />
           <AvatarFallback class="text-xl">{{ avatarFallback }}</AvatarFallback>

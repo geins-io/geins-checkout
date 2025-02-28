@@ -5,10 +5,10 @@ export const useCheckoutToken = () => {
     fontSize: '0.875rem',
     radius: '0.5rem',
     background: '#f7f7f7',
-    foreground: '#aaaaaa',
+    foreground: '#616161',
     card: '#ffffff',
     cardForeground: '#131313',
-    accent: '#fc5c65',
+    accent: '#131313',
     accentForeground: '#ffffff',
     border: '#e6e6e6',
     sale: '#b70000',
@@ -18,24 +18,27 @@ export const useCheckoutToken = () => {
     styles: mockStyles,
     logo: 'https://docs.geins.io/img/logo-black.svg',
     avatar: 'https://avatar.iran.liara.run/public',
-    name: 'Checkout',
-    source: '',
+    title: 'Checkout',
+    urls: {
+      terms: 'https://docs.geins.io/terms',
+      privacy: 'https://docs.geins.io/privacy',
+    },
   };
 
   const token = useState<string>('checkout-token');
   const currentVersion = useRuntimeConfig().public.currentVersion;
-  const settings = ref<CheckoutTokenSettings>();
+  const settings = ref<CheckoutTokenSettings>(mockSettings);
   const logo = computed(() => settings.value?.logo);
   const avatar = computed(() => settings.value?.avatar);
-  const name = computed(() => settings.value?.name);
-  const source = computed(() => settings.value?.source);
+  const title = computed(() => settings.value?.title);
+  const urls = computed(() => settings.value?.urls);
   const imgBaseUrl = ref('https://labs.commerce.services/product/raw/');
 
   const currentCheckoutUrl = computed(() => {
     return `/${currentVersion}/${token.value}/checkout`;
   });
   const avatarFallback = computed(() => {
-    return settings.value?.name
+    return settings.value?.title
       ?.split(' ')
       .map((word) => word[0])
       .join('')
@@ -45,6 +48,7 @@ export const useCheckoutToken = () => {
   const initSettings = async () => {
     if (!token.value) return;
     const payload = await GeinsOMS.parseCheckoutToken(token.value);
+    console.log('🚀 ~ initSettings ~ payload:', payload);
     if (!payload?.checkoutSettings) return;
     settings.value = payload?.checkoutSettings;
     if (!settings.value?.styles) return;
@@ -127,8 +131,8 @@ export const useCheckoutToken = () => {
     avatarFallback,
     logo,
     avatar,
-    name,
-    source,
+    title,
+    urls,
     imgBaseUrl,
     initSettings,
     setStyles,

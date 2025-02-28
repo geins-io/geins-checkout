@@ -829,27 +829,27 @@
     "@floating-ui/utils" "^0.2.9"
     vue-demi ">=0.13.0"
 
-"@geins/core@0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff":
-  version "0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff"
-  resolved "https://registry.yarnpkg.com/@geins/core/-/core-0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff.tgz#ca2db7bdf0a13b938355eb27b8023cec3fbc875d"
-  integrity sha512-HLGCBGT2h5bbxICo/4jbY6H/2zPrgUAkM4UfpOvY0R30l6bnF/2ESHVhWLAxT/GdO6YDIka9/dZxdIx4K7TX3A==
+"@geins/core@*", "@geins/core@0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@geins/core/-/core-0.4.1.tgz#887c4870b36c5c5ed605795f30d8ac97ad0d4f44"
+  integrity sha512-Q9HEGwM1Olt7TuGO1Jwb6fF/x2xNbUxXnuAksrDQ7NONW4s+wMrc86IRFqzgHZ9Sq0okd7UDR0zWG8hWlDIraw==
   dependencies:
     "@apollo/client" "^3.11.8"
     broadcast-channel "^7.0.0"
     cookie-universal "^2.2.2"
     node-cache "^5.1.2"
 
-"@geins/oms@0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff":
-  version "0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff"
-  resolved "https://registry.yarnpkg.com/@geins/oms/-/oms-0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff.tgz#63679401f490de81ef310da3ab82dad91fa6b983"
-  integrity sha512-K8zzDBLyumUrd2QhTum/VjGJYKbd6muC5wy4N/sEAccSlgxIRnnv1jCVtfwXbPT8kzwzLUL5p+yURo4XV1LQeQ==
+"@geins/oms@*":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@geins/oms/-/oms-0.4.1.tgz#98df19a21df7c2c66c05a71179fbf4e907160a45"
+  integrity sha512-KOGiabgunlAMfkd1+1FTkRWcv51rH73AH0FmiNyCkjBRSEorkAREk6sYO75b9whqmMr76j3DLD1O5CiNsmMehg==
   dependencies:
-    "@geins/core" "0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff"
+    "@geins/core" "0.4.1"
 
-"@geins/types@0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff":
-  version "0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff"
-  resolved "https://registry.yarnpkg.com/@geins/types/-/types-0.3.10-canary-9e45fd154702919aa27d04abc76e4e7d581975ff.tgz#2c0a1750f7c52ff93b5466692c6097dbf86f99ae"
-  integrity sha512-2rVQKRhswVimszrHJZqZDx7ZGWFUCvF+5OzwXUwevP48fcj6InHmfJvM0XV5rmtj/owbp4IbSYv7+h7nrBkidQ==
+"@geins/types@*":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@geins/types/-/types-0.4.1.tgz#36402cf6325910f1eac97816d473eee8a0691f70"
+  integrity sha512-TAbfhnRa6jfYK3AMiTS25Kwi5YnbehiYsVuiAm3Wi39FsNOTt9uBv1V8Gyj4pDCi+UOXtsxtx1EoMB4/G68oEw==
 
 "@graphql-typed-document-node/core@^3.1.1":
   version "3.2.0"

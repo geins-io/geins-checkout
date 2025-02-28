@@ -2,9 +2,9 @@ import { extractParametersFromUrl, GeinsCore, RuntimeContext } from '@geins/core
 import { GeinsOMS } from '@geins/oms';
 import type {
   CartType,
+  CheckoutBrandingType,
   CheckoutInputType,
   CheckoutRedirectsType,
-  CheckoutStyleType,
   CheckoutTokenPayload,
   CheckoutType,
   CheckoutUrlsInputType,
@@ -25,7 +25,7 @@ interface State {
   checkoutObject: CheckoutType | null;
   orderSummary: unknown | null;
   redirectUrls: CheckoutRedirectsType | undefined;
-  style: CheckoutStyleType | undefined;
+  branding: CheckoutBrandingType | undefined;
 }
 
 // Keep core instances outside the composable state
@@ -37,7 +37,7 @@ export const useGeinsClient = () => {
 
   const state: State = {
     token: '',
-    style: undefined,
+    branding: undefined,
     geinsSettings: null,
     settings: null,
     cartId: '',
@@ -49,15 +49,17 @@ export const useGeinsClient = () => {
     orderSummary: undefined,
     redirectUrls: undefined,
   };
+
   const copyCart = (cartId: string): string => {
     return 'copy-cart-id ';
   };
 
   const initializeStateFromToken = async (token: string): Promise<void> => {
     const payload = GeinsCore.decodeJWT(token) as CheckoutTokenPayload;
+    console.log('🚀 ~ initializeStateFromToken ~ payload:', payload);
     state.token = token;
     state.geinsSettings = payload.geinsSettings;
-    state.style = payload.checkoutSettings.style;
+    state.branding = payload.checkoutSettings.branding;
     state.user = payload.user;
     state.settings = payload.checkoutSettings;
     state.redirectUrls = payload.checkoutSettings?.redirectUrls;
