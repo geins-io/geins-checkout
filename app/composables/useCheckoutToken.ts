@@ -1,44 +1,29 @@
 import { GeinsOMS } from '@geins/oms';
+import type {
+  CheckoutBrandingType,
+  CheckoutRedirectsType,
+  CheckoutStyleType,
+  CheckoutTokenPayload,
+} from '@geins/types';
 
 export const useCheckoutToken = () => {
-  const mockStyles = {
-    fontSize: '0.875rem',
-    radius: '0.5rem',
-    background: '#f7f7f7',
-    foreground: '#616161',
-    card: '#ffffff',
-    cardForeground: '#131313',
-    accent: '#131313',
-    accentForeground: '#ffffff',
-    border: '#e6e6e6',
-    sale: '#b70000',
-  };
-
-  const mockSettings = {
-    styles: mockStyles,
-    logo: 'https://docs.geins.io/img/logo-black.svg',
-    avatar: 'https://avatar.iran.liara.run/public',
-    title: 'Checkout',
-    urls: {
-      terms: 'https://docs.geins.io/terms',
-      privacy: 'https://docs.geins.io/privacy',
-    },
-  };
-
   const token = useState<string>('checkout-token');
+  const parsedToken = ref<CheckoutTokenPayload | null>(null);
   const currentVersion = useRuntimeConfig().public.currentVersion;
-  const settings = ref<CheckoutTokenSettings>(mockSettings);
-  const logo = computed(() => settings.value?.logo);
-  const avatar = computed(() => settings.value?.avatar);
-  const title = computed(() => settings.value?.title);
-  const urls = computed(() => settings.value?.urls);
+  const branding = ref<CheckoutBrandingType>();
+  const urls = ref<CheckoutRedirectsType>({});
+  const logo = computed(() => branding.value?.logo);
+  const icon = computed(() => branding.value?.icon);
+  const title = computed(() => branding.value?.title);
   const imgBaseUrl = ref('https://labs.commerce.services/product/raw/');
+
+  const cssVariables = ref<Record<string, string>>({});
 
   const currentCheckoutUrl = computed(() => {
     return `/${currentVersion}/${token.value}/checkout`;
   });
-  const avatarFallback = computed(() => {
-    return settings.value?.title
+  const iconFallback = computed(() => {
+    return branding.value?.title
       ?.split(' ')
       .map((word) => word[0])
       .join('')
@@ -47,13 +32,21 @@ export const useCheckoutToken = () => {
 
   const initSettings = async () => {
     if (!token.value) return;
-    const payload = await GeinsOMS.parseCheckoutToken(token.value);
-    console.log('🚀 ~ initSettings ~ payload:', payload);
-    if (!payload?.checkoutSettings) return;
-    settings.value = payload?.checkoutSettings;
-    if (!settings.value?.styles) return;
-    setStyles(settings.value?.styles);
+    parsedToken.value = await GeinsOMS.parseCheckoutToken(token.value);
+    if (!parsedToken.value?.checkoutSettings) return;
+    branding.value = parsedToken.value?.checkoutSettings?.branding;
+    urls.value = parsedToken.value?.checkoutSettings?.redirectUrls;
+    if (!branding.value) return;
+    setStyles(branding.value?.styles);
   };
+
+  watch(
+    token,
+    async () => {
+      await initSettings();
+    },
+    { immediate: true },
+  );
 
   const camelToKebab = (str: string) => str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
@@ -102,39 +95,51 @@ export const useCheckoutToken = () => {
     return `${h} ${s}% ${l}%`;
   };
 
-  const setStyles = (styles: CheckoutStyleType) => {
-    const cssVariables = Object.entries(styles).reduce(
-      (acc, [key, value]) => {
-        const val = /^#/.test(value) ? hexToHSL(value) : value;
-        acc[`--${camelToKebab(key)}`] = val;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+  const setStyles = (styles?: CheckoutStyleType) => {
+    cssVariables.value = styles
+      ? Object.entries(styles).reduce(
+          (acc, [key, value]) => {
+            const val = /^#/.test(value) ? hexToHSL(value) : value;
+            acc[`--${camelToKebab(key)}`] = val;
+            return acc;
+          },
+          {} as Record<string, string>,
+        )
+      : {};
+  };
 
-    useHead({
-      style: [
-        {
-          children: `body { ${Object.entries(cssVariables)
-            .map(([key, value]) => `${key}: ${value};`)
-            .join(' ')} }`,
-        },
-      ],
+  const nuxtApp = useNuxtApp();
+  const setStylesToHead = async () => {
+    await nuxtApp.runWithContext(() => {
+      useHead({
+        style: [
+          {
+            children: `body { ${Object.entries(cssVariables.value)
+              .filter(([_key, value]) => value)
+              .map(([key, value]) => `${key}: ${value};`)
+              .join(' ')} }`,
+          },
+        ],
+      });
     });
   };
 
+  watch(cssVariables, setStylesToHead);
+
   return {
     token,
+    parsedToken,
     currentVersion,
-    settings,
     currentCheckoutUrl,
-    avatarFallback,
+    branding,
+    iconFallback,
+    icon,
     logo,
-    avatar,
     title,
     urls,
     imgBaseUrl,
     initSettings,
     setStyles,
+    setStylesToHead,
   };
 };

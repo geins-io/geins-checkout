@@ -50,7 +50,7 @@ export const useCheckout = () => {
       loading.value = true;
       await geinsClient.initializeCheckout(token);
       // if user is logged in, load user data
-      const user = await geinsClient.getUser();
+      const user = geinsClient.getUser();
       if (user) {
         await loadUser(user);
       }
