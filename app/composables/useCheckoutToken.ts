@@ -11,7 +11,7 @@ export const useCheckoutToken = () => {
   const parsedToken = ref<CheckoutTokenPayload | null>(null);
   const currentVersion = useRuntimeConfig().public.currentVersion;
   const branding = ref<CheckoutBrandingType>();
-  const urls = ref<CheckoutRedirectsType>({});
+  const urls = ref<CheckoutRedirectsType>();
   const logo = computed(() => branding.value?.logo);
   const icon = computed(() => branding.value?.icon);
   const title = computed(() => branding.value?.title);
@@ -32,12 +32,16 @@ export const useCheckoutToken = () => {
 
   const initSettings = async () => {
     if (!token.value) return;
-    parsedToken.value = await GeinsOMS.parseCheckoutToken(token.value);
+    parsedToken.value = await parseToken(token.value);
     if (!parsedToken.value?.checkoutSettings) return;
     branding.value = parsedToken.value?.checkoutSettings?.branding;
     urls.value = parsedToken.value?.checkoutSettings?.redirectUrls;
     if (!branding.value) return;
     setStyles(branding.value?.styles);
+  };
+
+  const parseToken = async (token: string) => {
+    return await GeinsOMS.parseCheckoutToken(token);
   };
 
   watch(
@@ -139,6 +143,7 @@ export const useCheckoutToken = () => {
     urls,
     imgBaseUrl,
     initSettings,
+    parseToken,
     setStyles,
     setStylesToHead,
   };
