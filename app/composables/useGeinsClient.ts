@@ -31,7 +31,7 @@ let geinsOMS: GeinsOMS;
 
 export const useGeinsClient = () => {
   const CHECKOUT_URL = useRuntimeConfig().public.url;
-  const { token, parsedToken } = useCheckoutToken();
+  const { token, currentVersion, parsedToken, parseToken } = useCheckoutToken();
 
   const state = ref<State>({
     token: token.value,
@@ -51,9 +51,10 @@ export const useGeinsClient = () => {
     return 'copy-cart-id ';
   };
 
-  const initializeStateFromToken = async (token: string): Promise<void> => {
+  const initializeStateFromToken = async (): Promise<void> => {
     if (!parsedToken.value) {
-      throw new Error('Token is required');
+      console.log('called init before token parsed');
+      parsedToken.value = await parseToken(token.value);
     }
 
     state.value.geinsSettings = parsedToken.value.geinsSettings;
@@ -69,12 +70,11 @@ export const useGeinsClient = () => {
     }
 
     state.value.cartId = parsedToken.value.cartId;
-
     // copy cart???
   };
 
-  const setGeinsFromToken = async (token: string): Promise<void> => {
-    await initializeStateFromToken(token);
+  const setGeinsFromToken = async (): Promise<void> => {
+    await initializeStateFromToken();
 
     if (!state.value.geinsSettings) {
       throw new Error('Failed to initialize geinsSettings from token');
@@ -90,10 +90,10 @@ export const useGeinsClient = () => {
     );
   };
 
-  const initializeSummary = async (token: string): Promise<boolean> => {
+  const initializeSummary = async (): Promise<boolean> => {
     // set all the settings from the token
     try {
-      await setGeinsFromToken(token);
+      await setGeinsFromToken();
     } catch (e) {
       console.error(e);
       return false;
@@ -101,12 +101,13 @@ export const useGeinsClient = () => {
     return true;
   };
 
-  const initializeCheckout = async (token: string): Promise<void> => {
-    // set all the settings from the token
-    await setGeinsFromToken(token);
+  const initializeCheckout = async (): Promise<void> => {
+    await setGeinsFromToken();
+
     const checkout = await getCheckout({
       paymentMethodId: state.value.settings?.selectedPaymentMethodId as number,
     });
+
     if (checkout) {
       state.value.cartObject = checkout.cart || null;
       state.value.paymentMethods = setPaymentMethods(checkout.paymentOptions || []);
@@ -155,7 +156,7 @@ export const useGeinsClient = () => {
     }
     // console.log('CLIENT getCheckout() - paymentMethodId', paymentMethodId);
 
-    const checkoutUrls = getCheckouUrls(paymentMethodId ?? 0);
+    const checkoutUrls = getCheckoutUrls(paymentMethodId ?? 0);
 
     const args = {
       cartId: state.value.cartId,
@@ -165,19 +166,21 @@ export const useGeinsClient = () => {
         checkoutUrls,
       } as CheckoutInputType,
     };
-
-    console.log('CLIENT getCheckout() - checkoutUrls', args);
-
-    const checkout = await geinsOMS.checkout.get(args);
-    if (!checkout) {
-      throw new Error('Failed to get checkout');
+    try {
+      const checkout = await geinsOMS.checkout.get(args);
+      if (!checkout) {
+        throw new Error('Failed to get checkout');
+      }
+      return checkout;
+    } catch (error) {
+      console.error('Error during getCheckout:', error);
+      throw error;
     }
-    return checkout;
   };
 
-  const getCheckouUrls = (paymentMethodId: number): CheckoutUrlsInputType | undefined => {
+  const getCheckoutUrls = (paymentMethodId: number): CheckoutUrlsInputType | undefined => {
     const urls = {} as CheckoutUrlsInputType;
-    // console.log('CLIENT getCheckouUrls() - paymentMethod', paymentMethodId);
+    // console.log('CLIENT getCheckoutUrls() - paymentMethod', paymentMethodId);
     if (paymentMethodId === 0) {
       throw new Error('Payment method ID is required.');
     }
@@ -187,7 +190,7 @@ export const useGeinsClient = () => {
       // Use the success URL directly without adding parameters again
       urls.redirectUrl = state.value.redirectUrls.success;
     } else {
-      urls.redirectUrl = `${CHECKOUT_URL}/v0/${state.value.token}/thank-you/{payment.uid}`;
+      urls.redirectUrl = `${CHECKOUT_URL}/${currentVersion}/${state.value.token}/thank-you/{payment.uid}`;
     }
     urls.redirectUrl = updateCheckoutUrlWithParameters({
       url: urls.redirectUrl,
@@ -202,6 +205,11 @@ export const useGeinsClient = () => {
     // add terms if any
     if (state.value.redirectUrls?.terms) {
       urls.termsPageUrl = state.value.redirectUrls.terms;
+    }
+
+    // add privacy if any
+    if (state.value.redirectUrls?.privacy) {
+      urls.privacyPageUrl = state.value.redirectUrls.privacy;
     }
 
     return urls;

@@ -2,6 +2,7 @@ import type { AddressInputType, CartType, CheckoutStyleType, GeinsUserType } fro
 import { CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
+  const { parsedToken } = useCheckoutToken();
   const geinsClient = useGeinsClient();
 
   const defaultAddress: Address = {
@@ -45,10 +46,10 @@ export const useCheckout = () => {
 
   const isExternalCheckout = computed(() => state.value.externalCheckoutHTML.length > 0);
 
-  const initializeCheckout = async (token: string) => {
+  const initializeCheckout = async () => {
     try {
       loading.value = true;
-      await geinsClient.initializeCheckout(token);
+      await geinsClient.initializeCheckout();
       // if user is logged in, load user data
       const user = geinsClient.getUser();
       if (user) {
@@ -63,6 +64,8 @@ export const useCheckout = () => {
       loading.value = false;
     }
   };
+
+  watch(parsedToken, initializeCheckout);
 
   const createAddressInputType = (address: Address): AddressInputType => {
     return {

@@ -1,15 +1,13 @@
 <script setup lang="ts">
-const { token } = useCheckoutToken();
+const { token, currentVersion, urls } = useCheckoutToken();
 const {
   state,
   loading,
-  error,
   useShippingAddress,
-  paymentMethods,
   shippingMethods,
-  initializeCheckout,
-  updateAddress,
+  paymentMethods,
   selectPaymentMethod,
+  updateAddress,
   selectShippingMethod,
   completeCheckout,
 } = useCheckout();
@@ -22,11 +20,6 @@ watch(loading, (value) => {
   if (value === false) {
     initialLoading.value = false;
   }
-});
-
-// Initialize checkout with token from URL
-onMounted(async () => {
-  await initializeCheckout(token.value);
 });
 
 const handleCheckout = async () => {
@@ -45,7 +38,7 @@ const handleCheckout = async () => {
   if (typedResult.redirectUrl) {
     window.location.href = typedResult.redirectUrl;
   } else if (typedResult.success && typedResult.publicOrderId) {
-    navigateTo(`/v0/${token.value}/thank-you/${typedResult.publicOrderId}`);
+    navigateTo(`/${currentVersion}/${token.value}/thank-you/${typedResult.publicOrderId}`);
   } else if (typedResult.error) {
     console.error(typedResult.error);
   }
@@ -56,12 +49,22 @@ const handleCheckout = async () => {
   <div>
     <NuxtLayout name="default">
       <template #cart>
-        <Card>
-          <CardContent>
-            <OrderSummary v-if="cart" :cart="cart" />
-            <p v-if="error" class="mt-2 text-sm text-red-600">{{ error }}</p>
-          </CardContent>
-        </Card>
+        <Cart v-if="cart" :cart="cart" />
+        <div
+          v-if="urls?.terms || urls?.privacy"
+          class="text-xs lg:text-sm flex w-full justify-center gap-4 lg:absolute lg:bottom-10 lg:left-[4vw] lg:w-auto lg:justify-start"
+        >
+          <a v-if="urls?.terms" :href="urls.terms" class="text-foreground/90 underline underline-offset-2">
+            Terms & Conditions
+          </a>
+          <a
+            v-if="urls?.privacy"
+            :href="urls.privacy"
+            class="text-foreground/90 underline underline-offset-2"
+          >
+            Privacy Policy
+          </a>
+        </div>
       </template>
 
       <template #checkout>
@@ -71,12 +74,12 @@ const handleCheckout = async () => {
               <!-- Checkout Form -->
               <div>
                 <!-- Payment Methods -->
-                <div
+                <!--               <div
                   v-if="paymentMethods.length > 1"
-                  class="card rounded-lg bg-white p-6 shadow absolute left-0 bottom-0"
+                  class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
                 >
                   <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
-                </div>
+                </div> -->
 
                 <div v-if="state.externalCheckoutHTML.length > 0" class="">
                   <ExternalCheckout :html="state.externalCheckoutHTML" />
