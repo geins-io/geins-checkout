@@ -10,7 +10,7 @@ const isHomePage = computed(() => path === '/');
 <template>
   <div class="grid lg:grid-cols-2">
     <div
-      class="flex flex-col gap-8 bg-background px-[4vw] py-8 text-foreground lg:h-screen lg:overflow-y-auto lg:overflow-x-hidden lg:py-[8vh]"
+      class="flex flex-col gap-6 bg-background px-[4vw] py-6 text-foreground lg:h-screen lg:justify-center lg:gap-[2vh] lg:overflow-y-auto lg:overflow-x-hidden lg:py-0 lg:pb-16"
     >
       <header
         v-if="!isHomePage && (title || logo || icon || iconFallback || urls?.cancel)"
@@ -22,19 +22,26 @@ const isHomePage = computed(() => path === '/');
             {{ $t('go_back') }}
           </span>
         </a>
-        <Avatar v-if="icon || (!logo && iconFallback)" class="mr-4 size-12 shrink-0">
+        <Avatar
+          v-if="icon || (!logo && iconFallback)"
+          :class="cn('mr-4 size-12 shrink-0', `${!icon ? 'bg-accent text-accent-foreground' : ''}`)"
+        >
           <AvatarImage v-if="icon" :src="icon" :alt="title" />
-          <AvatarFallback class="text-xl">{{ iconFallback }}</AvatarFallback>
+          <AvatarFallback class="text-xl font-bold tracking-wider">{{ iconFallback }}</AvatarFallback>
         </Avatar>
-        <img v-if="logo" :src="logo" :class="cn(`h-8 w-auto pr-6 mr-6`, `${!!title ? 'border-r' : ''}`)" />
+        <img
+          v-if="logo"
+          :src="logo"
+          :class="cn(`h-8 w-auto pr-6 mr-6`, `${!!title ? 'border-r border-foreground' : ''}`)"
+        />
         <h1 v-if="title" class="text-xl font-semibold tracking-wide">{{ title }}</h1>
       </header>
       <slot name="cart" />
     </div>
     <div
-      class="bg-card px-[4vw] py-12 text-card-foreground lg:h-screen lg:overflow-y-auto lg:overflow-x-hidden lg:py-[8vh]"
+      class="bg-card px-[4vw] py-12 text-card-foreground lg:flex lg:h-screen lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:py-[8vh]"
     >
-      <div class="rounded-lg border bg-white p-8">
+      <div class="rounded-lg bg-white p-3 lg:my-auto lg:p-8">
         <slot name="checkout" />
       </div>
     </div>

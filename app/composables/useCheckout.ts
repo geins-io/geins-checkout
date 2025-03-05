@@ -292,6 +292,7 @@ export const useCheckout = () => {
 
   // place order
   const completeCheckout = async () => {
+    loading.value = true;
     const retval = {
       success: false,
       orderId: '',

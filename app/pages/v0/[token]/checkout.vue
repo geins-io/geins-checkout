@@ -52,7 +52,7 @@ const handleCheckout = async () => {
         <Cart v-if="cart" :cart="cart" />
         <div
           v-if="urls?.terms || urls?.privacy"
-          class="text-xs lg:text-sm flex w-full justify-center gap-4 lg:absolute lg:bottom-10 lg:left-[4vw] lg:w-auto lg:justify-start"
+          class="flex w-full justify-center gap-4 text-xs lg:absolute lg:bottom-10 lg:left-[4vw] lg:w-auto lg:justify-start lg:text-sm"
         >
           <a v-if="urls?.terms" :href="urls.terms" class="text-foreground/90 underline underline-offset-2">
             Terms & Conditions
@@ -89,34 +89,34 @@ const handleCheckout = async () => {
                 <div v-if="state.selectedPaymentMethod === 18" class="">
                   <h2 class="mb-4 text-lg font-medium">Billing Information</h2>
                   <AddressForm :address="state.billingAddress" @update="updateAddress('billing', $event)" />
-                  <div class="mt-4">
-                    <label class="flex items-center">
-                      <input
-                        v-model="useShippingAddress"
-                        type="checkbox"
-                        class="rounded border-gray-300 text-accent shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200/50"
-                      />
-                      <span class="ml-2 text-sm text-gray-600">Use different shipping address</span>
-                    </label>
+
+                  <div class="mt-4 flex items-center space-x-2">
+                    <Checkbox
+                      id="useShipping"
+                      :model-value="useShippingAddress"
+                      @update:model-value="useShippingAddress = !!$event"
+                    />
+                    <Label for="useShipping">Use different shipping address</Label>
                   </div>
                 </div>
 
                 <!-- Shipping Information -->
-                <div v-if="useShippingAddress" class="card rounded-lg bg-white p-6 shadow">
+                <div v-if="useShippingAddress" class="mt-4">
                   <h2 class="mb-4 text-lg font-medium">Shipping Information</h2>
                   <AddressForm :address="state.shippingAddress" @update="updateAddress('shipping', $event)" />
                 </div>
 
                 <!-- Shipping Methods -->
-                <div v-if="shippingMethods.length > 0" class="rounded-lg bg-white p-6 shadow">
+                <!--              <div v-if="shippingMethods.length > 0" class="rounded-lg bg-white p-6 shadow">
                   <ShippingMethodSelector :methods="shippingMethods" @select="selectShippingMethod" />
-                </div>
+                </div> -->
 
                 <Button
                   v-if="state.showCompleteButton"
                   :disabled="loading || state.disableCompleteButton"
                   :loading="loading"
-                  class="mt-6 w-full px-4 py-2"
+                  class="mt-4 w-full"
+                  size="lg"
                   @click="handleCheckout"
                 >
                   {{ loading ? 'Processing...' : 'Complete Checkout' }}

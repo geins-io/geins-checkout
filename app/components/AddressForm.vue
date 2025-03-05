@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue';
+import { reactive, watch, onMounted } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import type { Address } from '#shared/types';
-
 import { addressSchema } from '#shared/types';
-
 import { ZodError } from 'zod';
 
 const props = defineProps<{
@@ -21,14 +19,11 @@ const errors = reactive<Record<string, string>>({});
 const validateForm = async () => {
   try {
     const validatedData = await addressSchema.parseAsync(formData);
-    // Clear any previous errors
     Object.keys(errors).forEach((key) => delete errors[key]);
     emit('update', validatedData);
   } catch (error) {
     if (error instanceof ZodError) {
-      // Clear previous errors
       Object.keys(errors).forEach((key) => delete errors[key]);
-      // Set new errors
       error.errors.forEach((err) => {
         if (err.path[0]) {
           errors[err.path[0] as string] = err.message;
@@ -42,7 +37,6 @@ onMounted(() => {
   Object.assign(formData, props.address);
 });
 
-// Debounced validation to avoid too many validations while typing
 const debouncedValidation = useDebounceFn(validateForm, 300);
 
 watch(
@@ -55,94 +49,105 @@ watch(
 </script>
 
 <template>
-  <form class="space-y-4" @submit.prevent>
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">First Name</label>
-        <input
-          v-model="formData.firstName"
-          type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-          :class="{ 'border-red-500': errors.firstName }"
-        />
-        <p v-if="errors.firstName" class="mt-1 text-sm text-red-600">{{ errors.firstName }}</p>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Last Name</label>
-        <input
-          v-model="formData.lastName"
-          type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-          :class="{ 'border-red-500': errors.lastName }"
-        />
-        <p v-if="errors.lastName" class="mt-1 text-sm text-red-600">{{ errors.lastName }}</p>
-      </div>
+  <Form @submit.prevent>
+    <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+      <FormField name="firstName">
+        <FormItem>
+          <FormLabel>First Name</FormLabel>
+          <FormControl>
+            <Input v-model="formData.firstName" :error="!!errors.firstName" />
+          </FormControl>
+          <FormMessage v-if="errors.firstName">
+            {{ errors.firstName }}
+          </FormMessage>
+        </FormItem>
+      </FormField>
+
+      <FormField name="lastName">
+        <FormItem>
+          <FormLabel>Last Name</FormLabel>
+          <FormControl>
+            <Input v-model="formData.lastName" :error="!!errors.lastName" />
+          </FormControl>
+          <FormMessage v-if="errors.lastName">
+            {{ errors.lastName }}
+          </FormMessage>
+        </FormItem>
+      </FormField>
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Email</label>
-      <input
-        v-model="formData.email"
-        type="email"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-        :class="{ 'border-red-500': errors.email }"
-      />
-      <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
-    </div>
+    <FormField name="email">
+      <FormItem>
+        <FormLabel>Email</FormLabel>
+        <FormControl>
+          <Input v-model="formData.email" type="email" :error="!!errors.email" />
+        </FormControl>
+        <FormMessage v-if="errors.email">
+          {{ errors.email }}
+        </FormMessage>
+      </FormItem>
+    </FormField>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Phone</label>
-      <input
-        v-model="formData.phone"
-        type="tel"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-        :class="{ 'border-red-500': errors.phone }"
-      />
-      <p v-if="errors.phone" class="mt-1 text-sm text-red-600">{{ errors.phone }}</p>
-    </div>
+    <FormField name="phone">
+      <FormItem>
+        <FormLabel>Phone</FormLabel>
+        <FormControl>
+          <Input v-model="formData.phone" type="tel" :error="!!errors.phone" />
+        </FormControl>
+        <FormMessage v-if="errors.phone">
+          {{ errors.phone }}
+        </FormMessage>
+      </FormItem>
+    </FormField>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Street Address</label>
-      <input
-        v-model="formData.street"
-        type="text"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-        :class="{ 'border-red-500': errors.street }"
-      />
-      <p v-if="errors.street" class="mt-1 text-sm text-red-600">{{ errors.street }}</p>
-    </div>
+    <FormField name="street">
+      <FormItem>
+        <FormLabel>Street Address</FormLabel>
+        <FormControl>
+          <Input v-model="formData.street" :error="!!errors.street" />
+        </FormControl>
+        <FormMessage v-if="errors.street">
+          {{ errors.street }}
+        </FormMessage>
+      </FormItem>
+    </FormField>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">City</label>
-        <input
-          v-model="formData.city"
-          type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-          :class="{ 'border-red-500': errors.city }"
-        />
-        <p v-if="errors.city" class="mt-1 text-sm text-red-600">{{ errors.city }}</p>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Postal Code</label>
-        <input
-          v-model="formData.postalCode"
-          type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-          :class="{ 'border-red-500': errors.postalCode }"
-        />
-        <p v-if="errors.postalCode" class="mt-1 text-sm text-red-600">{{ errors.postalCode }}</p>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Country</label>
-        <input
-          v-model="formData.country"
-          type="text"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
-          :class="{ 'border-red-500': errors.country }"
-        />
-        <p v-if="errors.country" class="mt-1 text-sm text-red-600">{{ errors.country }}</p>
-      </div>
+    <div class="grid grid-cols-1 md:gap-4 md:grid-cols-3">
+      <FormField name="city">
+        <FormItem>
+          <FormLabel>City</FormLabel>
+          <FormControl>
+            <Input v-model="formData.city" :error="!!errors.city" />
+          </FormControl>
+          <FormMessage v-if="errors.city">
+            {{ errors.city }}
+          </FormMessage>
+        </FormItem>
+      </FormField>
+
+      <FormField name="postalCode">
+        <FormItem>
+          <FormLabel>Postal Code</FormLabel>
+          <FormControl>
+            <Input v-model="formData.postalCode" :error="!!errors.postalCode" />
+          </FormControl>
+          <FormMessage v-if="errors.postalCode">
+            {{ errors.postalCode }}
+          </FormMessage>
+        </FormItem>
+      </FormField>
+
+      <FormField name="country">
+        <FormItem>
+          <FormLabel>Country</FormLabel>
+          <FormControl>
+            <Input v-model="formData.country" :error="!!errors.country" />
+          </FormControl>
+          <FormMessage v-if="errors.country">
+            {{ errors.country }}
+          </FormMessage>
+        </FormItem>
+      </FormField>
     </div>
-  </form>
+  </Form>
 </template>

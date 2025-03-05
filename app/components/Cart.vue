@@ -29,7 +29,7 @@ const getImgUrl = (item?: CartItemType): string => {
 };
 </script>
 <template>
-  <Card>
+  <Card class="overflow-y-auto overflow-x-hidden lg:max-h-[72vh]">
     <CardContent>
       <!-- Single Item Cart -->
       <div v-if="items.length === 1 && firstItem">
@@ -58,7 +58,9 @@ const getImgUrl = (item?: CartItemType): string => {
             <NuxtImg
               :src="getImgUrl(firstItem)"
               :alt="firstItem.title"
-              class="mx-auto h-full rounded-lg border object-contain"
+              class="mx-auto h-full rounded-lg object-contain"
+              sizes="80vw lg:40vw"
+              densities="x1 x2"
             />
           </div>
         </div>
@@ -66,7 +68,7 @@ const getImgUrl = (item?: CartItemType): string => {
 
       <!-- Multiple Items Cart -->
       <div v-else class="lg:py-4">
-        <div class="max-h-[400px] overflow-y-auto lg:px-5">
+        <div class="lg:px-5">
           <div v-for="item in items" :key="item.id" class="flex border-b py-4 last:border-b-0">
             <!-- Product Image -->
             <div class="relative mr-4 h-24 shrink-0">
@@ -74,7 +76,8 @@ const getImgUrl = (item?: CartItemType): string => {
                 height="96px"
                 :src="getImgUrl(item)"
                 :alt="item.title"
-                class="h-full rounded-lg border object-contain"
+                class="h-full rounded-lg object-contain shadow-md"
+                densities="x1 x2"
               />
             </div>
 
