@@ -37,8 +37,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       debug: process.env.GEINS_DEBUG === 'true',
-      currentVersion: process.env.CURRENT_VERSION,
-      url: process.env.URL,
+      currentVersion: process.env.CURRENT_VERSION || 'v0',
+      baseUrl: process.env.BASE_URL,
     },
     private: {},
   },

@@ -30,7 +30,7 @@ let geinsCore: GeinsCore;
 let geinsOMS: GeinsOMS;
 
 export const useGeinsClient = () => {
-  const CHECKOUT_URL = useRuntimeConfig().public.url;
+  const CHECKOUT_URL = useRuntimeConfig().public.baseUrl;
   const { token, currentVersion, parsedToken, parseToken } = useCheckoutToken();
 
   const state = ref<State>({
