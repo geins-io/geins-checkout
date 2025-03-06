@@ -1,4 +1,4 @@
-import type { AddressInputType, CartType, CheckoutStyleType, GeinsUserType } from '@geins/types';
+import type { AddressInputType, CartType, GeinsUserType } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
@@ -14,9 +14,11 @@ export const useCheckout = () => {
     city: '',
     postalCode: '',
     country: '',
+    careOf: '',
+    company: '',
   };
 
-  const loading = ref(false);
+  const loading = ref(true);
   const error = ref('');
   const useShippingAddress = ref(false);
   const paymentMethods = ref([]);
@@ -28,27 +30,24 @@ export const useCheckout = () => {
     shippingAddress: Address;
     selectedPaymentMethod: number;
     selectedShippingMethod: number;
-    showCompleteButton: boolean;
-    disableCompleteButton: boolean;
     externalCheckoutHTML: string;
-    style: CheckoutStyleType | undefined;
+    showMessageInput: boolean;
+    message: string;
   }>({
     cart: null,
     billingAddress: { ...defaultAddress },
     shippingAddress: { ...defaultAddress },
     selectedPaymentMethod: 0,
     selectedShippingMethod: 0,
-    showCompleteButton: false,
-    disableCompleteButton: false,
     externalCheckoutHTML: '',
-    style: undefined,
+    showMessageInput: true,
+    message: '',
   });
 
   const isExternalCheckout = computed(() => state.value.externalCheckoutHTML.length > 0);
 
   const initializeCheckout = async () => {
     try {
-      loading.value = true;
       await geinsClient.initializeCheckout();
       // if user is logged in, load user data
       const user = geinsClient.getUser();
@@ -135,8 +134,6 @@ export const useCheckout = () => {
 
     shippingMethods.value = [];
     state.value.externalCheckoutHTML = html;
-    state.value.showCompleteButton = false;
-    state.value.disableCompleteButton = true;
 
     // Wait for Vue to update the DOM
     await nextTick();
@@ -218,8 +215,8 @@ export const useCheckout = () => {
       state.value.cart = cart ?? null;
 
       // shipping methods
-      shippingMethods.value = await geinsClient.getShippingMethods();
-      const selectedShippingMethod = await geinsClient.getSelectedShippingMethod();
+      shippingMethods.value = geinsClient.getShippingMethods();
+      const selectedShippingMethod = geinsClient.getSelectedShippingMethod();
       if (selectedShippingMethod) {
         state.value.selectedShippingMethod = Number(selectedShippingMethod.id);
       }
@@ -230,14 +227,9 @@ export const useCheckout = () => {
       if (selectedPaymentMethod) {
         state.value.selectedPaymentMethod = Number(selectedPaymentMethod.id);
         if (selectedPaymentMethod.paymentData) {
-          state.value.showCompleteButton = false;
-          state.value.disableCompleteButton = true;
           setExternalCheckout(selectedPaymentMethod);
         }
       }
-
-      // set button state
-      state.value.showCompleteButton = !isExternalCheckout.value;
     } catch (e) {
       error.value = 'Failed to update checkout';
       console.error(e);

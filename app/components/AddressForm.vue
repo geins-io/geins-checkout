@@ -7,6 +7,7 @@ import { ZodError } from 'zod';
 
 const props = defineProps<{
   address: Address;
+  onlyAddress?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -50,6 +51,31 @@ watch(
 
 <template>
   <Form @submit.prevent>
+    <div v-if="!onlyAddress" class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+      <FormField name="email">
+        <FormItem>
+          <FormLabel>Email</FormLabel>
+          <FormControl>
+            <Input v-model="formData.email" type="email" :error="!!errors.email" />
+          </FormControl>
+          <FormMessage v-if="errors.email">
+            {{ errors.email }}
+          </FormMessage>
+        </FormItem>
+      </FormField>
+
+      <FormField name="phone">
+        <FormItem>
+          <FormLabel>Phone</FormLabel>
+          <FormControl>
+            <Input v-model="formData.phone" type="tel" :error="!!errors.phone" />
+          </FormControl>
+          <FormMessage v-if="errors.phone">
+            {{ errors.phone }}
+          </FormMessage>
+        </FormItem>
+      </FormField>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
       <FormField name="firstName">
         <FormItem>
@@ -76,26 +102,14 @@ watch(
       </FormField>
     </div>
 
-    <FormField name="email">
+    <FormField name="careOf">
       <FormItem>
-        <FormLabel>Email</FormLabel>
+        <FormLabel>C/O <span class="text-card-foreground/60">(optional)</span></FormLabel>
         <FormControl>
-          <Input v-model="formData.email" type="email" :error="!!errors.email" />
+          <Input v-model="formData.careOf" />
         </FormControl>
-        <FormMessage v-if="errors.email">
-          {{ errors.email }}
-        </FormMessage>
-      </FormItem>
-    </FormField>
-
-    <FormField name="phone">
-      <FormItem>
-        <FormLabel>Phone</FormLabel>
-        <FormControl>
-          <Input v-model="formData.phone" type="tel" :error="!!errors.phone" />
-        </FormControl>
-        <FormMessage v-if="errors.phone">
-          {{ errors.phone }}
+        <FormMessage v-if="errors.careOf">
+          {{ errors.careOf }}
         </FormMessage>
       </FormItem>
     </FormField>
@@ -112,19 +126,7 @@ watch(
       </FormItem>
     </FormField>
 
-    <div class="grid grid-cols-1 md:gap-4 md:grid-cols-3">
-      <FormField name="city">
-        <FormItem>
-          <FormLabel>City</FormLabel>
-          <FormControl>
-            <Input v-model="formData.city" :error="!!errors.city" />
-          </FormControl>
-          <FormMessage v-if="errors.city">
-            {{ errors.city }}
-          </FormMessage>
-        </FormItem>
-      </FormField>
-
+    <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
       <FormField name="postalCode">
         <FormItem>
           <FormLabel>Postal Code</FormLabel>
@@ -136,15 +138,14 @@ watch(
           </FormMessage>
         </FormItem>
       </FormField>
-
-      <FormField name="country">
+      <FormField name="city">
         <FormItem>
-          <FormLabel>Country</FormLabel>
+          <FormLabel>City</FormLabel>
           <FormControl>
-            <Input v-model="formData.country" :error="!!errors.country" />
+            <Input v-model="formData.city" :error="!!errors.city" />
           </FormControl>
-          <FormMessage v-if="errors.country">
-            {{ errors.country }}
+          <FormMessage v-if="errors.city">
+            {{ errors.city }}
           </FormMessage>
         </FormItem>
       </FormField>

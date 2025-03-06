@@ -11,6 +11,8 @@ export const addressSchema = z.object({
   city: z.string().min(1, 'City is required'),
   postalCode: z.string().min(1, 'Postal code is required'),
   country: z.string().min(1, 'Country is required'),
+  careOf: z.string().optional(),
+  company: z.string().optional(),
 });
 
 export type Address = z.infer<typeof addressSchema>;

@@ -12,15 +12,7 @@ const {
   completeCheckout,
 } = useCheckout();
 
-const initialLoading = ref(true);
 const cart = computed(() => state.value.cart);
-
-// watch loading state
-watch(loading, (value) => {
-  if (value === false) {
-    initialLoading.value = false;
-  }
-});
 
 const handleCheckout = async () => {
   const result = await completeCheckout();
@@ -68,62 +60,55 @@ const handleCheckout = async () => {
       </template>
 
       <template #checkout>
-        <div class="w-full">
-          <div class="mx-auto">
-            <div class="grid">
-              <!-- Checkout Form -->
-              <div>
-                <!-- Payment Methods -->
-                <!--               <div
+        <div class="mx-auto w-full max-w-2xl">
+          <!-- Checkout Form -->
+          <!-- Payment Methods -->
+          <!--               <div
                   v-if="paymentMethods.length > 1"
                   class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
                 >
                   <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
                 </div> -->
 
-                <div v-if="state.externalCheckoutHTML.length > 0" class="">
-                  <ExternalCheckout :html="state.externalCheckoutHTML" />
-                </div>
+          <div v-if="state.externalCheckoutHTML.length > 0" class="rounded-lg bg-white p-3 lg:p-8">
+            <ExternalCheckout :html="state.externalCheckoutHTML" />
+          </div>
 
-                <!-- Billing Information -->
-                <div v-if="state.selectedPaymentMethod === 18" class="">
-                  <h2 class="mb-4 text-lg font-medium">Billing Information</h2>
-                  <AddressForm :address="state.billingAddress" @update="updateAddress('billing', $event)" />
-
-                  <div class="mt-4 flex items-center space-x-2">
-                    <Checkbox
-                      id="useShipping"
-                      :model-value="useShippingAddress"
-                      @update:model-value="useShippingAddress = !!$event"
-                    />
-                    <Label for="useShipping">Use different shipping address</Label>
-                  </div>
-                </div>
-
-                <!-- Shipping Information -->
-                <div v-if="useShippingAddress" class="mt-4">
-                  <h2 class="mb-4 text-lg font-medium">Shipping Information</h2>
-                  <AddressForm :address="state.shippingAddress" @update="updateAddress('shipping', $event)" />
-                </div>
-
-                <!-- Shipping Methods -->
-                <!--              <div v-if="shippingMethods.length > 0" class="rounded-lg bg-white p-6 shadow">
-                  <ShippingMethodSelector :methods="shippingMethods" @select="selectShippingMethod" />
-                </div> -->
-
-                <Button
-                  v-if="state.showCompleteButton"
-                  :disabled="loading || state.disableCompleteButton"
-                  :loading="loading"
-                  class="mt-4 w-full"
-                  size="lg"
-                  @click="handleCheckout"
-                >
-                  {{ loading ? 'Processing...' : 'Complete Checkout' }}
-                </Button>
-              </div>
+          <!-- Billing Information -->
+          <div v-if="state.selectedPaymentMethod === 18" class="">
+            <h2 class="text-xl font-bold">
+              {{ useShippingAddress ? 'Billing Address' : 'Your Information' }}
+            </h2>
+            <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+            <AddressForm :address="state.billingAddress" @update="updateAddress('billing', $event)" />
+            <div v-if="state.showMessageInput" class="mb-2 space-y-0.5">
+              <Label for="message">Message <span class="text-card-foreground/60">(optional)</span></Label>
+              <Textarea v-model="state.message" placeholder="Add a message to your order" />
+            </div>
+            <div class="mt-4 flex items-center space-x-2">
+              <Checkbox
+                id="useShipping"
+                :model-value="useShippingAddress"
+                @update:model-value="useShippingAddress = !!$event"
+              />
+              <Label for="useShipping">Ship to a different address</Label>
             </div>
           </div>
+
+          <!-- Shipping Information -->
+          <div v-if="useShippingAddress" class="mt-4">
+            <h2 class="text-xl font-bold">Shipping Address</h2>
+            <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+            <AddressForm
+              :address="state.shippingAddress"
+              :only-address="true"
+              @update="updateAddress('shipping', $event)"
+            />
+          </div>
+
+          <Button :loading="loading" class="mt-4 w-full" size="lg" @click="handleCheckout">
+            {{ loading ? 'Processing...' : 'Complete Checkout' }}
+          </Button>
         </div>
       </template>
     </NuxtLayout>
