@@ -1,22 +1,11 @@
 import type { AddressType } from '@geins/types';
 
-import { z } from 'zod';
-
-export const addressSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone number is required'),
-  street: z.string().min(1, 'Street address is required'),
-  city: z.string().min(1, 'City is required'),
-  postalCode: z.string().min(1, 'Postal code is required'),
-  country: z.string().min(1, 'Country is required'),
-  careOf: z.string().optional(),
-  company: z.string().optional(),
-});
-
-export type Address = z.infer<typeof addressSchema>;
-
+export interface CheckoutFormType {
+  email?: string;
+  message?: string;
+  identityNumber?: string;
+  address: AddressType;
+}
 export interface CartItem {
   id: string;
   name: string;

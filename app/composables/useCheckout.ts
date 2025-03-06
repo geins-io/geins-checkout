@@ -1,20 +1,18 @@
-import type { AddressInputType, CartType, GeinsUserType } from '@geins/types';
-import { CustomerType } from '@geins/types';
+import type { CartType, GeinsUserType } from '@geins/types';
+import { AddressType, CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
   const { parsedToken } = useCheckoutToken();
   const geinsClient = useGeinsClient();
 
-  const defaultAddress: Address = {
+  const defaultAddress: AddressType = {
+    phone: '',
     firstName: '',
     lastName: '',
-    email: '',
-    phone: '',
-    street: '',
-    city: '',
-    postalCode: '',
-    country: '',
+    addressLine1: '',
+    zip: '',
     careOf: '',
+    city: '',
     company: '',
   };
 
@@ -26,22 +24,26 @@ export const useCheckout = () => {
 
   const state = ref<{
     cart: CartType | null;
-    billingAddress: Address;
-    shippingAddress: Address;
+    email: string;
+    identityNumber: string;
+    message: string;
+    billingAddress: AddressType;
+    shippingAddress: AddressType;
     selectedPaymentMethod: number;
     selectedShippingMethod: number;
     externalCheckoutHTML: string;
     showMessageInput: boolean;
-    message: string;
   }>({
     cart: null,
+    email: '',
+    identityNumber: '',
+    message: '',
     billingAddress: { ...defaultAddress },
     shippingAddress: { ...defaultAddress },
     selectedPaymentMethod: 0,
     selectedShippingMethod: 0,
     externalCheckoutHTML: '',
     showMessageInput: true,
-    message: '',
   });
 
   const isExternalCheckout = computed(() => state.value.externalCheckoutHTML.length > 0);
@@ -66,37 +68,11 @@ export const useCheckout = () => {
 
   watch(parsedToken, initializeCheckout);
 
-  const createAddressInputType = (address: Address): AddressInputType => {
-    return {
-      firstName: address.firstName,
-      lastName: address.lastName,
-      addressLine1: address.street,
-      addressLine2: '',
-      addressLine3: '',
-      entryCode: '',
-      careOf: '',
-      city: address.city,
-      state: '',
-      country: address.country,
-      zip: address.postalCode,
-      company: '',
-      mobile: address.phone,
-      phone: address.phone,
-    };
-  };
-
   const loadUser = async (user: GeinsUserType) => {
     try {
-      state.value.billingAddress.email = user.email;
+      state.value.email = user.email;
       if (user.address) {
-        state.value.billingAddress.firstName = user.address.firstName;
-        state.value.billingAddress.lastName = user.address.lastName;
-        state.value.billingAddress.email = user.email;
-        state.value.billingAddress.phone = user.address.phone;
-        state.value.billingAddress.street = user.address.addressLine1;
-        state.value.billingAddress.city = user.address.city;
-        state.value.billingAddress.postalCode = user.address.zip;
-        state.value.billingAddress.country = user.address.country;
+        state.value.billingAddress = { ...user.address };
       }
     } catch (e) {
       error.value = 'Failed to initialize user';
@@ -104,16 +80,19 @@ export const useCheckout = () => {
     }
   };
 
-  const updateAddress = async (type: 'billing' | 'shipping', address: Address) => {
+  const updateCheckoutData = async (type: 'billing' | 'shipping', data: CheckoutFormType) => {
     try {
       loading.value = true;
       if (type === 'billing') {
-        state.value.billingAddress = address;
+        state.value.email = data.email ?? '';
+        state.value.identityNumber = data.identityNumber ?? '';
+        state.value.message = data.message ?? '';
+        state.value.billingAddress = data.address;
         if (!useShippingAddress.value) {
-          state.value.shippingAddress = { ...address };
+          state.value.shippingAddress = { ...data.address };
         }
       } else {
-        state.value.shippingAddress = address;
+        state.value.shippingAddress = data.address;
       }
     } catch (e) {
       error.value = `Failed to update ${type} address`;
@@ -367,7 +346,7 @@ export const useCheckout = () => {
     paymentMethods,
     shippingMethods,
     initializeCheckout,
-    updateAddress,
+    updateCheckoutData,
     selectPaymentMethod,
     selectShippingMethod,
     completeCheckout,

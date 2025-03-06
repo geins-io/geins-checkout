@@ -1,18 +1,20 @@
 <script setup lang="ts">
 const { token, currentVersion, urls } = useCheckoutToken();
-const {
-  state,
-  loading,
-  useShippingAddress,
-  shippingMethods,
-  paymentMethods,
-  selectPaymentMethod,
-  updateAddress,
-  selectShippingMethod,
-  completeCheckout,
-} = useCheckout();
+const { state, loading, shippingMethods, paymentMethods, updateCheckoutData, completeCheckout } =
+  useCheckout();
 
 const cart = computed(() => state.value.cart);
+const useShippingAddress = ref(false);
+
+const billingFormData = ref<CheckoutFormType>({
+  email: '',
+  address: state.value.billingAddress,
+  message: '',
+});
+
+const shippingFormData = ref<CheckoutFormType>({
+  address: state.value.shippingAddress,
+});
 
 const handleCheckout = async () => {
   const result = await completeCheckout();
@@ -76,34 +78,33 @@ const handleCheckout = async () => {
 
           <!-- Billing Information -->
           <div v-if="state.selectedPaymentMethod === 18" class="">
-            <h2 class="text-xl font-bold">
+            <h2 class="text-lg font-bold">
               {{ useShippingAddress ? 'Billing Address' : 'Your Information' }}
             </h2>
             <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
-            <AddressForm :address="state.billingAddress" @update="updateAddress('billing', $event)" />
-            <div v-if="state.showMessageInput" class="mb-2 space-y-0.5">
-              <Label for="message">Message <span class="text-card-foreground/60">(optional)</span></Label>
-              <Textarea v-model="state.message" placeholder="Add a message to your order" />
-            </div>
-            <div class="mt-4 flex items-center space-x-2">
+            <CheckoutForm :data="billingFormData" @update="updateCheckoutData('billing', $event)" />
+
+            <!-- <div class="mt-4 flex items-center space-x-2">
               <Checkbox
                 id="useShipping"
                 :model-value="useShippingAddress"
                 @update:model-value="useShippingAddress = !!$event"
               />
               <Label for="useShipping">Ship to a different address</Label>
-            </div>
-          </div>
-
-          <!-- Shipping Information -->
-          <div v-if="useShippingAddress" class="mt-4">
-            <h2 class="text-xl font-bold">Shipping Address</h2>
-            <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
-            <AddressForm
-              :address="state.shippingAddress"
-              :only-address="true"
-              @update="updateAddress('shipping', $event)"
-            />
+            </div> -->
+            <ContentSwitch
+              v-model:checked="useShippingAddress"
+              label="Ship to a different address"
+              class="mt-4"
+            >
+              <h2 class="text-lg font-bold">Shipping Address</h2>
+              <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+              <CheckoutForm
+                :data="shippingFormData"
+                :only-address="true"
+                @update="updateCheckoutData('shipping', $event)"
+              />
+            </ContentSwitch>
           </div>
 
           <Button :loading="loading" class="mt-4 w-full" size="lg" @click="handleCheckout">

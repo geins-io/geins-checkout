@@ -21,6 +21,7 @@
     "changelog:release": "changelogen --bump --release --push"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
     "@geins/core": "0.4.3",
     "@geins/oms": "0.4.3",
     "@nuxt/image": "1.9.0",
