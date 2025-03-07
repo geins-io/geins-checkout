@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const { currentCheckoutUrl } = useCheckoutToken();
-navigateTo(currentCheckoutUrl.value);
+const { checkoutUrl } = useCheckoutToken();
+navigateTo(checkoutUrl.value);
 </script>
 <template>
   <div />

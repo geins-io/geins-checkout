@@ -1,5 +1,5 @@
-import type { CartType, GeinsUserType } from '@geins/types';
-import { AddressType, CustomerType } from '@geins/types';
+import type { AddressType, CartType, GeinsUserType } from '@geins/types';
+import { CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
   const { parsedToken } = useCheckoutToken();
@@ -176,7 +176,6 @@ export const useCheckout = () => {
   const updateCheckout = async (reload: boolean = true) => {
     try {
       loading.value = true;
-      state.value.disableCompleteButton = false;
       state.value.externalCheckoutHTML = '';
 
       // update
@@ -217,29 +216,6 @@ export const useCheckout = () => {
     }
   };
 
-  const validateCheckout = async () => {
-    const retval = false;
-
-    const billingAddress = createAddressInputType(state.value.billingAddress);
-    // validate billing address all fields must have a length over 1
-    if (
-      billingAddress.firstName.length === 0 ||
-      billingAddress.lastName.length === 0 ||
-      billingAddress.addressLine1.length === 0 ||
-      billingAddress.city.length === 0 ||
-      billingAddress.zip.length === 0 ||
-      billingAddress.country.length === 0
-    ) {
-      error.value = 'Please fill in all billing address fields';
-      return false;
-    }
-    // console.log('billingAddress::', billingAddress);
-
-    const shippingAddress = createAddressInputType(state.value.shippingAddress);
-
-    return true;
-  };
-
   const createCheckoutInput = () => {
     const cartId = state.value.cart?.id ?? '';
     const merchantData = state.value.cart?.merchantData ?? { test: 'test' };
@@ -247,16 +223,14 @@ export const useCheckout = () => {
     return {
       cartId: cartId,
       checkoutOptions: {
-        email: state.value.billingAddress.email,
+        email: state.value.email,
         customerType: CustomerType.PERSON,
         paymentId: state.value.selectedPaymentMethod,
-        billingAddress: createAddressInputType(state.value.billingAddress),
+        billingAddress: state.value.billingAddress,
         acceptedConsents: ['order'],
-        shippingAddress: useShippingAddress.value
-          ? createAddressInputType(state.value.shippingAddress)
-          : createAddressInputType(state.value.billingAddress),
+        shippingAddress: useShippingAddress.value ? state.value.shippingAddress : state.value.billingAddress,
         merchantData: '{"extraData":"","extraNumber":1}', //'JSON.stringify(merchantData)',
-        message: 'hello',
+        message: state.value.message,
       },
     };
   };
@@ -271,38 +245,13 @@ export const useCheckout = () => {
       redirectUrl: '',
     };
 
-    //const validate = await validateCheckout();
-    //console.log('completeCheckout::', validate);
-
     try {
-      // Validate shipping selection
-      if (!state.value.selectedShippingMethod) {
-        error.value = 'Please select a shipping method';
-        return { success: false };
-      }
-
-      // validate addresses
-      const billingAddress = createAddressInputType(state.value.billingAddress);
-      const shippingAddress = createAddressInputType(state.value.shippingAddress);
-
-      if (
-        billingAddress.firstName.length === 0 ||
-        billingAddress.firstName.length === 0 ||
-        billingAddress.addressLine1.length === 0 ||
-        billingAddress.city.length === 0 ||
-        billingAddress.zip.length === 0 ||
-        billingAddress.country.length === 0
-      ) {
-        error.value = 'Please fill in all billing address fields';
-        return { success: false };
-      }
-
-      // place order
       const checkoutInput = createCheckoutInput();
+      console.log('🚀 ~ completeCheckout ~ checkoutInput:', checkoutInput);
 
       retval.success = false;
       loading.value = true;
-      const valid = await geinsClient.validateCheckout(checkoutInput);
+      const valid = await geinsClient.validateCheckout();
       if (!valid) {
         error.value = 'Failed to validate checkout';
         return { success: false };
@@ -325,13 +274,13 @@ export const useCheckout = () => {
 
   const getRedirectUrl = async (orderResult: any) => {
     // console.log('getRedirectUrl::', orderResult);
-    const redirectUrls = await geinsClient.getRedirectUrls();
+    const redirectUrls = geinsClient.getRedirectUrls();
     if (orderResult.success) {
-      if (redirectUrls.success) {
+      if (redirectUrls?.success) {
         return `${redirectUrls.success}?order=${orderResult.publicOrderId}`;
       }
     } else {
-      if (redirectUrls.error) {
+      if (redirectUrls?.error) {
         return `${redirectUrls.error}`;
       }
     }

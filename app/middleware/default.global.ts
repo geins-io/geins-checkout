@@ -1,7 +1,9 @@
 export default defineNuxtRouteMiddleware(async ({ params, path }) => {
-  // Assign value to token
-  const { token } = useCheckoutToken();
+  const { token, setCurrentVersion } = useCheckoutToken();
+  // Assign value to token from url param
   token.value = params?.token?.toString() || '';
+  // Set current version from url param
+  setCurrentVersion(path.split('/')[1]);
 
   // Redirect to home if no token
   if (path !== '/' && token.value === '') {

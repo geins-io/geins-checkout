@@ -1,7 +1,6 @@
 <script setup lang="ts">
-const { token, currentVersion, urls } = useCheckoutToken();
-const { state, loading, shippingMethods, paymentMethods, updateCheckoutData, completeCheckout } =
-  useCheckout();
+const { confirmationUrl, urls } = useCheckoutToken();
+const { state, loading, updateCheckoutData, completeCheckout } = useCheckout();
 
 const cart = computed(() => state.value.cart);
 const useShippingAddress = ref(false);
@@ -31,8 +30,9 @@ const handleCheckout = async () => {
 
   if (typedResult.redirectUrl) {
     window.location.href = typedResult.redirectUrl;
+    navigateTo(typedResult.redirectUrl, { external: true });
   } else if (typedResult.success && typedResult.publicOrderId) {
-    navigateTo(`/${currentVersion}/${token.value}/thank-you/${typedResult.publicOrderId}`);
+    navigateTo(`${confirmationUrl.value}/${typedResult.publicOrderId}`, { external: true });
   } else if (typedResult.error) {
     console.error(typedResult.error);
   }
@@ -44,21 +44,7 @@ const handleCheckout = async () => {
     <NuxtLayout name="default">
       <template #cart>
         <Cart v-if="cart" :cart="cart" />
-        <div
-          v-if="urls?.terms || urls?.privacy"
-          class="flex w-full justify-center gap-4 text-xs lg:absolute lg:bottom-10 lg:left-[4vw] lg:w-auto lg:justify-start lg:text-sm"
-        >
-          <a v-if="urls?.terms" :href="urls.terms" class="text-foreground/90 underline underline-offset-2">
-            Terms & Conditions
-          </a>
-          <a
-            v-if="urls?.privacy"
-            :href="urls.privacy"
-            class="text-foreground/90 underline underline-offset-2"
-          >
-            Privacy Policy
-          </a>
-        </div>
+        <BottomUrls :urls="urls" />
       </template>
 
       <template #checkout>
@@ -83,18 +69,11 @@ const handleCheckout = async () => {
             </h2>
             <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
             <CheckoutForm :data="billingFormData" @update="updateCheckoutData('billing', $event)" />
-
-            <!-- <div class="mt-4 flex items-center space-x-2">
-              <Checkbox
-                id="useShipping"
-                :model-value="useShippingAddress"
-                @update:model-value="useShippingAddress = !!$event"
-              />
-              <Label for="useShipping">Ship to a different address</Label>
-            </div> -->
+            <!-- Shipping Information -->
             <ContentSwitch
               v-model:checked="useShippingAddress"
               label="Ship to a different address"
+              :inside-box="true"
               class="mt-4"
             >
               <h2 class="text-lg font-bold">Shipping Address</h2>

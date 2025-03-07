@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     'nuxt-svgo',
     'nuxt-lucide-icons',
     '@nuxt/image',
+    '@formkit/auto-animate/nuxt',
   ],
 
   image: {
@@ -37,8 +38,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       debug: process.env.GEINS_DEBUG === 'true',
-      currentVersion: process.env.CURRENT_VERSION || 'v0',
-      baseUrl: process.env.BASE_URL,
+      latestVersion: process.env.LATEST_VERSION || 'v0',
+      baseUrl: process.env.BASE_URL || 'http://localhost:3000',
     },
     private: {},
   },

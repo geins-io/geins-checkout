@@ -3,7 +3,6 @@ import type { CheckoutFormType } from '#shared/types';
 import { useDebounceFn } from '@vueuse/core';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
-import { vAutoAnimate } from '@formkit/auto-animate/vue';
 import * as z from 'zod';
 
 const _props = defineProps<{
@@ -51,7 +50,13 @@ const onSubmit = form.handleSubmit((values) => {
 <template>
   <form @submit="onSubmit">
     <div v-if="!onlyAddress" class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
-      <FormField v-slot="{ componentField }" name="email">
+      <FormField
+        v-slot="{ componentField }"
+        name="email"
+        :validate-on-change="false"
+        :validate-on-input="false"
+        :validate-on-model-update="false"
+      >
         <FormItem v-auto-animate>
           <FormLabel>Email</FormLabel>
           <FormControl>
