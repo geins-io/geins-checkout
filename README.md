@@ -21,6 +21,7 @@
 - [ ] Set a good font for the checkout
 - [ ] Change order in url
 - [ ] Global inc/ex vat state set from token settings
+- [ ] Address country from market
 
 ### Before v0 release
 

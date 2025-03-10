@@ -85,7 +85,7 @@ const handleCheckout = async () => {
               />
             </ContentSwitch>
           </div>
-
+          <CartSummary v-if="cart" :summary="cart.summary" />
           <Button :loading="loading" class="mt-4 w-full" size="lg" @click="handleCheckout">
             {{ loading ? 'Processing...' : 'Complete Checkout' }}
           </Button>

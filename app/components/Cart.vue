@@ -6,17 +6,14 @@ const props = defineProps<{
 }>();
 
 const items = ref<CartItemType[]>(props.cart.items);
-const { productImageBaseUrl } = useCheckoutToken();
+const { getProductImageUrl } = useCheckoutToken();
 
 const firstItem = computed(() => items.value[0]);
 
-const getImgUrl = (item?: CartItemType): string => {
-  if (!item?.product?.productImages) return '';
-
-  if (item.product?.productImages.length > 0) {
-    return `${productImageBaseUrl.value}${item?.product?.productImages?.[0]?.fileName ?? ''}`;
-  }
-  return '';
+const getImgUrl = (item?: CartItemType): string | undefined => {
+  if (!item?.product?.productImages?.length) return '';
+  const fileName = item?.product?.productImages?.[0]?.fileName;
+  return getProductImageUrl(fileName) || undefined;
 };
 </script>
 <template>
@@ -47,6 +44,7 @@ const getImgUrl = (item?: CartItemType): string => {
           <!-- Product Image -->
           <div class="relative mb-5 h-[45vh] w-full">
             <NuxtImg
+              v-if="getImgUrl(firstItem)"
               :src="getImgUrl(firstItem)"
               :alt="firstItem.title"
               class="mx-auto h-full rounded-lg object-contain"

@@ -4,6 +4,7 @@ import type {
   CartType,
   CheckoutInputType,
   CheckoutRedirectsType,
+  CheckoutSettings,
   CheckoutType,
   CheckoutUrlsInputType,
   GeinsSettings,
@@ -11,10 +12,11 @@ import type {
   PaymentOptionType,
   ShippingOptionType,
 } from '@geins/types';
+import { CustomerType } from '@geins/types';
 interface State {
   token: string;
   geinsSettings: GeinsSettings | null;
-  settings: Record<string, unknown> | null;
+  settings: CheckoutSettings | null;
   cartId: string;
   cartObject: CartType | null;
   paymentMethods: PaymentOptionType[];
@@ -31,6 +33,7 @@ let geinsOMS: GeinsOMS;
 
 export const useGeinsClient = () => {
   const { token, parsedToken, confirmationUrl, parseToken } = useCheckoutToken();
+  const { vatIncluded } = usePrice();
 
   const state = ref<State>({
     token: token.value,
@@ -60,6 +63,8 @@ export const useGeinsClient = () => {
     state.value.user = parsedToken.value.user;
     state.value.settings = parsedToken.value.checkoutSettings;
     state.value.redirectUrls = parsedToken.value.checkoutSettings?.redirectUrls;
+
+    vatIncluded.value = parsedToken.value.checkoutSettings.customerType === CustomerType.PERSON;
 
     if (parsedToken.value.checkoutSettings?.copyCart) {
       console.log(
