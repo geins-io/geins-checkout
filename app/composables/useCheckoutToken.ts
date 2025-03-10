@@ -125,7 +125,7 @@ export const useCheckoutToken = () => {
       ? Object.entries(styles).reduce(
           (acc, [key, value]) => {
             const val = /^#/.test(value) ? hexToHSL(value) : value;
-            acc[`--${camelToKebab(key)}`] = val;
+            acc[`--${camelToKebab(key)}`] = val || '';
             return acc;
           },
           {} as Record<string, string>,
