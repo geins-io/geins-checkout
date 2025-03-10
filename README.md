@@ -19,6 +19,8 @@
 - [ ] Two steps for Geins Pay
 - [ ] Cart summary component
 - [ ] Set a good font for the checkout
+- [ ] Change order in url
+- [ ] Global inc/ex vat state set from token settings
 
 ### Before v0 release
 
@@ -32,3 +34,4 @@
 - [x] Leave message on order (payment method 18)
 - [ ] Add a discount code to the order
 - [ ] Add a way to add custom fields to the checkout form
+- [ ] User authentication ?
