@@ -8,7 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div :class="cn('rounded-lg border bg-card text-card-foreground shadow-md', props.class)">
+  <div :class="cn('rounded-lg bg-card text-card-foreground shadow-md', props.class)">
     <slot />
   </div>
 </template>

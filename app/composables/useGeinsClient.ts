@@ -30,8 +30,7 @@ let geinsCore: GeinsCore;
 let geinsOMS: GeinsOMS;
 
 export const useGeinsClient = () => {
-  const CHECKOUT_URL = useRuntimeConfig().public.baseUrl;
-  const { token, currentVersion, parsedToken, parseToken } = useCheckoutToken();
+  const { token, parsedToken, confirmationUrl, parseToken } = useCheckoutToken();
 
   const state = ref<State>({
     token: token.value,
@@ -190,7 +189,7 @@ export const useGeinsClient = () => {
       // Use the success URL directly without adding parameters again
       urls.redirectUrl = state.value.redirectUrls.success;
     } else {
-      urls.redirectUrl = `${CHECKOUT_URL}/${currentVersion}/${state.value.token}/thank-you/{payment.uid}`;
+      urls.redirectUrl = `${confirmationUrl.value}/{payment.uid}`;
     }
     urls.redirectUrl = updateCheckoutUrlWithParameters({
       url: urls.redirectUrl,

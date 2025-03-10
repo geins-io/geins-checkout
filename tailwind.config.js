@@ -18,17 +18,18 @@ module.exports = {
       colors: {
         border: 'hsl(var(--border))',
         ring: 'hsl(var(--accent))',
-        background: 'hsl(var(--background))', // updated to hsl for consistency
-        foreground: 'hsl(var(--foreground))', // updated to hsl for consistency
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         accent: {
           DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))', // updated to hsl for consistency
+          foreground: 'hsl(var(--accent-foreground))',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))', // updated to hsl for consistency
-          foreground: 'hsl(var(--card-foreground))', // updated to hsl for consistency
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
         },
-        sale: 'hsl(var(--sale))', // updated to hsl for consistency
+        sale: 'hsl(var(--sale))',
+        destructive: 'hsl(var(--destructive))',
       },
       fontSize: {
         body: 'var(--font-size)',

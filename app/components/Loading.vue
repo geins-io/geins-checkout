@@ -1,6 +1,6 @@
-<script setup lang="ts"></script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+    <!-- Icon from SVG Spinners by Utkarsh Verma - https://github.com/n3r4zzurr0/svg-spinners/blob/main/LICENSE -->
     <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="1">
       <animate
         id="svgSpinnersBlocksShuffle30"
@@ -105,3 +105,9 @@
     </rect>
   </svg>
 </template>
+
+<script>
+export default {
+  name: 'Loading',
+};
+</script>

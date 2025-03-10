@@ -10,8 +10,10 @@ jobs:
     name: Build and Deploy Job
     env:
       NITRO_PRESET: ${{ vars.NITRO_PRESET_AZURE_SWA }}
-      CURRENT_VERSION: ${{ vars.CURRENT_VERSION }}
+      LATEST_VERSION: ${{ vars.LATEST_VERSION }}
       BASE_URL: ${{ vars.BASE_URL }}
+      PRODUCT_IMAGE_DOMAIN: ${{ vars.PRODUCT_IMAGE_DOMAIN }}
+      PRODUCT_IMAGE_BASE_URL: ${{ vars.PRODUCT_IMAGE_BASE_URL }}
     steps:
       - uses: actions/checkout@v3
         with:

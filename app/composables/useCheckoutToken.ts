@@ -7,20 +7,26 @@ import type {
 } from '@geins/types';
 
 export const useCheckoutToken = () => {
+  const config = useRuntimeConfig();
   const token = useState<string>('checkout-token');
   const parsedToken = ref<CheckoutTokenPayload | null>(null);
-  const currentVersion = useRuntimeConfig().public.currentVersion;
+  const latestVersion = ref(config.public.latestVersion);
+  const currentVersion = ref(config.public.latestVersion);
   const branding = ref<CheckoutBrandingType>();
   const urls = ref<CheckoutRedirectsType>();
   const logo = computed(() => branding.value?.logo);
   const icon = computed(() => branding.value?.icon);
   const title = computed(() => branding.value?.title);
-  const imgBaseUrl = ref('https://labs.commerce.services/product/raw/');
 
   const cssVariables = ref<Record<string, string>>({});
 
-  const currentCheckoutUrl = computed(() => {
-    return `/${currentVersion}/${token.value}/checkout`;
+  // Return checkut url for latest version
+  const checkoutUrl = computed(() => {
+    return `/${latestVersion.value}/${token.value}/checkout`;
+  });
+  // Return confirmation url for current version
+  const confirmationUrl = computed(() => {
+    return `${config.public.baseUrl}/${currentVersion.value}/${token.value}/thank-you`;
   });
   const iconFallback = computed(() => {
     return branding.value?.title
@@ -30,6 +36,21 @@ export const useCheckoutToken = () => {
       .toUpperCase();
   });
 
+  const productImageBaseUrl = computed(() => {
+    const accountName = parsedToken.value?.geinsSettings?.accountName || '';
+    const domain = config.public.productImageDomain;
+    return config.public.productImageBaseUrl
+      .replace('{ACCOUNT_NAME}', accountName)
+      .replace('{DOMAIN}', domain);
+  });
+
+  const setCurrentVersion = (version?: string) => {
+    if (!version || !/^v\d+$/.test(version)) {
+      return;
+    }
+    currentVersion.value = version;
+  };
+
   const initSettings = async () => {
     if (!token.value) return;
     parsedToken.value = await parseToken(token.value);
@@ -37,7 +58,7 @@ export const useCheckoutToken = () => {
     branding.value = parsedToken.value?.checkoutSettings?.branding;
     urls.value = parsedToken.value?.checkoutSettings?.redirectUrls;
     if (!branding.value) return;
-    setStyles(branding.value?.styles);
+    parseStyles(branding.value?.styles);
   };
 
   const parseToken = async (token: string) => {
@@ -99,12 +120,12 @@ export const useCheckoutToken = () => {
     return `${h} ${s}% ${l}%`;
   };
 
-  const setStyles = (styles?: CheckoutStyleType) => {
+  const parseStyles = (styles?: CheckoutStyleType) => {
     cssVariables.value = styles
       ? Object.entries(styles).reduce(
           (acc, [key, value]) => {
             const val = /^#/.test(value) ? hexToHSL(value) : value;
-            acc[`--${camelToKebab(key)}`] = val;
+            acc[`--${camelToKebab(key)}`] = val || '';
             return acc;
           },
           {} as Record<string, string>,
@@ -133,18 +154,20 @@ export const useCheckoutToken = () => {
   return {
     token,
     parsedToken,
-    currentVersion,
-    currentCheckoutUrl,
+    latestVersion,
+    checkoutUrl,
+    confirmationUrl,
     branding,
     iconFallback,
     icon,
     logo,
     title,
     urls,
-    imgBaseUrl,
+    productImageBaseUrl,
+    setCurrentVersion,
     initSettings,
     parseToken,
-    setStyles,
+    parseStyles,
     setStylesToHead,
   };
 };

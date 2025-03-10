@@ -1,25 +1,18 @@
 <script setup lang="ts">
-const { token, currentVersion, urls } = useCheckoutToken();
-const {
-  state,
-  loading,
-  useShippingAddress,
-  shippingMethods,
-  paymentMethods,
-  selectPaymentMethod,
-  updateAddress,
-  selectShippingMethod,
-  completeCheckout,
-} = useCheckout();
+const { confirmationUrl, urls } = useCheckoutToken();
+const { state, loading, updateCheckoutData, completeCheckout } = useCheckout();
 
-const initialLoading = ref(true);
 const cart = computed(() => state.value.cart);
+const useShippingAddress = ref(false);
 
-// watch loading state
-watch(loading, (value) => {
-  if (value === false) {
-    initialLoading.value = false;
-  }
+const billingFormData = ref<CheckoutFormType>({
+  email: '',
+  address: state.value.billingAddress,
+  message: '',
+});
+
+const shippingFormData = ref<CheckoutFormType>({
+  address: state.value.shippingAddress,
 });
 
 const handleCheckout = async () => {
@@ -37,8 +30,9 @@ const handleCheckout = async () => {
 
   if (typedResult.redirectUrl) {
     window.location.href = typedResult.redirectUrl;
+    navigateTo(typedResult.redirectUrl, { external: true });
   } else if (typedResult.success && typedResult.publicOrderId) {
-    navigateTo(`/${currentVersion}/${token.value}/thank-you/${typedResult.publicOrderId}`);
+    navigateTo(`${confirmationUrl.value}/${typedResult.publicOrderId}`, { external: true });
   } else if (typedResult.error) {
     console.error(typedResult.error);
   }
@@ -50,80 +44,51 @@ const handleCheckout = async () => {
     <NuxtLayout name="default">
       <template #cart>
         <Cart v-if="cart" :cart="cart" />
-        <div
-          v-if="urls?.terms || urls?.privacy"
-          class="text-xs lg:text-sm flex w-full justify-center gap-4 lg:absolute lg:bottom-10 lg:left-[4vw] lg:w-auto lg:justify-start"
-        >
-          <a v-if="urls?.terms" :href="urls.terms" class="text-foreground/90 underline underline-offset-2">
-            Terms & Conditions
-          </a>
-          <a
-            v-if="urls?.privacy"
-            :href="urls.privacy"
-            class="text-foreground/90 underline underline-offset-2"
-          >
-            Privacy Policy
-          </a>
-        </div>
+        <BottomUrls v-if="urls" :urls="urls" />
       </template>
 
       <template #checkout>
-        <div class="w-full">
-          <div class="mx-auto">
-            <div class="grid">
-              <!-- Checkout Form -->
-              <div>
-                <!-- Payment Methods -->
-                <!--               <div
+        <div class="mx-auto w-full max-w-2xl">
+          <!-- Checkout Form -->
+          <!-- Payment Methods -->
+          <!--               <div
                   v-if="paymentMethods.length > 1"
                   class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
                 >
                   <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
                 </div> -->
 
-                <div v-if="state.externalCheckoutHTML.length > 0" class="">
-                  <ExternalCheckout :html="state.externalCheckoutHTML" />
-                </div>
-
-                <!-- Billing Information -->
-                <div v-if="state.selectedPaymentMethod === 18" class="">
-                  <h2 class="mb-4 text-lg font-medium">Billing Information</h2>
-                  <AddressForm :address="state.billingAddress" @update="updateAddress('billing', $event)" />
-                  <div class="mt-4">
-                    <label class="flex items-center">
-                      <input
-                        v-model="useShippingAddress"
-                        type="checkbox"
-                        class="rounded border-gray-300 text-accent shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200/50"
-                      />
-                      <span class="ml-2 text-sm text-gray-600">Use different shipping address</span>
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Shipping Information -->
-                <div v-if="useShippingAddress" class="card rounded-lg bg-white p-6 shadow">
-                  <h2 class="mb-4 text-lg font-medium">Shipping Information</h2>
-                  <AddressForm :address="state.shippingAddress" @update="updateAddress('shipping', $event)" />
-                </div>
-
-                <!-- Shipping Methods -->
-                <div v-if="shippingMethods.length > 0" class="rounded-lg bg-white p-6 shadow">
-                  <ShippingMethodSelector :methods="shippingMethods" @select="selectShippingMethod" />
-                </div>
-
-                <Button
-                  v-if="state.showCompleteButton"
-                  :disabled="loading || state.disableCompleteButton"
-                  :loading="loading"
-                  class="mt-6 w-full px-4 py-2"
-                  @click="handleCheckout"
-                >
-                  {{ loading ? 'Processing...' : 'Complete Checkout' }}
-                </Button>
-              </div>
-            </div>
+          <div v-if="state.externalCheckoutHTML.length > 0" class="rounded-lg bg-white p-3 lg:p-8">
+            <ExternalCheckout :html="state.externalCheckoutHTML" />
           </div>
+
+          <!-- Billing Information -->
+          <div v-if="state.selectedPaymentMethod === 18" class="">
+            <h2 class="text-lg font-bold">
+              {{ useShippingAddress ? 'Billing Address' : 'Your Information' }}
+            </h2>
+            <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+            <CheckoutForm :data="billingFormData" @update="updateCheckoutData('billing', $event)" />
+            <!-- Shipping Information -->
+            <ContentSwitch
+              v-model:checked="useShippingAddress"
+              label="Ship to a different address"
+              :inside-box="true"
+              class="mt-4"
+            >
+              <h2 class="text-lg font-bold">Shipping Address</h2>
+              <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+              <CheckoutForm
+                :data="shippingFormData"
+                :only-address="true"
+                @update="updateCheckoutData('shipping', $event)"
+              />
+            </ContentSwitch>
+          </div>
+
+          <Button :loading="loading" class="mt-4 w-full" size="lg" @click="handleCheckout">
+            {{ loading ? 'Processing...' : 'Complete Checkout' }}
+          </Button>
         </div>
       </template>
     </NuxtLayout>

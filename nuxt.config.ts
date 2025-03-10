@@ -17,10 +17,11 @@ export default defineNuxtConfig({
     'nuxt-svgo',
     'nuxt-lucide-icons',
     '@nuxt/image',
+    '@formkit/auto-animate/nuxt',
   ],
 
   image: {
-    domains: ['labs.commerce.services'],
+    domains: [process.env.PRODUCT_IMAGE_DOMAIN || ''],
   },
 
   shadcn: {
@@ -37,8 +38,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       debug: process.env.GEINS_DEBUG === 'true',
-      currentVersion: process.env.CURRENT_VERSION || 'v0',
-      baseUrl: process.env.BASE_URL,
+      latestVersion: process.env.LATEST_VERSION || 'v0',
+      baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+      productImageDomain: process.env.PRODUCT_IMAGE_DOMAIN || 'commerce.services',
+      productImageBaseUrl:
+        process.env.PRODUCT_IMAGE_BASE_URL || 'https://{ACCOUNT_NAME}.{DOMAIN}/product/raw/',
     },
     private: {},
   },
