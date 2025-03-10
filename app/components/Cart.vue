@@ -6,16 +6,7 @@ const props = defineProps<{
 }>();
 
 const items = ref<CartItemType[]>(props.cart.items);
-const { imgBaseUrl } = useCheckoutToken();
-
-// Promo code functionality
-const promoCode = ref('');
-const promoMessage = ref('');
-
-// Computed properties
-const totalItems = computed(() => {
-  return items.value.reduce((total, item) => total + item.quantity, 0);
-});
+const { productImageBaseUrl } = useCheckoutToken();
 
 const firstItem = computed(() => items.value[0]);
 
@@ -23,7 +14,7 @@ const getImgUrl = (item?: CartItemType): string => {
   if (!item?.product?.productImages) return '';
 
   if (item.product?.productImages.length > 0) {
-    return `${imgBaseUrl.value}${item?.product?.productImages?.[0]?.fileName ?? ''}`;
+    return `${productImageBaseUrl.value}${item?.product?.productImages?.[0]?.fileName ?? ''}`;
   }
   return '';
 };

@@ -21,7 +21,7 @@ export default defineNuxtConfig({
   ],
 
   image: {
-    domains: ['labs.commerce.services'],
+    domains: [process.env.PRODUCT_IMAGE_DOMAIN || ''],
   },
 
   shadcn: {
@@ -40,6 +40,9 @@ export default defineNuxtConfig({
       debug: process.env.GEINS_DEBUG === 'true',
       latestVersion: process.env.LATEST_VERSION || 'v0',
       baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+      productImageDomain: process.env.PRODUCT_IMAGE_DOMAIN || 'commerce.services',
+      productImageBaseUrl:
+        process.env.PRODUCT_IMAGE_BASE_URL || 'https://{ACCOUNT_NAME}.{DOMAIN}/product/raw/',
     },
     private: {},
   },

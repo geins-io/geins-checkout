@@ -44,7 +44,7 @@ const handleCheckout = async () => {
     <NuxtLayout name="default">
       <template #cart>
         <Cart v-if="cart" :cart="cart" />
-        <BottomUrls :urls="urls" />
+        <BottomUrls v-if="urls" :urls="urls" />
       </template>
 
       <template #checkout>

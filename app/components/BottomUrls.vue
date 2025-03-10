@@ -1,9 +1,7 @@
 <script setup lang="ts">
+import type { CheckoutRedirectsType } from '@geins/types';
 const _props = defineProps<{
-  urls: {
-    terms?: string;
-    privacy?: string;
-  } | null;
+  urls: CheckoutRedirectsType;
 }>();
 </script>
 <template>

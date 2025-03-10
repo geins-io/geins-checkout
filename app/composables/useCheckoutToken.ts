@@ -17,7 +17,6 @@ export const useCheckoutToken = () => {
   const logo = computed(() => branding.value?.logo);
   const icon = computed(() => branding.value?.icon);
   const title = computed(() => branding.value?.title);
-  const imgBaseUrl = ref('https://labs.commerce.services/product/raw/');
 
   const cssVariables = ref<Record<string, string>>({});
 
@@ -35,6 +34,14 @@ export const useCheckoutToken = () => {
       .map((word) => word[0])
       .join('')
       .toUpperCase();
+  });
+
+  const productImageBaseUrl = computed(() => {
+    const accountName = parsedToken.value?.geinsSettings?.accountName || '';
+    const domain = config.public.productImageDomain;
+    return config.public.productImageBaseUrl
+      .replace('{ACCOUNT_NAME}', accountName)
+      .replace('{DOMAIN}', domain);
   });
 
   const setCurrentVersion = (version?: string) => {
@@ -156,7 +163,7 @@ export const useCheckoutToken = () => {
     logo,
     title,
     urls,
-    imgBaseUrl,
+    productImageBaseUrl,
     setCurrentVersion,
     initSettings,
     parseToken,
