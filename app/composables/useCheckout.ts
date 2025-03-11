@@ -218,19 +218,19 @@ export const useCheckout = () => {
 
   const createCheckoutInput = () => {
     const cartId = state.value.cart?.id ?? '';
-    const merchantData = state.value.cart?.merchantData ?? { test: 'test' };
 
     return {
       cartId: cartId,
       checkoutOptions: {
         email: state.value.email,
-        customerType: CustomerType.PERSON,
+        customerType: parsedToken.value?.checkoutSettings?.customerType ?? CustomerType.PERSON,
         paymentId: state.value.selectedPaymentMethod,
         billingAddress: state.value.billingAddress,
         acceptedConsents: ['order'],
         shippingAddress: useShippingAddress.value ? state.value.shippingAddress : state.value.billingAddress,
-        merchantData: '{"extraData":"","extraNumber":1}', //'JSON.stringify(merchantData)',
+        merchantData: '',
         message: state.value.message,
+        identityNumber: state.value.identityNumber,
       },
     };
   };

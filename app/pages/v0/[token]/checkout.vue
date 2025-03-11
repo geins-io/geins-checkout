@@ -49,21 +49,12 @@ const handleCheckout = async () => {
 
       <template #checkout>
         <div class="mx-auto w-full max-w-2xl">
-          <!-- Checkout Form -->
-          <!-- Payment Methods -->
-          <!--               <div
-                  v-if="paymentMethods.length > 1"
-                  class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
-                >
-                  <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
-                </div> -->
-
           <div v-if="state.externalCheckoutHTML.length > 0" class="rounded-lg bg-white p-3 lg:p-8">
             <ExternalCheckout :html="state.externalCheckoutHTML" />
           </div>
 
-          <!-- Billing Information -->
-          <div v-if="state.selectedPaymentMethod === 18" class="">
+          <!-- Manual Invoice -->
+          <div v-if="state.selectedPaymentMethod === 18" class="lg:px-7">
             <h2 class="text-lg font-bold">
               {{ useShippingAddress ? 'Billing Address' : 'Your Information' }}
             </h2>
@@ -84,12 +75,18 @@ const handleCheckout = async () => {
                 @update="updateCheckoutData('shipping', $event)"
               />
             </ContentSwitch>
+            <CartSummary v-if="cart" :summary="cart.summary" class="mt-4" />
+            <Button :loading="loading" class="mt-4 w-full" size="lg" @click="handleCheckout">
+              {{ loading ? 'Processing...' : 'Complete Checkout' }}
+            </Button>
           </div>
-
-          <Button :loading="loading" class="mt-4 w-full" size="lg" @click="handleCheckout">
-            {{ loading ? 'Processing...' : 'Complete Checkout' }}
-          </Button>
         </div>
+        <!--               <div
+                  v-if="paymentMethods.length > 1"
+                  class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
+                >
+                  <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
+                </div> -->
       </template>
     </NuxtLayout>
   </div>

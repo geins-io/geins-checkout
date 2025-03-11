@@ -36,13 +36,17 @@ export const useCheckoutToken = () => {
       .toUpperCase();
   });
 
-  const productImageBaseUrl = computed(() => {
+  const getProductImageUrl = (filename?: string) => {
     const accountName = parsedToken.value?.geinsSettings?.accountName || '';
     const domain = config.public.productImageDomain;
-    return config.public.productImageBaseUrl
+    if (!accountName || !domain || !filename) {
+      return null;
+    }
+    const baseUrl = config.public.productImageBaseUrl
       .replace('{ACCOUNT_NAME}', accountName)
       .replace('{DOMAIN}', domain);
-  });
+    return `${baseUrl}${filename}`;
+  };
 
   const setCurrentVersion = (version?: string) => {
     if (!version || !/^v\d+$/.test(version)) {
@@ -163,7 +167,7 @@ export const useCheckoutToken = () => {
     logo,
     title,
     urls,
-    productImageBaseUrl,
+    getProductImageUrl,
     setCurrentVersion,
     initSettings,
     parseToken,

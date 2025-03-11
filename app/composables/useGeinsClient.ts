@@ -4,6 +4,8 @@ import type {
   CartType,
   CheckoutInputType,
   CheckoutRedirectsType,
+  CheckoutSettings,
+  CheckoutSummaryType,
   CheckoutType,
   CheckoutUrlsInputType,
   GeinsSettings,
@@ -11,10 +13,11 @@ import type {
   PaymentOptionType,
   ShippingOptionType,
 } from '@geins/types';
+import { CustomerType } from '@geins/types';
 interface State {
   token: string;
   geinsSettings: GeinsSettings | null;
-  settings: Record<string, unknown> | null;
+  settings: CheckoutSettings | null;
   cartId: string;
   cartObject: CartType | null;
   paymentMethods: PaymentOptionType[];
@@ -31,6 +34,7 @@ let geinsOMS: GeinsOMS;
 
 export const useGeinsClient = () => {
   const { token, parsedToken, confirmationUrl, parseToken } = useCheckoutToken();
+  const { vatIncluded } = usePrice();
 
   const state = ref<State>({
     token: token.value,
@@ -61,6 +65,12 @@ export const useGeinsClient = () => {
     state.value.settings = parsedToken.value.checkoutSettings;
     state.value.redirectUrls = parsedToken.value.checkoutSettings?.redirectUrls;
 
+    vatIncluded.value = parsedToken.value.checkoutSettings.customerType === CustomerType.PERSON;
+    console.log(
+      '🚀 ~ initializeStateFromToken ~ parsedToken.value.checkoutSettings.customerType:',
+      parsedToken.value.checkoutSettings.customerType,
+    );
+
     if (parsedToken.value.checkoutSettings?.copyCart) {
       console.log(
         'CLIENT initializeStateFromToken() - copyCart',
@@ -80,7 +90,7 @@ export const useGeinsClient = () => {
     }
 
     // initialize Geins core
-    geinsCore = markRaw(new GeinsCore(state.value.geinsSettings));
+    geinsCore = new GeinsCore(state.value.geinsSettings);
     // initialize Geins OMS
     geinsOMS = markRaw(
       new GeinsOMS(geinsCore, {
@@ -116,9 +126,9 @@ export const useGeinsClient = () => {
 
   const getCheckoutSummary = async (
     orderId: string,
-    paymentType: string,
-  ): Promise<CheckoutOrderSummary | undefined> => {
-    const summary = await geinsOMS.checkout.getSummary({ orderId, paymentType });
+    paymentMethod: string,
+  ): Promise<CheckoutSummaryType | undefined> => {
+    const summary = await geinsOMS.checkout.summary({ orderId, paymentMethod });
     if (!summary) {
       throw new Error('Failed to get order summary');
     }

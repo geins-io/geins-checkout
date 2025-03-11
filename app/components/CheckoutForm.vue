@@ -4,6 +4,7 @@ import { useDebounceFn } from '@vueuse/core';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
+const { vatIncluded } = usePrice();
 
 const _props = defineProps<{
   data: CheckoutFormType;
@@ -11,12 +12,20 @@ const _props = defineProps<{
   hideMessageInput?: boolean;
 }>();
 
+const identityNumberSchema = !vatIncluded.value
+  ? z.string().min(1, 'Identity number is required')
+  : z.string().optional();
+const companyNameSchema = vatIncluded.value
+  ? z.string().min(1, 'Company name is required')
+  : z.string().optional();
+
 const formSchema = toTypedSchema(
   z.object({
     email: z.string().email('Invalid email address'),
+    identityNumber: identityNumberSchema,
     address: z.object({
       phone: z.string().min(1, 'Phone number is required'),
-      company: z.string().optional(),
+      company: companyNameSchema,
       firstName: z.string().min(1, 'First name is required'),
       lastName: z.string().min(1, 'Last name is required'),
       careOf: z.string().optional(),
@@ -76,6 +85,24 @@ const onSubmit = form.handleSubmit((values) => {
         </FormItem>
       </FormField>
     </div>
+    <FormField v-if="!vatIncluded" v-slot="{ componentField }" name="identityNumber">
+      <FormItem v-auto-animate>
+        <FormLabel>Organization Number</FormLabel>
+        <FormControl>
+          <Input v-bind="componentField" />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    </FormField>
+    <FormField v-if="!vatIncluded" v-slot="{ componentField }" name="address.company">
+      <FormItem v-auto-animate>
+        <FormLabel>Company</FormLabel>
+        <FormControl>
+          <Input v-bind="componentField" />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    </FormField>
     <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
       <FormField v-slot="{ componentField }" name="address.firstName">
         <FormItem v-auto-animate>
