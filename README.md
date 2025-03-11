@@ -17,11 +17,13 @@
 - [x] Update to a more modern design that works with most branding
 - [ ] Confirm page branding and functions
 - [ ] Two steps for Geins Pay
-- [ ] Cart summary component
+- [x] Sale prices in cart
+- [x] Cart summary component
 - [ ] Set a good font for the checkout
 - [ ] Change order in url
-- [ ] Global inc/ex vat state set from token settings
+- [x] Global inc/ex vat state set from token settings
 - [ ] Address country from market
+- [ ] See to that all available payment methods are working as intended, redirecting to correct page
 
 ### Before v0 release
 

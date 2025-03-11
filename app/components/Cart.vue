@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CartItemType, CartType } from '@geins/types';
+const { vatIncluded, getRegularPrice, getSellingPrice } = usePrice();
 
 const props = defineProps<{
   cart: CartType;
@@ -33,13 +34,28 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
             <div class="flex flex-col justify-end">
               <div class="mb-1 flex items-center justify-end text-xs text-card-foreground/65">
                 <span class="text-sm">{{ firstItem.quantity }}</span>
-                <span class="mx-3">×</span>
-                <span class="text-sm">{{ firstItem.unitPrice?.regularPriceIncVatFormatted }}</span>
+                <span class="mx-2">×</span>
+                <span v-if="firstItem?.unitPrice" class="flex flex-col text-sm lg:flex-row">
+                  <span :class="{ 'text-sale': firstItem.unitPrice?.isDiscounted }">
+                    {{ getSellingPrice(firstItem.unitPrice) }}
+                  </span>
+                  <span
+                    v-if="firstItem.unitPrice?.isDiscounted"
+                    class="ml-2 text-[0.7rem] leading-[0.8rem] line-through"
+                  >
+                    {{ getRegularPrice(firstItem.unitPrice) }}
+                  </span>
+                </span>
               </div>
             </div>
           </div>
-          <div class="text-3xl text-card-foreground lg:mb-5 lg:text-[40px]">
-            {{ firstItem.totalPrice?.regularPriceIncVatFormatted }}
+          <div
+            v-if="firstItem.totalPrice"
+            class="text-3xl text-card-foreground lg:mb-5 lg:text-[40px]"
+            :class="{ 'text-sale': firstItem.totalPrice?.isDiscounted }"
+          >
+            {{ getSellingPrice(firstItem.totalPrice) }}
+            <span v-if="!vatIncluded" class="text-sm text-card-foreground/80">ex. VAT</span>
           </div>
           <!-- Product Image -->
           <div class="relative mb-5 h-[45vh] w-full">
@@ -82,10 +98,25 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
                 <div class="flex items-center text-xs text-card-foreground/65 lg:mb-1">
                   <span class="text-xs lg:text-sm">{{ item.quantity }}</span>
                   <span class="mx-1 lg:mx-3">×</span>
-                  <span class="text-xs lg:text-sm">{{ item.unitPrice?.regularPriceIncVatFormatted }}</span>
+                  <span v-if="item.unitPrice" class="flex lg:flex-col text-xs lg:text-sm">
+                    <span :class="{ 'text-sale': item.unitPrice?.isDiscounted }">
+                      {{ getSellingPrice(item.unitPrice) }}
+                    </span>
+                    <span
+                      v-if="item.unitPrice?.isDiscounted"
+                      class="ml-2 text-[0.7rem] lg:leading-[0.8rem] line-through"
+                    >
+                      {{ getRegularPrice(item.unitPrice) }}
+                    </span>
+                  </span>
                 </div>
-                <div class="text-lg lg:text-xl">
-                  {{ item.totalPrice?.regularPriceIncVatFormatted }}
+                <div
+                  v-if="item.totalPrice"
+                  class="text-lg lg:text-xl"
+                  :class="{ 'text-sale': item.totalPrice?.isDiscounted }"
+                >
+                  {{ getSellingPrice(item.totalPrice) }}
+                  <span v-if="!vatIncluded" class="text-[0.65rem] text-card-foreground/80">ex. VAT</span>
                 </div>
               </div>
             </div>

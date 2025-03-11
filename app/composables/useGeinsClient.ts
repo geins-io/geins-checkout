@@ -5,6 +5,7 @@ import type {
   CheckoutInputType,
   CheckoutRedirectsType,
   CheckoutSettings,
+  CheckoutSummaryType,
   CheckoutType,
   CheckoutUrlsInputType,
   GeinsSettings,
@@ -65,6 +66,10 @@ export const useGeinsClient = () => {
     state.value.redirectUrls = parsedToken.value.checkoutSettings?.redirectUrls;
 
     vatIncluded.value = parsedToken.value.checkoutSettings.customerType === CustomerType.PERSON;
+    console.log(
+      '🚀 ~ initializeStateFromToken ~ parsedToken.value.checkoutSettings.customerType:',
+      parsedToken.value.checkoutSettings.customerType,
+    );
 
     if (parsedToken.value.checkoutSettings?.copyCart) {
       console.log(
@@ -85,7 +90,7 @@ export const useGeinsClient = () => {
     }
 
     // initialize Geins core
-    geinsCore = markRaw(new GeinsCore(state.value.geinsSettings));
+    geinsCore = new GeinsCore(state.value.geinsSettings);
     // initialize Geins OMS
     geinsOMS = markRaw(
       new GeinsOMS(geinsCore, {
@@ -121,9 +126,9 @@ export const useGeinsClient = () => {
 
   const getCheckoutSummary = async (
     orderId: string,
-    paymentType: string,
-  ): Promise<CheckoutOrderSummary | undefined> => {
-    const summary = await geinsOMS.checkout.getSummary({ orderId, paymentType });
+    paymentMethod: string,
+  ): Promise<CheckoutSummaryType | undefined> => {
+    const summary = await geinsOMS.checkout.summary({ orderId, paymentMethod });
     if (!summary) {
       throw new Error('Failed to get order summary');
     }

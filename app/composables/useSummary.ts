@@ -23,7 +23,7 @@ export const useSummary = () => {
 
     try {
       state.loading = true;
-      await geinsClient.initializeSummary(token);
+      await geinsClient.initializeSummary();
       state.continueShoppingUrl = (await getContinueShoppingUrl()) ?? '';
 
       orderSummary = await getCheckoutSummary({ orderId, paymentdata });
