@@ -22,14 +22,14 @@ export const useCheckoutToken = () => {
 
   // Return checkut url for latest version
   const latestCheckoutUrl = computed(() => {
-    return `/${latestVersion.value}/${token.value}/checkout`;
+    return `/${latestVersion.value}/checkout/${token.value}`;
   });
   const checkoutPageUrl = computed(() => {
-    return `${config.public.baseUrl}/${currentVersion.value}/${token.value}/checkout`;
+    return `${config.public.baseUrl}/${currentVersion.value}/checkout/${token.value}`;
   });
   // Return confirmation url for current version
   const confirmationPageUrl = computed(() => {
-    return `${config.public.baseUrl}/${currentVersion.value}/${token.value}/thank-you`;
+    return `${config.public.baseUrl}/${currentVersion.value}/thank-you/${token.value}`;
   });
   const iconFallback = computed(() => {
     return branding.value?.title

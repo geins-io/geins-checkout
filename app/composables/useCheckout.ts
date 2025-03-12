@@ -1,4 +1,4 @@
-import type { AddressInputType, CheckoutInputType, GeinsUserType } from '@geins/types';
+import type { AddressInputType, CheckoutInputType, GeinsUserType, PaymentOptionType } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
@@ -44,9 +44,6 @@ export const useCheckout = () => {
         setShippingMethods();
         setPaymentMethods();
 
-        if (geinsClient.selectedPaymentMethod.value) {
-          await setExternalCheckout(geinsClient.selectedPaymentMethod.value);
-        }
         /*       // if user is logged in, load user data
       const user = geinsClient.getUser();
       if (user) {
@@ -69,6 +66,12 @@ export const useCheckout = () => {
 
     watch(parsedCheckoutToken, init, { once: true });
   };
+
+  onMounted(() => {
+    if (geinsClient.selectedPaymentMethod.value) {
+      setExternalCheckout(geinsClient.selectedPaymentMethod.value);
+    }
+  });
 
   const _loadUser = async (user: GeinsUserType) => {
     try {
@@ -104,7 +107,7 @@ export const useCheckout = () => {
     }
   };
 
-  const setExternalCheckout = async (paymentMethod: any) => {
+  const setExternalCheckout = async (paymentMethod: PaymentOptionType) => {
     if (paymentMethod.paymentData === null) {
       return;
     }
@@ -115,13 +118,12 @@ export const useCheckout = () => {
     }
 
     shippingMethods.value = [];
-    state.value.externalCheckoutHTML = html;
+    state.value.externalCheckoutHTML = html || '';
 
-    // Wait for Vue to update the DOM
     await nextTick();
 
     const container = document.createElement('div');
-    container.innerHTML = html;
+    container.innerHTML = state.value.externalCheckoutHTML;
 
     await nextTick();
 

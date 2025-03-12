@@ -28,7 +28,6 @@ const handleCheckout = async () => {
   const typedResult = result as CheckoutResult;
 
   if (typedResult.redirectUrl) {
-    window.location.href = typedResult.redirectUrl;
     navigateTo(typedResult.redirectUrl, { external: true });
   } else if (typedResult.success && typedResult.publicOrderId) {
     navigateTo(`${confirmationPageUrl.value}/${typedResult.publicOrderId}`, { external: true });
