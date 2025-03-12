@@ -1,9 +1,8 @@
 <script setup lang="ts">
-const { confirmationUrl, urls } = useCheckoutToken();
-const { state, loading, updateCheckoutData, completeCheckout } = useCheckout();
+const { confirmationPageUrl, urls } = useCheckoutToken();
+const { state, loading, cart, initializeCheckout, updateCheckoutData, completeCheckout } = useCheckout();
 
-const cart = computed(() => state.value.cart);
-const useShippingAddress = ref(false);
+await initializeCheckout();
 
 const billingFormData = ref<CheckoutFormType>({
   email: '',
@@ -32,7 +31,7 @@ const handleCheckout = async () => {
     window.location.href = typedResult.redirectUrl;
     navigateTo(typedResult.redirectUrl, { external: true });
   } else if (typedResult.success && typedResult.publicOrderId) {
-    navigateTo(`${confirmationUrl.value}/${typedResult.publicOrderId}`, { external: true });
+    navigateTo(`${confirmationPageUrl.value}/${typedResult.publicOrderId}`, { external: true });
   } else if (typedResult.error) {
     console.error(typedResult.error);
   }
@@ -56,13 +55,13 @@ const handleCheckout = async () => {
           <!-- Manual Invoice -->
           <div v-if="state.selectedPaymentMethod === 18" class="lg:px-7">
             <h2 class="text-lg font-bold">
-              {{ useShippingAddress ? 'Billing Address' : 'Your Information' }}
+              {{ state.useShippingAddress ? 'Billing Address' : 'Your Information' }}
             </h2>
             <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
             <CheckoutForm :data="billingFormData" @update="updateCheckoutData('billing', $event)" />
             <!-- Shipping Information -->
             <ContentSwitch
-              v-model:checked="useShippingAddress"
+              v-model:checked="state.useShippingAddress"
               label="Ship to a different address"
               :inside-box="true"
               class="mt-4"

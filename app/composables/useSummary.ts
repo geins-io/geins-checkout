@@ -1,45 +1,43 @@
-import type { CheckoutQueryParameters } from '@geins/types';
+import type { CartType, CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types';
 
 export const useSummary = () => {
   const geinsClient = useGeinsClient();
-  const state = reactive<{
-    loading: boolean;
-    isExternalSummary: boolean;
-    continueShoppingUrl: string;
-    error: string;
-  }>({
-    loading: true,
-    isExternalSummary: false,
-    continueShoppingUrl: '',
-    error: '',
-  });
+  const { parsedCheckoutToken } = useCheckoutToken();
 
-  const initializeSummary = async (
-    token: string,
-    orderId: string,
-    paymentdata: CheckoutQueryParameters,
-  ): Promise<CheckoutOrderSummary | null> => {
-    let orderSummary: CheckoutOrderSummary | null = null;
+  const loading = useState<boolean>('loading', () => true);
+  const continueShoppingUrl = ref('');
+  const isExternalSummary = ref(false);
+  const error = ref('');
+  const orderSummary = ref<CheckoutSummaryType>();
 
-    try {
-      state.loading = true;
-      await geinsClient.initializeSummary();
-      state.continueShoppingUrl = (await getContinueShoppingUrl()) ?? '';
+  const initializeSummary = async (orderId: string, paymentdata: CheckoutQueryParameters) => {
+    const init = async () => {
+      try {
+        loading.value = true;
+        await geinsClient.initializeSummary();
+        continueShoppingUrl.value = geinsClient.redirectUrls.value?.cancel || '';
 
-      orderSummary = await getCheckoutSummary({ orderId, paymentdata });
-    } catch (e) {
-      state.error = 'Failed to initialize summary';
-      console.error(e);
-    } finally {
-      state.loading = false;
+        orderSummary.value = await getCheckoutSummary({ orderId, paymentdata });
+      } catch (e) {
+        error.value = 'Failed to initialize summary';
+        console.error(e);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    if (parsedCheckoutToken.value) {
+      await init();
+      return;
     }
-    return orderSummary;
+
+    watch(parsedCheckoutToken, init, { once: true });
   };
 
   const getCheckoutSummary = async (args: {
     orderId: string;
     paymentdata: CheckoutQueryParameters;
-  }): Promise<CheckoutOrderSummary> => {
+  }): Promise<CheckoutSummaryType> => {
     const queryStringArgs = parseQueryParameters(args.paymentdata);
     if (args.orderId === undefined || queryStringArgs.orderId === undefined) {
       throw new Error('Missing orderId');
@@ -52,19 +50,11 @@ export const useSummary = () => {
       throw new Error('Failed to get order summary');
     }
     if (orderSummary.htmlSnippet) {
-      state.isExternalSummary = true;
+      isExternalSummary.value = true;
       // await setExternalSummary(orderSummary.htmlSnippet);
     }
 
     return orderSummary;
-  };
-
-  const getContinueShoppingUrl = async () => {
-    const urls = geinsClient.getRedirectUrls();
-    if (!urls) {
-      return '';
-    }
-    return urls?.cancel || urls?.change;
   };
 
   const parseQueryParameters = (paymentdata: CheckoutQueryParameters) => {
@@ -74,9 +64,20 @@ export const useSummary = () => {
     return { orderId, paymentType };
   };
 
+  const orderCart = computed(() => {
+    return {
+      id: '',
+      items: orderSummary.value?.order?.rows,
+    } as CartType;
+  });
+
   return {
-    state,
+    loading,
+    error,
+    isExternalSummary,
+    continueShoppingUrl,
+    orderSummary,
+    orderCart,
     initializeSummary,
-    getContinueShoppingUrl,
   };
 };
