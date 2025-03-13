@@ -32,7 +32,7 @@ export const useGeinsClient = () => {
   const user = ref<GeinsUserType>();
   const checkoutObject = ref<CheckoutType>();
   const redirectUrls = ref<CheckoutRedirectsType>();
-  const orderSummary = ref<unknown>();
+  const orderSummary = ref<CheckoutSummaryType>();
 
   const initializeClientFromToken = async (): Promise<void> => {
     checkoutSettings.value = parsedCheckoutToken.value.checkoutSettings;

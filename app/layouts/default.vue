@@ -44,7 +44,7 @@ const isHomePage = computed(() => path === '/');
         </header>
         <slot name="cart" />
       </div>
-      <div v-else class="flex h-full items-center justify-center">
+      <div v-else-if="!isHomePage" class="flex h-full items-center justify-center">
         <Loading class="m-auto size-10" />
       </div>
     </div>
@@ -54,7 +54,7 @@ const isHomePage = computed(() => path === '/');
       <div v-if="!loading" class="lg:my-auto">
         <slot name="checkout" />
       </div>
-      <div v-else class="flex h-full items-center justify-center">
+      <div v-else-if="!isHomePage" class="flex h-full items-center justify-center">
         <Loading class="m-auto size-10 rotate-90" />
       </div>
     </div>

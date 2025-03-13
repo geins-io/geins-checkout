@@ -21,6 +21,9 @@ export const useCheckout = () => {
   const error = ref('');
   const paymentMethods = ref();
   const shippingMethods = ref();
+  const checkoutSettings = computed(() => geinsClient.checkoutSettings.value);
+  const cart = computed(() => geinsClient.cart.value);
+  const redirectUrls = computed(() => geinsClient.redirectUrls.value);
 
   const state = ref<CheckoutState>({
     email: '',
@@ -243,7 +246,6 @@ export const useCheckout = () => {
     };
   };
 
-  // place order
   const completeCheckout = async (): Promise<CompleteCheckoutResponse> => {
     loading.value = true;
     const response: CompleteCheckoutResponse = {
@@ -262,32 +264,27 @@ export const useCheckout = () => {
         response.success = true;
         response.orderId = orderResult.orderId || '';
         response.publicOrderId = orderResult.publicId || '';
-        response.redirectUrl = await getRedirectUrl(response);
+        response.redirectUrl = getRedirectUrl(response);
       }
     } catch (e) {
       error.value = 'Failed to complete checkout';
       console.error(e);
       response.success = false;
-      response.redirectUrl = await getRedirectUrl(response);
+      response.redirectUrl = getRedirectUrl(response);
     } finally {
       loading.value = false;
     }
     return response;
   };
 
-  const getRedirectUrl = async (response: CompleteCheckoutResponse) => {
-    // console.log('getRedirectUrl::', response);
-    const redirectUrls = geinsClient.redirectUrls.value;
-    if (response.success) {
-      if (redirectUrls?.success) {
-        return `${redirectUrls.success}?order=${response.publicOrderId}`;
-      }
-    } else {
-      if (redirectUrls?.error) {
-        return `${redirectUrls.error}`;
-      }
+  const getRedirectUrl = (response: CompleteCheckoutResponse): string => {
+    const redirectUrls = checkoutSettings.value?.redirectUrls;
+    if (response.success && redirectUrls?.success) {
+      return `${redirectUrls.success}?order=${response.publicOrderId}`;
+    } else if (redirectUrls?.error) {
+      return redirectUrls.error;
     }
-    return undefined;
+    return '';
   };
 
   return {
@@ -297,8 +294,9 @@ export const useCheckout = () => {
     paymentMethods,
     shippingMethods,
     isExternalCheckout,
-    cart: computed(() => geinsClient.cart.value),
-    redirectUrls: computed(() => geinsClient.redirectUrls.value),
+    checkoutSettings,
+    cart,
+    redirectUrls,
     initializeCheckout,
     updateCheckoutData,
     selectPaymentMethod,

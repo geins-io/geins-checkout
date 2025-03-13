@@ -10,10 +10,10 @@ export const useCheckoutToken = () => {
   const config = useRuntimeConfig();
   const token = useState<string>('checkout-token');
   const parsedCheckoutToken = useState<CheckoutTokenPayload>('parsed-checkout-token');
-  const latestVersion = ref(config.public.latestVersion);
-  const currentVersion = ref(config.public.latestVersion);
-  const branding = ref<CheckoutBrandingType>();
-  const urls = ref<CheckoutRedirectsType>();
+  const latestVersion = useState<string>('latest-version', () => config.public.latestVersion);
+  const currentVersion = useState<string>('current-version', () => config.public.latestVersion);
+  const branding = useState<CheckoutBrandingType | undefined>('checkout-branding');
+  const urls = useState<CheckoutRedirectsType | undefined>('checkout-urls');
   const logo = computed(() => branding.value?.logo);
   const icon = computed(() => branding.value?.icon);
   const title = computed(() => branding.value?.title);
@@ -39,18 +39,6 @@ export const useCheckoutToken = () => {
       .toUpperCase();
   });
 
-  const getProductImageUrl = (filename?: string) => {
-    const accountName = parsedCheckoutToken.value?.geinsSettings?.accountName || '';
-    const domain = config.public.productImageDomain;
-    if (!accountName || !domain || !filename) {
-      return null;
-    }
-    const baseUrl = config.public.productImageBaseUrl
-      .replace('{ACCOUNT_NAME}', accountName)
-      .replace('{DOMAIN}', domain);
-    return `${baseUrl}${filename}`;
-  };
-
   const setCurrentVersion = (version?: string) => {
     if (!version || !/^v\d+$/.test(version)) {
       return;
@@ -58,27 +46,26 @@ export const useCheckoutToken = () => {
     currentVersion.value = version;
   };
 
-  const initSettings = async () => {
-    if (!token.value) return;
-    parsedCheckoutToken.value = await parseToken(token.value);
-    if (!parsedCheckoutToken.value?.checkoutSettings) return;
+  const initSettingsFromToken = async (): Promise<boolean> => {
+    if (!token.value) return false;
+    try {
+      parsedCheckoutToken.value = await parseToken(token.value);
+    } catch (error) {
+      token.value = '';
+      console.warn('Failed to parse checkout token', error);
+      return false;
+    }
+    if (!parsedCheckoutToken.value?.checkoutSettings) return false;
     branding.value = parsedCheckoutToken.value?.checkoutSettings?.branding;
     urls.value = parsedCheckoutToken.value?.checkoutSettings?.redirectUrls;
-    if (!branding.value) return;
+    if (!branding.value) return false;
     parseStyles(branding.value?.styles);
+    return true;
   };
 
   const parseToken = async (token: string) => {
     return await GeinsOMS.parseCheckoutToken(token);
   };
-
-  watch(
-    token,
-    async () => {
-      await initSettings();
-    },
-    { immediate: true },
-  );
 
   const camelToKebab = (str: string) => str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
@@ -158,6 +145,18 @@ export const useCheckoutToken = () => {
 
   watch(cssVariables, setCssVarsToHead);
 
+  const getProductImageUrl = (filename?: string) => {
+    const accountName = parsedCheckoutToken.value?.geinsSettings?.accountName || '';
+    const domain = config.public.productImageDomain;
+    if (!accountName || !domain || !filename) {
+      return null;
+    }
+    const baseUrl = config.public.productImageBaseUrl
+      .replace('{ACCOUNT_NAME}', accountName)
+      .replace('{DOMAIN}', domain);
+    return `${baseUrl}${filename}`;
+  };
+
   return {
     token,
     parsedCheckoutToken,
@@ -173,7 +172,7 @@ export const useCheckoutToken = () => {
     urls,
     getProductImageUrl,
     setCurrentVersion,
-    initSettings,
+    initSettingsFromToken,
     parseToken,
     parseStyles,
     setCssVarsToHead,
