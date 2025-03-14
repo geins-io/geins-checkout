@@ -26,7 +26,7 @@ export const useGeinsClient = () => {
 
   const geinsSettings = ref<GeinsSettings>();
   const checkoutSettings = ref<CheckoutSettings>();
-  const cart = ref<CartType>();
+  const cart = useState<CartType>('cart');
   const paymentMethods = ref<PaymentOptionType[]>();
   const shippingMethods = ref<ShippingOptionType[]>();
   const user = ref<GeinsUserType>();
@@ -42,14 +42,6 @@ export const useGeinsClient = () => {
 
     // Set vatIncluded based on customer type
     vatIncluded.value = parsedCheckoutToken.value.checkoutSettings.customerType === CustomerType.PERSON;
-
-    if (parsedCheckoutToken.value.checkoutSettings?.copyCart) {
-      console.log(
-        'CLIENT initializeStateFromToken() - copyCart',
-        parsedCheckoutToken.value.checkoutSettings.copyCart,
-      );
-    }
-
     cart.value = { id: parsedCheckoutToken.value.cartId } as CartType;
   };
 
@@ -68,6 +60,20 @@ export const useGeinsClient = () => {
     });
   };
 
+  const copyCart = async (): Promise<void> => {
+    if (checkoutSettings.value?.copyCart) {
+      try {
+        if (!cart.value?.id) {
+          throw new Error('Cart ID is missing');
+        }
+        const newCartId = await geinsOMS.cart.copy({ id: cart.value?.id, loadCopy: true });
+        cart.value = { id: newCartId } as CartType;
+      } catch (e) {
+        console.error('Failed to copy cart', e);
+      }
+    }
+  };
+
   const initializeSummary = async (): Promise<boolean> => {
     // set all the checkoutSettings from the token
     try {
@@ -81,6 +87,7 @@ export const useGeinsClient = () => {
 
   const initializeCheckout = async (): Promise<void> => {
     await setGeinsClient();
+    await copyCart();
 
     const checkout = await getCheckout({
       paymentMethodId: checkoutSettings.value?.selectedPaymentMethodId,
@@ -88,7 +95,9 @@ export const useGeinsClient = () => {
     });
 
     if (checkout) {
-      cart.value = checkout.cart;
+      if (checkout.cart) {
+        cart.value = checkout.cart;
+      }
       paymentMethods.value = setPaymentMethods(checkout.paymentOptions || []);
       shippingMethods.value = setShippingMethods(checkout.shippingOptions || []);
     }
@@ -113,7 +122,9 @@ export const useGeinsClient = () => {
     const checkout = await getCheckout(options);
 
     if (checkout) {
-      cart.value = checkout.cart;
+      if (checkout.cart) {
+        cart.value = checkout.cart;
+      }
       paymentMethods.value = setPaymentMethods(checkout.paymentOptions || []);
       shippingMethods.value = setShippingMethods(checkout.shippingOptions || []);
     }

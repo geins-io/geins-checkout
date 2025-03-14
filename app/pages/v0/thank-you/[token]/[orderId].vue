@@ -23,7 +23,7 @@ console.log(orderSummary.value);
       </template>
 
       <template #checkout>
-        <h1>Thank you for your order</h1>
+        <h1 class="text-center text-3xl">Thank you for your order!</h1>
       </template>
     </NuxtLayout>
   </div>
