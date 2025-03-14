@@ -15,7 +15,7 @@ const _props = defineProps<{
 const identityNumberSchema = !vatIncluded.value
   ? z.string().min(1, 'Identity number is required')
   : z.string().optional();
-const companyNameSchema = vatIncluded.value
+const companyNameSchema = !vatIncluded.value
   ? z.string().min(1, 'Company name is required')
   : z.string().optional();
 
@@ -32,6 +32,7 @@ const formSchema = toTypedSchema(
       addressLine1: z.string().min(1, 'Street address is required'),
       zip: z.string().min(1, 'Zip code is required'),
       city: z.string().min(1, 'City is required'),
+      country: z.string().optional(),
     }),
     message: z.string().optional(),
   }),
@@ -40,16 +41,23 @@ const form = useForm({
   validationSchema: formSchema,
 });
 
-watch(
-  form.values,
-  useDebounceFn(() => {
-    emit('update', form.values as CheckoutFormType);
-  }),
-);
+const formValid = computed(() => form.meta.value.valid);
+const formTouched = computed(() => form.meta.value.touched);
 
 const emit = defineEmits<{
-  update: [data: CheckoutFormType];
+  update: [data: CheckoutFormUpdateEvent];
 }>();
+
+watch(
+  form.values,
+  useDebounceFn(async () => {
+    emit('update', {
+      valid: formValid.value,
+      touched: formTouched.value,
+      values: form.values as CheckoutFormType,
+    });
+  }),
+);
 
 const onSubmit = form.handleSubmit((values) => {
   console.log('Form submitted!', values);
@@ -57,7 +65,7 @@ const onSubmit = form.handleSubmit((values) => {
 </script>
 
 <template>
-  <form @submit="onSubmit">
+  <form class="space-y-2" @submit.prevent="onSubmit">
     <div v-if="!onlyAddress" class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
       <FormField
         v-slot="{ componentField }"

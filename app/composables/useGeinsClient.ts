@@ -107,6 +107,7 @@ export const useGeinsClient = () => {
   const updateCheckout = async (options?: {
     paymentMethodId?: number;
     shippingMethodId?: number;
+    checkoutOptions?: CheckoutInputType;
   }): Promise<void> => {
     const checkout = await getCheckout(options);
 
@@ -120,6 +121,7 @@ export const useGeinsClient = () => {
   const getCheckout = async (options?: {
     paymentMethodId?: number;
     shippingMethodId?: number;
+    checkoutOptions?: CheckoutInputType;
   }): Promise<CheckoutType> => {
     const paymentMethodId = checkoutSettings.value?.selectedPaymentMethodId || options?.paymentMethodId;
     const shippingMethodId = checkoutSettings.value?.selectedShippingMethodId || options?.shippingMethodId;
@@ -132,6 +134,7 @@ export const useGeinsClient = () => {
       shippingMethodId,
       checkoutOptions: {
         checkoutUrls,
+        ...options?.checkoutOptions,
       },
     };
 

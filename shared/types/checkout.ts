@@ -4,20 +4,20 @@ export interface CheckoutFormType {
   email?: string;
   message?: string;
   identityNumber?: string;
-  address: AddressInputType;
+  address?: AddressInputType;
 }
 
 export interface CheckoutState {
-  email: string;
-  identityNumber: string;
-  message: string;
-  billingAddress: AddressInputType;
-  shippingAddress: AddressInputType;
-  selectedPaymentMethod: number;
-  selectedShippingMethod: number;
-  externalCheckoutHTML: string;
-  useShippingAddress: boolean;
-  showMessageInput: boolean;
+  email?: string;
+  identityNumber?: string;
+  message?: string;
+  billingAddress?: AddressInputType;
+  shippingAddress?: AddressInputType;
+  selectedPaymentMethod?: number;
+  selectedShippingMethod?: number;
+  externalCheckoutHTML?: string;
+  useShippingAddress?: boolean;
+  showMessageInput?: boolean;
 }
 
 export interface CompleteCheckoutResponse {
@@ -25,4 +25,10 @@ export interface CompleteCheckoutResponse {
   orderId?: string;
   publicOrderId?: string;
   redirectUrl?: string;
+}
+
+export interface CheckoutFormUpdateEvent {
+  valid: boolean;
+  touched: boolean;
+  values: CheckoutFormType;
 }

@@ -1,8 +1,20 @@
 <script setup lang="ts">
 const { urls } = useCheckoutToken();
-const { state, cart, initializeCheckout } = useCheckout();
+const { state, cart, isExternalCheckout, initializeCheckout, updateCheckout } = useCheckout();
+const { vatIncluded } = usePrice();
 
 await initializeCheckout();
+
+const isPaymentInvoice = computed(() => state.value.selectedPaymentMethod === 18);
+const useManualCheckout = computed(
+  () =>
+    !isExternalCheckout.value &&
+    (isPaymentInvoice.value || (vatIncluded.value && state.value.selectedPaymentMethod === 27)),
+);
+
+const nextStep = async () => {
+  await updateCheckout();
+};
 </script>
 
 <template>
@@ -14,12 +26,15 @@ await initializeCheckout();
       </template>
 
       <template #checkout>
-        <div class="mx-auto w-full max-w-2xl">
-          <div v-if="state.externalCheckoutHTML.length > 0" class="rounded-lg bg-white p-3 lg:p-8">
+        <div v-auto-animate class="mx-auto w-full max-w-2xl">
+          <ManualCheckout
+            v-if="useManualCheckout"
+            :enable-complete-checkout="isPaymentInvoice"
+            @completed="nextStep"
+          />
+          <div v-else-if="isExternalCheckout" class="rounded-lg bg-white p-3 lg:p-8">
             <ExternalCheckout :html="state.externalCheckoutHTML" />
           </div>
-          <InvoiceCheckout v-else-if="state.selectedPaymentMethod === 18" />
-
           <!-- Manual Invoice -->
         </div>
         <!--               <div

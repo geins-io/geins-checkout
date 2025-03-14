@@ -4,7 +4,7 @@ export const useSummary = () => {
   const geinsClient = useGeinsClient();
   const { parsedCheckoutToken } = useCheckoutToken();
 
-  const loading = useState<boolean>('loading', () => true);
+  const checkoutLoading = useState<boolean>('checkout-loading', () => true);
   const continueShoppingUrl = ref('');
   const isExternalSummary = ref(false);
   const error = ref('');
@@ -13,7 +13,7 @@ export const useSummary = () => {
   const initializeSummary = async (orderId: string, paymentdata: CheckoutQueryParameters) => {
     const init = async () => {
       try {
-        loading.value = true;
+        checkoutLoading.value = true;
         await geinsClient.initializeSummary();
         continueShoppingUrl.value = geinsClient.redirectUrls.value?.cancel || '';
 
@@ -22,7 +22,7 @@ export const useSummary = () => {
         error.value = 'Failed to initialize summary';
         console.error(e);
       } finally {
-        loading.value = false;
+        checkoutLoading.value = false;
       }
     };
 
@@ -72,7 +72,7 @@ export const useSummary = () => {
   });
 
   return {
-    loading,
+    checkoutLoading,
     error,
     isExternalSummary,
     continueShoppingUrl,

@@ -1,19 +1,16 @@
 export default defineNuxtRouteMiddleware(async ({ params, path }) => {
   const { token, initSettingsFromToken, setCurrentVersion } = useCheckoutToken();
-  // Assign value to token from url param
-  token.value = params?.token?.toString() || ''; // Set current version from url param
-  console.log('🚀 ~ defineNuxtRouteMiddleware ~ token.value:', token.value);
+
+  token.value = params?.token?.toString() || '';
 
   if (path !== '/' && token.value === '') {
-    console.log('NAVIGATE TO ROOT - NO TOKEN');
-    //return navigateTo('/');
+    return navigateTo('/');
   }
 
   if (token.value) {
     const settingsInitiated = await initSettingsFromToken();
     if (!settingsInitiated) {
-      //return navigateTo('/');
-      console.log('NAVIGATE TO ROOT - SETTINGS');
+      return navigateTo('/');
     }
   }
 
