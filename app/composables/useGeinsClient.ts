@@ -84,6 +84,7 @@ export const useGeinsClient = () => {
 
     const checkout = await getCheckout({
       paymentMethodId: checkoutSettings.value?.selectedPaymentMethodId,
+      shippingMethodId: checkoutSettings.value?.selectedShippingMethodId,
     });
 
     if (checkout) {
@@ -133,6 +134,7 @@ export const useGeinsClient = () => {
       paymentMethodId,
       shippingMethodId,
       checkoutOptions: {
+        customerType: checkoutSettings.value?.customerType,
         checkoutUrls,
         ...options?.checkoutOptions,
       },
