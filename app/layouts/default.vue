@@ -3,7 +3,7 @@ import Logo from '@/assets/logos/geins.svg';
 import { LucideArrowLeft, Loading } from '#components';
 const { path } = useRoute();
 const { logo, icon, iconFallback, title, urls } = useCheckoutToken();
-const { loading } = useCheckout();
+const { globalLoading } = useCheckout();
 const isHomePage = computed(() => path === '/');
 </script>
 
@@ -13,11 +13,11 @@ const isHomePage = computed(() => path === '/');
       :class="
         cn(
           'bg-background px-[4vw] py-6 text-foreground lg:h-screen lg:overflow-y-auto lg:overflow-x-hidden lg:py-0',
-          `${!loading ? 'lg:pb-16' : ''}`,
+          `${!globalLoading ? 'lg:pb-16' : ''}`,
         )
       "
     >
-      <div v-if="!loading" class="flex flex-col gap-6 lg:h-full lg:justify-center lg:gap-[2vh]">
+      <div v-if="!globalLoading" class="flex flex-col gap-6 lg:h-full lg:justify-center lg:gap-[2vh]">
         <header
           v-if="!isHomePage && (title || logo || icon || iconFallback || urls?.cancel)"
           class="mx-auto flex w-full max-w-3xl items-center"
@@ -44,17 +44,17 @@ const isHomePage = computed(() => path === '/');
         </header>
         <slot name="cart" />
       </div>
-      <div v-else class="flex h-full items-center justify-center">
+      <div v-else-if="!isHomePage" class="flex h-full items-center justify-center">
         <Loading class="m-auto size-10" />
       </div>
     </div>
     <div
       class="bg-card px-[4vw] py-12 text-card-foreground lg:flex lg:h-screen lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:py-[8vh]"
     >
-      <div v-if="!loading" class="lg:my-auto">
+      <div v-if="!globalLoading" class="lg:my-auto">
         <slot name="checkout" />
       </div>
-      <div v-else class="flex h-full items-center justify-center">
+      <div v-else-if="!isHomePage" class="flex h-full items-center justify-center">
         <Loading class="m-auto size-10 rotate-90" />
       </div>
     </div>

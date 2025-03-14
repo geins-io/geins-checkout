@@ -35,7 +35,7 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
               <div class="mb-1 flex items-center justify-end text-xs text-card-foreground/65">
                 <span class="text-sm">{{ firstItem.quantity }}</span>
                 <span class="mx-2">×</span>
-                <span v-if="firstItem?.unitPrice" class="flex flex-col text-sm lg:flex-row">
+                <span v-if="firstItem?.unitPrice" class="flex flex-col text-sm">
                   <span :class="{ 'text-sale': firstItem.unitPrice?.isDiscounted }">
                     {{ getSellingPrice(firstItem.unitPrice) }}
                   </span>
