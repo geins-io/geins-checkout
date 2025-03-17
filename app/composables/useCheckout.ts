@@ -1,9 +1,10 @@
-import type { AddressInputType, CheckoutInputType, GeinsUserType, PaymentOptionType } from '@geins/types';
+import type { AddressInputType, CheckoutInputType, GeinsUserType } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
   const geinsClient = useGeinsClient();
   const { parsedCheckoutToken } = useCheckoutToken();
+  const { isExternalCheckout, suspend, resume } = useExternalCheckout();
 
   const defaultAddress: AddressInputType = {
     phone: '',
@@ -39,8 +40,6 @@ export const useCheckout = () => {
     showMessageInput: true,
   }));
 
-  const isExternalCheckout = computed(() => !!state.value.externalCheckoutHTML);
-
   const initializeCheckout = async () => {
     const init = async () => {
       try {
@@ -70,12 +69,6 @@ export const useCheckout = () => {
 
     watch(parsedCheckoutToken, init, { once: true });
   };
-
-  onMounted(() => {
-    if (geinsClient.selectedPaymentMethod.value) {
-      setExternalCheckout(geinsClient.selectedPaymentMethod.value);
-    }
-  });
 
   const _loadUser = async (user: GeinsUserType) => {
     try {
@@ -109,49 +102,6 @@ export const useCheckout = () => {
     } finally {
       checkoutLoading.value = false;
     }
-  };
-
-  const setExternalCheckout = async (paymentMethod: PaymentOptionType) => {
-    if (paymentMethod.paymentData === null) {
-      return;
-    }
-    state.value.externalCheckoutHTML = '';
-    let html = paymentMethod.paymentData;
-    if (paymentMethod.paymentType === 'AVARDA') {
-      html = `<script src="https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>` + html;
-    }
-
-    shippingMethods.value = [];
-    state.value.externalCheckoutHTML = html || '';
-
-    await nextTick();
-
-    const container = document.createElement('div');
-    container.innerHTML = state.value.externalCheckoutHTML;
-
-    await nextTick();
-
-    const scriptTags = container.querySelectorAll('script');
-
-    scriptTags.forEach((scriptTag) => {
-      const newScript = document.createElement('script');
-      if (scriptTag.src) {
-        // External script
-        newScript.src = scriptTag.src;
-        newScript.async = true;
-      } else {
-        // Inline script
-        newScript.textContent = scriptTag.innerHTML;
-      }
-
-      // Append the script to the container or body
-      const target = document.getElementById('checkout-external');
-      if (target) {
-        target.appendChild(newScript);
-      } else {
-        console.error('Container not found');
-      }
-    });
   };
 
   const selectPaymentMethod = async (methodId: number) => {
@@ -198,6 +148,9 @@ export const useCheckout = () => {
 
   const updateCheckout = async () => {
     try {
+      if (isExternalCheckout.value) {
+        suspend();
+      }
       checkoutLoading.value = true;
       const checkoutInput = createCheckoutInput();
 
@@ -209,15 +162,14 @@ export const useCheckout = () => {
 
       setShippingMethods();
       setPaymentMethods();
-
-      if (geinsClient.selectedPaymentMethod.value) {
-        await setExternalCheckout(geinsClient.selectedPaymentMethod.value);
-      }
     } catch (e) {
       error.value = 'Failed to update checkout';
       console.error(e);
     } finally {
       checkoutLoading.value = false;
+      if (isExternalCheckout.value) {
+        resume();
+      }
     }
   };
 
@@ -291,7 +243,6 @@ export const useCheckout = () => {
     error,
     paymentMethods,
     shippingMethods,
-    isExternalCheckout,
     checkoutSettings,
     cart,
     redirectUrls,
