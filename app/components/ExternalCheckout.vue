@@ -1,17 +1,11 @@
 <script setup lang="ts">
-const props = defineProps<{
-  html: string | undefined;
-}>();
-
-/* const selectMethod = (methodId: string) => {
-  emit('select', methodId)
-} */
+const { externalCheckoutHtml, renderExternalCheckout } = useExternalCheckout();
+onMounted(() => {
+  renderExternalCheckout();
+});
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div class="space-y-3">
-      <div id="checkout-external" v-html="html" />
-    </div>
-  </div>
+  <!-- eslint-disable-next-line vue/no-v-html -->
+  <div id="checkout-external" v-html="externalCheckoutHtml" />
 </template>

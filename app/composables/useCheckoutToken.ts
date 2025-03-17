@@ -20,7 +20,7 @@ export const useCheckoutToken = () => {
 
   const cssVariables = ref<Record<string, string>>({});
 
-  // Return checkut url for latest version
+  // Return checkout url for latest version
   const latestCheckoutUrl = computed(() => {
     return `/${latestVersion.value}/checkout/${token.value}`;
   });

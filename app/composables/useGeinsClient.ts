@@ -27,8 +27,8 @@ export const useGeinsClient = () => {
   const geinsSettings = ref<GeinsSettings>();
   const checkoutSettings = ref<CheckoutSettings>();
   const cart = useState<CartType>('cart');
-  const paymentMethods = ref<PaymentOptionType[]>();
-  const shippingMethods = ref<ShippingOptionType[]>();
+  const paymentMethods = useState<PaymentOptionType[]>('payment-methods', () => []);
+  const shippingMethods = useState<ShippingOptionType[]>('shipping-methods', () => []);
   const user = ref<GeinsUserType>();
   const checkoutObject = ref<CheckoutType>();
   const redirectUrls = ref<CheckoutRedirectsType>();

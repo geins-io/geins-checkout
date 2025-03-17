@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { urls } = useCheckoutToken();
-const { state, cart, isExternalCheckout, initializeCheckout, updateCheckout } = useCheckout();
+const { state, cart, initializeCheckout, updateCheckout } = useCheckout();
+const { isExternalCheckout } = useExternalCheckout();
 const { vatIncluded } = usePrice();
 
 await initializeCheckout();
@@ -37,12 +38,12 @@ const nextStep = async () => {
           </div>
           <!-- Manual Invoice -->
         </div>
-        <!--               <div
-                  v-if="paymentMethods.length > 1"
-                  class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
-                >
-                  <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
-                </div> -->
+        <!--         <div
+          v-if="paymentMethods.length > 1"
+          class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
+        >
+          <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
+        </div> -->
       </template>
     </NuxtLayout>
   </div>
