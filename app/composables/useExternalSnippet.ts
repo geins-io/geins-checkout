@@ -1,26 +1,38 @@
+import { ExternalSnippetType } from '#shared/types';
 import type { PaymentOptionType } from '@geins/types';
 import { GeinsPaymentType } from '@geins/types';
 
-export const useExternalCheckout = () => {
+export const useExternalSnippet = () => {
   const { selectedPaymentMethod } = useGeinsClient();
-  const externalCheckoutHtml = useState<string>('external-html', () => '');
-  const isExternalCheckout = computed(() => !!selectedPaymentMethod.value?.paymentData);
+  const externalSnippetHtml = useState<string>('external-html', () => '');
+  const externalPaymentSelected = computed(() => !!selectedPaymentMethod.value?.paymentData);
+  const hasExternalSnippet = computed(() => !!externalSnippetHtml.value);
   const suspended = ref(false);
 
-  const renderExternalCheckout = async (payment?: PaymentOptionType) => {
-    const paymentMethod = payment || selectedPaymentMethod.value;
-    if (!paymentMethod?.paymentData || import.meta.server) {
+  const renderExternalSnippet = async (
+    type: ExternalSnippetType = ExternalSnippetType.Checkout,
+    payment?: PaymentOptionType,
+  ) => {
+    if (type === ExternalSnippetType.Checkout) {
+      const paymentMethod = payment || selectedPaymentMethod.value;
+      if (!paymentMethod?.paymentData || import.meta.server) {
+        return;
+      }
+      externalSnippetHtml.value = '';
+      if (paymentMethod.paymentType === GeinsPaymentType.AvardaType) {
+        externalSnippetHtml.value = `<script src="https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>`;
+      }
+      externalSnippetHtml.value += paymentMethod.paymentData || '';
+    }
+
+    if (!externalSnippetHtml.value) {
+      console.warn('No external snippet found');
       return;
     }
-    externalCheckoutHtml.value = '';
-    if (paymentMethod.paymentType === GeinsPaymentType.AvardaType) {
-      externalCheckoutHtml.value = `<script src="https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>`;
-    }
-    externalCheckoutHtml.value += paymentMethod.paymentData || '';
 
     await nextTick();
 
-    const checkoutExternal = document.getElementById('checkout-external');
+    const checkoutExternal = document.getElementById(`${type}-external`);
     const scriptTags = checkoutExternal?.querySelectorAll('script');
 
     scriptTags?.forEach((scriptTag) => {
@@ -35,14 +47,14 @@ export const useExternalCheckout = () => {
       }
       if (checkoutExternal) {
         checkoutExternal.appendChild(newScript);
-        initEventListeners();
+        initExternalEventListeners();
       } else {
         console.error('Container not found');
       }
     });
   };
 
-  const initEventListeners = () => {
+  const initExternalEventListeners = () => {
     if (selectedPaymentMethod.value?.paymentType === GeinsPaymentType.GeinsPayType) {
       if (window._briqpay) {
         window._briqpay.subscribe('make_desicion', function (data) {
@@ -53,7 +65,7 @@ export const useExternalCheckout = () => {
   };
 
   const suspend = () => {
-    if (externalCheckoutHtml.value) {
+    if (externalSnippetHtml.value) {
       switch (selectedPaymentMethod.value?.paymentType) {
         case GeinsPaymentType.KlarnaType:
           if (window._klarnaCheckout) {
@@ -85,7 +97,7 @@ export const useExternalCheckout = () => {
     }
   };
   const resume = () => {
-    if (externalCheckoutHtml.value && suspended.value) {
+    if (externalSnippetHtml.value && suspended.value) {
       switch (selectedPaymentMethod.value?.paymentType) {
         case GeinsPaymentType.KlarnaType:
           if (window._klarnaCheckout) {
@@ -119,15 +131,16 @@ export const useExternalCheckout = () => {
       }
       suspended.value = false;
     } else {
-      renderExternalCheckout();
+      renderExternalSnippet();
     }
   };
 
   return {
-    externalCheckoutHtml,
-    isExternalCheckout,
-    renderExternalCheckout,
-    initEventListeners,
+    externalSnippetHtml,
+    externalPaymentSelected,
+    hasExternalSnippet,
+    renderExternalSnippet,
+    initExternalEventListeners,
     suspend,
     resume,
   };

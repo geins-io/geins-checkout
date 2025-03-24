@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { ExternalSnippetType } from '#shared/types';
 const { urls } = useCheckoutToken();
 const { state, cart, initializeCheckout, updateCheckout } = useCheckout();
-const { isExternalCheckout } = useExternalCheckout();
+const { externalPaymentSelected } = useExternalSnippet();
 const { vatIncluded } = usePrice();
 
 await initializeCheckout();
@@ -9,7 +10,7 @@ await initializeCheckout();
 const isPaymentInvoice = computed(() => state.value.selectedPaymentMethod === 18);
 const useManualCheckout = computed(
   () =>
-    !isExternalCheckout.value &&
+    !externalPaymentSelected.value &&
     (isPaymentInvoice.value || (vatIncluded.value && state.value.selectedPaymentMethod === 27)),
 );
 
@@ -33,8 +34,8 @@ const nextStep = async () => {
             :enable-complete-checkout="isPaymentInvoice"
             @completed="nextStep"
           />
-          <div v-else-if="isExternalCheckout" class="rounded-lg bg-white p-3 lg:p-8">
-            <ExternalCheckout :html="state.externalCheckoutHTML" />
+          <div v-else-if="externalPaymentSelected" class="rounded-lg bg-white p-3 lg:p-8">
+            <ExternalSnippet :type="ExternalSnippetType.Checkout" />
           </div>
           <!-- Manual Invoice -->
         </div>

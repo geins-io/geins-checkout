@@ -3,6 +3,7 @@ import type { CartType, CheckoutQueryParameters, CheckoutSummaryType } from '@ge
 export const useSummary = () => {
   const geinsClient = useGeinsClient();
   const { parsedCheckoutToken } = useCheckoutToken();
+  const { externalSnippetHtml } = useExternalSnippet();
 
   const checkoutLoading = useState<boolean>('checkout-loading', () => true);
   const continueShoppingUrl = ref('');
@@ -39,19 +40,20 @@ export const useSummary = () => {
     paymentdata: CheckoutQueryParameters;
   }): Promise<CheckoutSummaryType> => {
     const queryStringArgs = parseQueryParameters(args.paymentdata);
-    if (args.orderId === undefined || queryStringArgs.orderId === undefined) {
+    if (!args.orderId || !queryStringArgs.orderId) {
       throw new Error('Missing orderId');
     }
-    const orderId = args.orderId ?? queryStringArgs.orderId;
+    const orderId = args.orderId || queryStringArgs.orderId;
     const paymentType = queryStringArgs.paymentType;
-    const orderSummary = await geinsClient.getCheckoutSummary(orderId, paymentType);
+    const cartId = queryStringArgs.cartId;
+    const orderSummary = await geinsClient.getCheckoutSummary(orderId, paymentType, cartId);
 
     if (!orderSummary) {
       throw new Error('Failed to get order summary');
     }
     if (orderSummary.htmlSnippet) {
+      externalSnippetHtml.value = orderSummary.htmlSnippet;
       isExternalSummary.value = true;
-      // await setExternalSummary(orderSummary.htmlSnippet);
     }
 
     return orderSummary;
@@ -60,8 +62,9 @@ export const useSummary = () => {
   const parseQueryParameters = (paymentdata: CheckoutQueryParameters) => {
     const orderId = paymentdata['geins-uid'] ?? '';
     const paymentType = paymentdata['geins-pt'] ?? 'STANDARD';
+    const cartId = paymentdata['geins-cart'] ?? '';
 
-    return { orderId, paymentType };
+    return { orderId, paymentType, cartId };
   };
 
   const orderCart = computed(() => {

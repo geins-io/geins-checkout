@@ -106,11 +106,15 @@ export const useGeinsClient = () => {
   const getCheckoutSummary = async (
     orderId: string,
     paymentMethod: string,
+    cartId: string,
   ): Promise<CheckoutSummaryType | undefined> => {
     const summary = await geinsOMS.checkout.summary({ orderId, paymentMethod });
     if (!summary) {
       throw new Error('Failed to get order summary');
     }
+
+    const cart = await geinsOMS.cart.get(cartId);
+    console.log('🚀 ~ useGeinsClient ~ cart :', cart);
     return summary;
   };
 
@@ -193,6 +197,7 @@ export const useGeinsClient = () => {
 
   const updateCheckoutUrlWithParameters = (args: { url: string; paymentMethodId: number }): string => {
     const { url, params } = extractParametersFromUrl(args.url);
+
     const parameters = geinsOMS.checkout.generateExternalCheckoutUrlParameters(params);
     if (!parameters) {
       return url;

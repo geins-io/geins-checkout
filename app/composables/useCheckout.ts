@@ -4,7 +4,7 @@ import { CustomerType } from '@geins/types';
 export const useCheckout = () => {
   const geinsClient = useGeinsClient();
   const { parsedCheckoutToken } = useCheckoutToken();
-  const { isExternalCheckout, suspend, resume } = useExternalCheckout();
+  const { externalPaymentSelected, suspend, resume } = useExternalSnippet();
 
   const defaultAddress: AddressInputType = {
     phone: '',
@@ -35,7 +35,7 @@ export const useCheckout = () => {
     shippingAddress: { ...defaultAddress },
     selectedPaymentMethod: 0,
     selectedShippingMethod: 0,
-    externalCheckoutHTML: '',
+    externalSnippetHtml: '',
     useShippingAddress: false,
     showMessageInput: true,
   }));
@@ -43,17 +43,10 @@ export const useCheckout = () => {
   const initializeCheckout = async () => {
     const init = async () => {
       try {
+        checkoutLoading.value = true;
         await geinsClient.initializeCheckout();
         setShippingMethods();
         setPaymentMethods();
-
-        /*       // if user is logged in, load user data
-      const user = geinsClient.getUser();
-      if (user) {
-        await loadUser(user);
-      }
-      // run update checkout with current client data
-      updateCheckout(false); */
       } catch (e) {
         error.value = 'Failed to initialize checkout';
         console.error(e);
@@ -148,7 +141,7 @@ export const useCheckout = () => {
 
   const updateCheckout = async () => {
     try {
-      if (isExternalCheckout.value) {
+      if (externalPaymentSelected.value) {
         suspend();
       }
       checkoutLoading.value = true;
@@ -167,7 +160,7 @@ export const useCheckout = () => {
       console.error(e);
     } finally {
       checkoutLoading.value = false;
-      if (isExternalCheckout.value) {
+      if (externalPaymentSelected.value) {
         resume();
       }
     }

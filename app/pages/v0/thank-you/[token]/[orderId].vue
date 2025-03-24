@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { OrderSummaryType, CartType } from '@geins/types';
-const { orderSummary, orderCart, initializeSummary } = useSummary();
+import { ExternalSnippetType } from '#shared/types';
+const { orderSummary, initializeSummary } = useSummary();
+const { cart } = useCheckout();
 const { query, params } = useRoute();
 const orderId = params.orderId?.toString() || '';
-const orderDetails = ref<OrderSummaryType | null>(null);
-const externalSummaryHTML = ref<string | undefined>(undefined);
 
 if (!orderId) {
   navigateTo('/');
@@ -12,18 +11,18 @@ if (!orderId) {
 
 await initializeSummary(orderId, query);
 console.log(orderSummary.value);
+console.log(cart.value);
 </script>
 
 <template>
   <div>
     <NuxtLayout name="default">
       <template #cart>
-        <!-- <Cart v-if="orderCart" :cart="orderCart" /> -->
-        <!--  <BottomUrls v-if="urls" :urls="urls" /> -->
+        <!-- <Cart v-if="cart" :cart="cart" /> -->
       </template>
 
       <template #checkout>
-        <h1 class="text-center text-3xl">Thank you for your order!</h1>
+        <ExternalSnippet :type="ExternalSnippetType.Summary" />
       </template>
     </NuxtLayout>
   </div>
