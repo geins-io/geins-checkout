@@ -4,6 +4,7 @@ const { orderSummary, initializeSummary } = useSummary();
 const { cart } = useCheckout();
 const { query, params } = useRoute();
 const orderId = params.orderId?.toString() || '';
+console.log('🚀 ~ orderId:', orderId);
 
 if (!orderId) {
   navigateTo('/');
@@ -18,7 +19,7 @@ console.log(cart.value);
   <div>
     <NuxtLayout name="default">
       <template #cart>
-        <!-- <Cart v-if="cart" :cart="cart" /> -->
+        <Cart v-if="cart" :cart="cart" />
       </template>
 
       <template #checkout>

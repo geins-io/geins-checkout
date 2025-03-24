@@ -143,7 +143,7 @@ export const useCheckoutToken = () => {
     });
   };
 
-  watch(cssVariables, setCssVarsToHead);
+  watch(cssVariables, setCssVarsToHead, { once: true });
 
   const getProductImageUrl = (filename?: string) => {
     const accountName = parsedCheckoutToken.value?.geinsSettings?.accountName || '';

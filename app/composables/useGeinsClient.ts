@@ -32,7 +32,16 @@ export const useGeinsClient = () => {
   const user = ref<GeinsUserType>();
   const checkoutObject = ref<CheckoutType>();
   const redirectUrls = ref<CheckoutRedirectsType>();
+  const checkoutUrls = ref<CheckoutUrlsInputType>();
   const orderSummary = ref<CheckoutSummaryType>();
+
+  const selectedPaymentMethod = computed(() => {
+    return paymentMethods.value?.find((method) => method.isSelected);
+  });
+
+  const selectedShippingMethod = computed(() => {
+    return shippingMethods.value?.find((method) => method.isSelected);
+  });
 
   const initializeClientFromToken = async (): Promise<void> => {
     checkoutSettings.value = parsedCheckoutToken.value.checkoutSettings;
@@ -112,9 +121,14 @@ export const useGeinsClient = () => {
     if (!summary) {
       throw new Error('Failed to get order summary');
     }
-
-    const cart = await geinsOMS.cart.get(cartId);
-    console.log('🚀 ~ useGeinsClient ~ cart :', cart);
+    const orderCart = await geinsOMS.cart.get(cartId);
+    if (!orderCart) {
+      throw new Error('Failed to get cart');
+    }
+    cart.value = orderCart;
+    if (!cart.value.completed) {
+      await completeCart();
+    }
     return summary;
   };
 
@@ -142,7 +156,8 @@ export const useGeinsClient = () => {
     const paymentMethodId = checkoutSettings.value?.selectedPaymentMethodId || options?.paymentMethodId;
     const shippingMethodId = checkoutSettings.value?.selectedShippingMethodId || options?.shippingMethodId;
 
-    const checkoutUrls = getCheckoutUrls(paymentMethodId);
+    checkoutUrls.value = getCheckoutUrls(paymentMethodId);
+    console.log('🚀 ~ useGeinsClient ~ checkoutUrls.value:', checkoutUrls.value);
 
     const args: GetCheckoutOptions = {
       cartId: cart.value?.id,
@@ -150,7 +165,7 @@ export const useGeinsClient = () => {
       shippingMethodId,
       checkoutOptions: {
         customerType: checkoutSettings.value?.customerType,
-        checkoutUrls,
+        checkoutUrls: checkoutUrls.value,
         ...options?.checkoutOptions,
       },
     };
@@ -207,6 +222,11 @@ export const useGeinsClient = () => {
       .join('&');
     let newUrl = `${url}?${queryParams}`;
     newUrl = newUrl.replace('{geins.paymentMethodId}', args.paymentMethodId.toString());
+    if (args.paymentMethodId === 18) {
+      newUrl = newUrl
+        .replace('{geins.cartid}', cart.value?.id || '')
+        .replace('{geins.paymentType}', 'STANDARD');
+    }
     return newUrl;
   };
 
@@ -251,13 +271,15 @@ export const useGeinsClient = () => {
     return result;
   };
 
-  const selectedPaymentMethod = computed(() => {
-    return paymentMethods.value?.find((method) => method.isSelected);
-  });
-
-  const selectedShippingMethod = computed(() => {
-    return shippingMethods.value?.find((method) => method.isSelected);
-  });
+  const completeCart = async () => {
+    try {
+      const result = await geinsOMS.cart.complete();
+      return result;
+    } catch (error) {
+      console.error('Error during completeCart:', error);
+      throw error;
+    }
+  };
 
   return {
     geinsSettings,
@@ -268,6 +290,7 @@ export const useGeinsClient = () => {
     user,
     checkoutObject,
     redirectUrls,
+    checkoutUrls,
     orderSummary,
     selectedPaymentMethod,
     selectedShippingMethod,
@@ -277,5 +300,6 @@ export const useGeinsClient = () => {
     getCheckoutSummary,
     updateCheckout,
     createOrder,
+    completeCart,
   };
 };
