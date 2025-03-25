@@ -13,23 +13,23 @@ export interface CheckoutFormType {
 }
 
 export interface CheckoutState {
-  email?: string;
-  identityNumber?: string;
-  message?: string;
+  email: string;
+  identityNumber: string;
+  message: string;
   billingAddress?: AddressInputType;
   shippingAddress?: AddressInputType;
-  selectedPaymentMethod?: number;
-  selectedShippingMethod?: number;
-  externalSnippetHtml?: string;
-  useShippingAddress?: boolean;
-  showMessageInput?: boolean;
+  selectedPaymentMethod: number;
+  selectedShippingMethod: number;
+  externalSnippetHtml: string;
+  useShippingAddress: boolean;
+  showMessageInput: boolean;
 }
 
 export interface CompleteCheckoutResponse {
   success: boolean;
-  orderId?: string;
-  publicOrderId?: string;
-  redirectUrl?: string;
+  orderId: string;
+  publicOrderId: string;
+  redirectUrl: string;
 }
 
 export interface CheckoutFormUpdateEvent {

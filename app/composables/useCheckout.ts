@@ -3,8 +3,19 @@ import { CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
   const geinsClient = useGeinsClient();
-  const { parsedCheckoutToken } = useCheckoutToken();
+  const { parsedCheckoutToken, urls, confirmationPageUrl } = useCheckoutToken();
   const { externalPaymentSelected, suspend, resume } = useExternalSnippet();
+
+  const globalLoading = useState<boolean>('global-loading', () => false);
+  const checkoutLoading = useState<boolean>('checkout-loading', () => true);
+
+  const error = ref('');
+  const paymentMethods = ref();
+  const shippingMethods = ref();
+
+  const checkoutSettings = computed(() => geinsClient.checkoutSettings.value);
+  const cart = computed(() => geinsClient.cart.value);
+  const redirectUrls = computed(() => geinsClient.redirectUrls.value);
 
   const defaultAddress: AddressInputType = {
     phone: '',
@@ -17,15 +28,6 @@ export const useCheckout = () => {
     city: '',
     country: '',
   };
-
-  const globalLoading = useState<boolean>('global-loading', () => false);
-  const checkoutLoading = useState<boolean>('checkout-loading', () => true);
-  const error = ref('');
-  const paymentMethods = ref();
-  const shippingMethods = ref();
-  const checkoutSettings = computed(() => geinsClient.checkoutSettings.value);
-  const cart = computed(() => geinsClient.cart.value);
-  const redirectUrls = computed(() => geinsClient.redirectUrls.value);
 
   const state = useState<CheckoutState>('checkout', () => ({
     email: '',
@@ -159,7 +161,6 @@ export const useCheckout = () => {
       error.value = 'Failed to update checkout';
       console.error(e);
     } finally {
-      checkoutLoading.value = false;
       if (externalPaymentSelected.value) {
         resume();
       }
@@ -220,11 +221,14 @@ export const useCheckout = () => {
   };
 
   const getRedirectUrl = (response: CompleteCheckoutResponse): string => {
-    const redirectUrls = checkoutSettings.value?.redirectUrls;
-    if (response.success && redirectUrls?.success) {
-      return `${redirectUrls.success}?order=${response.publicOrderId}`;
-    } else if (redirectUrls?.error) {
-      return redirectUrls.error;
+    if (response.success) {
+      const url = geinsClient.updateCheckoutUrlWithParameters({
+        url: urls.value?.success || confirmationPageUrl.value,
+        paymentMethodId: state.value.selectedPaymentMethod,
+      });
+      return url.replace('{orderId}', response.publicOrderId).replace('{payment.uid}', response.orderId);
+    } else if (urls.value?.error) {
+      return urls.value.error;
     }
     return '';
   };

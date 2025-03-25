@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const { confirmationPageUrl } = useCheckoutToken();
 const { state, checkoutLoading, cart, updateCheckoutData, completeCheckout } = useCheckout();
 
 const _props = defineProps<{
@@ -34,8 +33,6 @@ const handleCheckout = async () => {
 
   if (response.redirectUrl) {
     navigateTo(response.redirectUrl, { external: true });
-  } else if (response.success && response.publicOrderId) {
-    navigateTo(`${confirmationPageUrl.value}/${response.publicOrderId}`, { external: true });
   } else {
     console.warn('Unknown response:', response);
   }
@@ -67,7 +64,7 @@ const handleNextStep = async () => {
         @update="handleFormUpdate($event, 'shipping')"
       />
     </ContentSwitch>
-    <CartSummary v-if="cart" :summary="cart.summary" class="mt-4" />
+    <CartSummary v-if="cart?.summary" :summary="cart.summary" class="mt-4" />
     <Button
       v-if="enableCompleteCheckout"
       :loading="checkoutLoading"

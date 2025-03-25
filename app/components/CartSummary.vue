@@ -25,7 +25,7 @@ const showDetails = ref(false);
         Show details
       </button>
     </div>
-    <div v-if="showDetails" class="mt-2 w-full space-y-0.5 rounded-lg border bg-background/10 p-4">
+    <div v-if="showDetails" class="mt-2 w-full space-y-0.5 rounded-lg border bg-background/10 p-4 text-sm">
       <div v-if="summary.total.isDiscounted && !simple" class="flex justify-between py-1">
         <span class="font-semibold">{{ $t('cart_summary_regular_price') }}</span>
         <span>{{ getRegularPrice(summary.subTotal) }}</span>

@@ -157,7 +157,6 @@ export const useGeinsClient = () => {
     const shippingMethodId = checkoutSettings.value?.selectedShippingMethodId || options?.shippingMethodId;
 
     checkoutUrls.value = getCheckoutUrls(paymentMethodId);
-    console.log('🚀 ~ useGeinsClient ~ checkoutUrls.value:', checkoutUrls.value);
 
     const args: GetCheckoutOptions = {
       cartId: cart.value?.id,
@@ -191,7 +190,7 @@ export const useGeinsClient = () => {
     if (checkoutSettings.value?.redirectUrls?.success) {
       urls.redirectUrl = checkoutSettings.value.redirectUrls.success;
     } else {
-      urls.redirectUrl = `${confirmationPageUrl.value}/{payment.uid}`;
+      urls.redirectUrl = confirmationPageUrl.value.replace('{orderId}', '{payment.uid}');
     }
 
     urls.redirectUrl = updateCheckoutUrlWithParameters({
@@ -227,6 +226,7 @@ export const useGeinsClient = () => {
         .replace('{geins.cartid}', cart.value?.id || '')
         .replace('{geins.paymentType}', 'STANDARD');
     }
+
     return newUrl;
   };
 
@@ -299,6 +299,7 @@ export const useGeinsClient = () => {
     getCheckout,
     getCheckoutSummary,
     updateCheckout,
+    updateCheckoutUrlWithParameters,
     createOrder,
     completeCart,
   };

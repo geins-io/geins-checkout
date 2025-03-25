@@ -14,5 +14,9 @@ export default defineI18nLocale(async () => {
     cart_summary_total: 'Total',
     cart_summary_balance: 'Balance',
     free_shipping: 'Free shipping',
+    order_number: 'Order number',
+    confirmation_page_title: 'Thank you for your order!',
+    confirmation_page_text:
+      'Your order has been successfully placed. You will receive an email confirmation shortly.',
   };
 });

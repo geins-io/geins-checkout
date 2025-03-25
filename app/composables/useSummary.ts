@@ -10,6 +10,7 @@ export const useSummary = () => {
   const error = ref('');
   const orderSummary = ref<CheckoutSummaryType>();
   const cart = computed(() => geinsClient.cart.value);
+  const summaryOrderId = ref('');
 
   const initializeSummary = async (orderId: string, checkoutQueryParams: CheckoutQueryParameters) => {
     const init = async () => {
@@ -40,11 +41,13 @@ export const useSummary = () => {
     checkoutQueryParams: CheckoutQueryParameters;
   }): Promise<CheckoutSummaryType> => {
     const queryStringArgs = parseQueryParameters(args.checkoutQueryParams);
+    summaryOrderId.value = queryStringArgs.orderId;
     if (!args.orderId && !queryStringArgs.orderId) {
       throw new Error('Missing orderId');
     }
 
     queryStringArgs.orderId = args.orderId || queryStringArgs.orderId;
+
     const { orderId, paymentMethod, cartId } = queryStringArgs;
 
     const orderSummary = await geinsClient.getCheckoutSummary(orderId, paymentMethod, cartId);
@@ -81,6 +84,7 @@ export const useSummary = () => {
     continueShoppingUrl,
     orderSummary,
     orderCart,
+    summaryOrderId,
     initializeSummary,
   };
 };
