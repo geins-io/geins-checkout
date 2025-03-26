@@ -23,7 +23,11 @@ const nextStep = async () => {
   <div>
     <NuxtLayout name="default">
       <template #cart>
-        <Cart v-if="cart" :cart="cart" />
+        <Cart
+          v-if="cart"
+          :cart="cart"
+          class="overflow-y-auto overflow-x-hidden lg:max-h-[72vh] lg:min-h-56"
+        />
         <BottomUrls v-if="urls" :urls="urls" />
       </template>
 

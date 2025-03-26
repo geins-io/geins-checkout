@@ -18,7 +18,7 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
 };
 </script>
 <template>
-  <Card class="mx-auto w-full max-w-3xl overflow-y-auto overflow-x-hidden lg:max-h-[72vh] lg:min-h-56">
+  <Card class="mx-auto w-full max-w-3xl">
     <CardContent v-if="cart?.items?.length">
       <!-- Single Item Cart -->
       <div v-if="items?.length === 1 && firstItem">

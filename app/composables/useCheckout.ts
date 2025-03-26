@@ -222,8 +222,11 @@ export const useCheckout = () => {
 
   const getRedirectUrl = (response: CompleteCheckoutResponse): string => {
     if (response.success) {
+      if (urls.value?.success) {
+        return urls.value.success;
+      }
       const url = geinsClient.updateCheckoutUrlWithParameters({
-        url: urls.value?.success || confirmationPageUrl.value,
+        url: confirmationPageUrl.value,
         paymentMethodId: state.value.selectedPaymentMethod,
       });
       return url.replace('{orderId}', response.publicOrderId).replace('{payment.uid}', response.orderId);

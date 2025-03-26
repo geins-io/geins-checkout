@@ -23,7 +23,7 @@ const { logo, icon, iconFallback, title, urls } = useCheckoutToken();
     <img
       v-if="logo"
       :src="logo"
-      :class="cn(`h-8 w-auto pr-6 mr-6`, `${!!title ? 'border-r border-foreground' : ''}`)"
+      :class="cn(`h-logo w-auto pr-6 mr-6`, `${!!title ? 'border-r border-foreground' : ''}`)"
     />
     <h1 v-if="title" class="text-xl font-semibold tracking-wide">{{ title }}</h1>
   </header>

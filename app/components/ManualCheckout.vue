@@ -83,7 +83,7 @@ const handleNextStep = async () => {
       :disabled="!formTouched || !formValid"
       @click="handleNextStep"
     >
-      Till betalning
+      {{ checkoutLoading ? 'Loading...' : 'Go to Payment' }}
     </Button>
   </div>
 </template>
