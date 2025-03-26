@@ -16,6 +16,7 @@ export const useCheckout = () => {
   const checkoutSettings = computed(() => geinsClient.checkoutSettings.value);
   const cart = computed(() => geinsClient.cart.value);
   const redirectUrls = computed(() => geinsClient.redirectUrls.value);
+  const currentCountryName = computed(() => geinsClient.currentCountryName.value);
 
   const defaultAddress: AddressInputType = {
     phone: '',
@@ -35,8 +36,8 @@ export const useCheckout = () => {
     message: '',
     billingAddress: { ...defaultAddress },
     shippingAddress: { ...defaultAddress },
-    selectedPaymentMethod: 0,
-    selectedShippingMethod: 0,
+    selectedPaymentId: 0,
+    selectedShippingId: 0,
     externalSnippetHtml: '',
     useShippingAddress: false,
     showMessageInput: true,
@@ -80,16 +81,29 @@ export const useCheckout = () => {
   const updateCheckoutData = async (type: 'billing' | 'shipping', data: CheckoutFormType) => {
     try {
       checkoutLoading.value = true;
+      if (!data.address) {
+        return;
+      }
       if (type === 'billing') {
-        state.value.email = data.email ?? '';
-        state.value.identityNumber = data.identityNumber ?? '';
-        state.value.message = data.message ?? '';
-        state.value.billingAddress = data.address;
+        state.value.email = data.email || '';
+        state.value.identityNumber = data.identityNumber || '';
+        state.value.message = data.message || '';
+
+        state.value.billingAddress = {
+          ...state.value.billingAddress,
+          ...data.address,
+          country: currentCountryName.value || '',
+        };
+
         if (!state.value.useShippingAddress) {
-          state.value.shippingAddress = data.address;
+          state.value.shippingAddress = state.value.billingAddress;
         }
       } else {
-        state.value.shippingAddress = data.address;
+        state.value.shippingAddress = {
+          ...state.value.shippingAddress,
+          ...data.address,
+          country: currentCountryName.value || '',
+        };
       }
     } catch (e) {
       error.value = `Failed to update ${type} address`;
@@ -102,7 +116,7 @@ export const useCheckout = () => {
   const selectPaymentMethod = async (methodId: number) => {
     try {
       checkoutLoading.value = true;
-      state.value.selectedPaymentMethod = methodId;
+      state.value.selectedPaymentId = methodId;
 
       await updateCheckout();
     } catch (e) {
@@ -116,7 +130,7 @@ export const useCheckout = () => {
   const selectShippingMethod = async (methodId: number) => {
     try {
       checkoutLoading.value = true;
-      state.value.selectedShippingMethod = methodId;
+      state.value.selectedShippingId = methodId;
 
       await updateCheckout();
     } catch (e) {
@@ -130,14 +144,14 @@ export const useCheckout = () => {
   const setShippingMethods = () => {
     shippingMethods.value = geinsClient.shippingMethods.value;
     if (geinsClient.selectedShippingMethod.value) {
-      state.value.selectedShippingMethod = Number(geinsClient.selectedShippingMethod.value.id);
+      state.value.selectedShippingId = Number(geinsClient.selectedShippingMethod.value.id);
     }
   };
 
   const setPaymentMethods = () => {
     paymentMethods.value = geinsClient.paymentMethods.value;
     if (geinsClient.selectedPaymentMethod.value) {
-      state.value.selectedPaymentMethod = Number(geinsClient.selectedPaymentMethod.value.id);
+      state.value.selectedPaymentId = Number(geinsClient.selectedPaymentMethod.value.id);
     }
   };
 
@@ -150,8 +164,8 @@ export const useCheckout = () => {
       const checkoutInput = createCheckoutInput();
 
       await geinsClient.updateCheckout({
-        paymentMethodId: state.value.selectedPaymentMethod,
-        shippingMethodId: state.value.selectedShippingMethod,
+        paymentMethodId: state.value.selectedPaymentId,
+        shippingMethodId: state.value.selectedShippingId,
         checkoutOptions: checkoutInput.checkoutOptions,
       });
 
@@ -161,6 +175,7 @@ export const useCheckout = () => {
       error.value = 'Failed to update checkout';
       console.error(e);
     } finally {
+      checkoutLoading.value = false;
       if (externalPaymentSelected.value) {
         resume();
       }
@@ -178,7 +193,7 @@ export const useCheckout = () => {
       checkoutOptions: {
         email: state.value.email,
         customerType: parsedCheckoutToken.value?.checkoutSettings?.customerType ?? CustomerType.PERSON,
-        paymentId: state.value.selectedPaymentMethod,
+        paymentId: state.value.selectedPaymentId,
         billingAddress: state.value.billingAddress,
         acceptedConsents: ['order'],
         shippingAddress: state.value.useShippingAddress
@@ -214,8 +229,6 @@ export const useCheckout = () => {
       console.error(e);
       response.success = false;
       response.redirectUrl = getRedirectUrl(response);
-    } finally {
-      checkoutLoading.value = false;
     }
     return response;
   };
@@ -227,7 +240,7 @@ export const useCheckout = () => {
       }
       const url = geinsClient.updateCheckoutUrlWithParameters({
         url: confirmationPageUrl.value,
-        paymentMethodId: state.value.selectedPaymentMethod,
+        paymentMethodId: state.value.selectedPaymentId,
       });
       return url.replace('{orderId}', response.publicOrderId).replace('{payment.uid}', response.orderId);
     } else if (urls.value?.error) {
@@ -246,6 +259,7 @@ export const useCheckout = () => {
     checkoutSettings,
     cart,
     redirectUrls,
+    currentCountryName,
     initializeCheckout,
     updateCheckoutData,
     selectPaymentMethod,

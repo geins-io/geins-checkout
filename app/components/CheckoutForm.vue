@@ -6,25 +6,29 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 const { vatIncluded } = usePrice();
 
-const _props = defineProps<{
+const props = defineProps<{
   data: CheckoutFormType;
   onlyAddress?: boolean;
   hideMessageInput?: boolean;
 }>();
 
-const identityNumberSchema = !vatIncluded.value
-  ? z.string().min(1, 'Identity number is required')
-  : z.string().optional();
+const emailSchema = props.onlyAddress ? z.string().optional() : z.string().email('Invalid email address');
+const phoneSchema = props.onlyAddress ? z.string().optional() : z.string().min(1, 'Phone number is required');
+const identityNumberSchema =
+  !vatIncluded.value && !props.onlyAddress
+    ? z.string().min(1, 'Identity number is required')
+    : z.string().optional();
+
 const companyNameSchema = !vatIncluded.value
   ? z.string().min(1, 'Company name is required')
   : z.string().optional();
 
 const formSchema = toTypedSchema(
   z.object({
-    email: z.string().email('Invalid email address'),
+    email: emailSchema,
     identityNumber: identityNumberSchema,
     address: z.object({
-      phone: z.string().min(1, 'Phone number is required'),
+      phone: phoneSchema,
       company: companyNameSchema,
       firstName: z.string().min(1, 'First name is required'),
       lastName: z.string().min(1, 'Last name is required'),
@@ -37,8 +41,14 @@ const formSchema = toTypedSchema(
     message: z.string().optional(),
   }),
 );
+
 const form = useForm({
   validationSchema: formSchema,
+  initialValues: {
+    address: {
+      country: props.data.address?.country || '',
+    },
+  },
 });
 
 const formValid = computed(() => form.meta.value.valid);
@@ -93,7 +103,7 @@ const onSubmit = form.handleSubmit((values) => {
         </FormItem>
       </FormField>
     </div>
-    <FormField v-if="!vatIncluded" v-slot="{ componentField }" name="identityNumber">
+    <FormField v-if="!vatIncluded && !onlyAddress" v-slot="{ componentField }" name="identityNumber">
       <FormItem v-auto-animate>
         <FormLabel>Organization Number</FormLabel>
         <FormControl>
@@ -107,6 +117,15 @@ const onSubmit = form.handleSubmit((values) => {
         <FormLabel>Company</FormLabel>
         <FormControl>
           <Input v-bind="componentField" />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    </FormField>
+    <FormField v-if="onlyAddress" v-slot="{ componentField }" name="address.phone">
+      <FormItem v-auto-animate>
+        <FormLabel>Phone</FormLabel>
+        <FormControl>
+          <Input v-bind="componentField" type="tel" />
         </FormControl>
         <FormMessage />
       </FormItem>

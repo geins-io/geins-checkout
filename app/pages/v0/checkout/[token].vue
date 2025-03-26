@@ -7,11 +7,11 @@ const { vatIncluded } = usePrice();
 
 await initializeCheckout();
 
-const isPaymentInvoice = computed(() => state.value.selectedPaymentMethod === 18);
+const isPaymentInvoice = computed(() => state.value.selectedPaymentId === 18);
 const useManualCheckout = computed(
   () =>
     !externalPaymentSelected.value &&
-    (isPaymentInvoice.value || (vatIncluded.value && state.value.selectedPaymentMethod === 27)),
+    (isPaymentInvoice.value || (vatIncluded.value && state.value.selectedPaymentId === 27)),
 );
 
 const nextStep = async () => {

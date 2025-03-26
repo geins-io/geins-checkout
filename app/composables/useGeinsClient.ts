@@ -1,4 +1,4 @@
-import { extractParametersFromUrl, GeinsCore, RuntimeContext } from '@geins/core';
+import { Channel, extractParametersFromUrl, GeinsCore, RuntimeContext } from '@geins/core';
 import { GeinsOMS } from '@geins/oms';
 import type {
   CartType,
@@ -8,6 +8,7 @@ import type {
   CheckoutSummaryType,
   CheckoutType,
   CheckoutUrlsInputType,
+  GeinsChannelTypeType,
   GeinsSettings,
   GeinsUserType,
   GetCheckoutOptions,
@@ -16,11 +17,10 @@ import type {
 } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
-// Keep core instances outside the composable state
-let geinsCore: GeinsCore;
-let geinsOMS: GeinsOMS;
-
 export const useGeinsClient = () => {
+  const geinsOMS = ref<GeinsOMS>();
+  const geinsChannel = useState<GeinsChannelTypeType | undefined>('geins-channel');
+
   const { parsedCheckoutToken, confirmationPageUrl, checkoutPageUrl } = useCheckoutToken();
   const { vatIncluded } = usePrice();
 
@@ -43,6 +43,18 @@ export const useGeinsClient = () => {
     return shippingMethods.value?.find((method) => method.isSelected);
   });
 
+  const currentCountryName = computed(() => {
+    const market = geinsSettings.value?.market;
+    console.log('🚀 ~ currentCountryName ~ market:', market);
+
+    if (!geinsChannel.value?.markets) return '';
+    const currentMarketObj = geinsChannel.value.markets.find((m) => m?.alias === market);
+    console.log('🚀 ~ currentCountryName ~ currentMarketObj:', currentMarketObj);
+    const countryName = currentMarketObj?.country?.name;
+    console.log('🚀 ~ currentCountryName ~ countryName:', countryName);
+    return countryName;
+  });
+
   const initializeClientFromToken = async (): Promise<void> => {
     checkoutSettings.value = parsedCheckoutToken.value.checkoutSettings;
     user.value = parsedCheckoutToken.value.user;
@@ -61,12 +73,16 @@ export const useGeinsClient = () => {
       throw new Error('Failed to initialize geinsSettings from token');
     }
 
-    // initialize Geins core
-    geinsCore = new GeinsCore(geinsSettings.value);
     // initialize Geins OMS
-    geinsOMS = new GeinsOMS(geinsCore, {
+    geinsOMS.value = new GeinsOMS(new GeinsCore(geinsSettings.value), {
       omsSettings: { context: RuntimeContext.HYBRID },
     });
+    try {
+      const channel = Channel.getInstance(geinsSettings.value);
+      geinsChannel.value = await channel.get();
+    } catch (e) {
+      console.error('Failed to set Geins channel', e);
+    }
   };
 
   const copyCart = async (): Promise<void> => {
@@ -75,7 +91,7 @@ export const useGeinsClient = () => {
         if (!cart.value?.id) {
           throw new Error('Cart ID is missing');
         }
-        const newCartId = await geinsOMS.cart.copy({ id: cart.value?.id, loadCopy: true });
+        const newCartId = await geinsOMS.value?.cart.copy({ id: cart.value?.id, loadCopy: true });
         cart.value = { id: newCartId } as CartType;
       } catch (e) {
         console.error('Failed to copy cart', e);
@@ -117,11 +133,11 @@ export const useGeinsClient = () => {
     paymentMethod: string,
     cartId: string,
   ): Promise<CheckoutSummaryType | undefined> => {
-    const summary = await geinsOMS.checkout.summary({ orderId, paymentMethod });
+    const summary = await geinsOMS.value?.checkout.summary({ orderId, paymentMethod });
     if (!summary) {
       throw new Error('Failed to get order summary');
     }
-    const orderCart = await geinsOMS.cart.get(cartId);
+    const orderCart = await geinsOMS.value?.cart.get(cartId);
     if (!orderCart) {
       throw new Error('Failed to get cart');
     }
@@ -170,7 +186,7 @@ export const useGeinsClient = () => {
     };
 
     try {
-      const checkout = await geinsOMS.checkout.get(args);
+      const checkout = await geinsOMS.value?.checkout.get(args);
       if (!checkout) {
         throw new Error('Failed to get checkout');
       }
@@ -212,7 +228,7 @@ export const useGeinsClient = () => {
   const updateCheckoutUrlWithParameters = (args: { url: string; paymentMethodId: number }): string => {
     const { url, params } = extractParametersFromUrl(args.url);
 
-    const parameters = geinsOMS.checkout.generateExternalCheckoutUrlParameters(params);
+    const parameters = geinsOMS.value?.checkout.generateExternalCheckoutUrlParameters(params);
     if (!parameters) {
       return url;
     }
@@ -267,13 +283,13 @@ export const useGeinsClient = () => {
   };
 
   const createOrder = async (checkoutInput: { cartId: string; checkoutOptions: CheckoutInputType }) => {
-    const result = await geinsOMS.checkout.createOrder(checkoutInput);
+    const result = await geinsOMS.value?.checkout.createOrder(checkoutInput);
     return result;
   };
 
   const completeCart = async () => {
     try {
-      const result = await geinsOMS.cart.complete();
+      const result = await geinsOMS.value?.cart.complete();
       return result;
     } catch (error) {
       console.error('Error during completeCart:', error);
@@ -294,6 +310,7 @@ export const useGeinsClient = () => {
     orderSummary,
     selectedPaymentMethod,
     selectedShippingMethod,
+    currentCountryName,
     initializeSummary,
     initializeCheckout,
     getCheckout,

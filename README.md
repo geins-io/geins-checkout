@@ -16,14 +16,14 @@
 - [ ] Debug mode with logging to console
 - [x] Re-do styles so that it integrates with tailwind/shadcn instead of basic css
 - [x] Update to a more modern design that works with most branding
-- [ ] Confirm page branding and functions
+- [x] Confirm page branding and functions
 - [x] Two steps for Geins Pay
 - [x] Sale prices in cart
 - [x] Cart summary component
 - [ ] Set a good font for the checkout
 - [x] Change order in url
 - [x] Global inc/ex vat state set from token settings
-- [ ] Address country from market
+- [x] Address country from market
 - [ ] See to that all available payment methods are working as intended, redirecting to correct page
 
 ### Before v0 release

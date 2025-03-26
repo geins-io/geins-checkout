@@ -18,8 +18,8 @@ export interface CheckoutState {
   message: string;
   billingAddress?: AddressInputType;
   shippingAddress?: AddressInputType;
-  selectedPaymentMethod: number;
-  selectedShippingMethod: number;
+  selectedPaymentId: number;
+  selectedShippingId: number;
   externalSnippetHtml: string;
   useShippingAddress: boolean;
   showMessageInput: boolean;

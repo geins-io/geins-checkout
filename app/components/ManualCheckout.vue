@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { state, checkoutLoading, cart, updateCheckoutData, completeCheckout } = useCheckout();
+const { currentCountryName } = useGeinsClient();
+console.log('🚀 ~ currentCountryName:', currentCountryName.value);
 
 const _props = defineProps<{
   enableCompleteCheckout: boolean;
@@ -41,13 +43,15 @@ const handleCheckout = async () => {
 const handleNextStep = async () => {
   emit('completed', true);
 };
+
+// TODO: fix country name not working anymore
 </script>
 <template>
   <div class="lg:px-7">
     <h2 class="text-lg font-bold">
       {{ state.useShippingAddress ? 'Billing Address' : 'Your Information' }}
     </h2>
-    <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+    <p class="mb-2 text-card-foreground/60">The address must be in {{ currentCountryName }}.</p>
     <CheckoutForm :data="billingFormData" @update="handleFormUpdate($event, 'billing')" />
     <!-- Shipping Information -->
     <ContentSwitch
@@ -57,7 +61,7 @@ const handleNextStep = async () => {
       class="mt-4"
     >
       <h2 class="text-lg font-bold">Shipping Address</h2>
-      <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+      <p class="mb-2 text-card-foreground/60">The address must be in {{ currentCountryName }}.</p>
       <CheckoutForm
         :data="shippingFormData"
         :only-address="true"
