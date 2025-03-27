@@ -10,7 +10,7 @@ const handleError = () => clearError({ redirect: '/' });
 </script>
 
 <template>
-  <div class="flex h-screen flex-col items-center justify-center">
+  <div class="flex h-screen flex-col items-center justify-center bg-card text-card-foreground">
     <h1 class="mb-2 text-xl font-bold">Error {{ error?.statusCode }}</h1>
     <p v-if="error?.message" class="mb-5">{{ error?.message }}</p>
     <p v-else>No message</p>

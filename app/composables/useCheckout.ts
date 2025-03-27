@@ -93,7 +93,6 @@ export const useCheckout = () => {
           ...data.address,
           country: currentCountryName.value || '',
         });
-        console.log('🚀 ~ updateCheckoutData ~ state.value.billingAddress:', state.value.billingAddress);
       } else {
         state.value.shippingAddress = markRaw({
           ...data.address,
@@ -102,34 +101,6 @@ export const useCheckout = () => {
       }
     } catch (e) {
       error.value = `Failed to update ${type} address`;
-      console.error(e);
-    } finally {
-      checkoutLoading.value = false;
-    }
-  };
-
-  const selectPaymentMethod = async (methodId: number) => {
-    try {
-      checkoutLoading.value = true;
-      state.value.selectedPaymentId = methodId;
-
-      await updateCheckout();
-    } catch (e) {
-      error.value = 'Failed to update payment method';
-      console.error(e);
-    } finally {
-      checkoutLoading.value = false;
-    }
-  };
-
-  const selectShippingMethod = async (methodId: number) => {
-    try {
-      checkoutLoading.value = true;
-      state.value.selectedShippingId = methodId;
-
-      await updateCheckout();
-    } catch (e) {
-      error.value = 'Failed to update shipping method';
       console.error(e);
     } finally {
       checkoutLoading.value = false;
@@ -212,9 +183,7 @@ export const useCheckout = () => {
 
     try {
       const checkoutInput = createCheckoutInput();
-      console.log('🚀 ~ completeCheckout ~ checkoutInput:', checkoutInput);
       const orderResult = await geinsClient.createOrder(checkoutInput);
-      console.log('🚀 ~ completeCheckout ~ orderResult:', orderResult);
       if (orderResult) {
         response.success = true;
         response.orderId = orderResult.orderId || '';
@@ -259,8 +228,6 @@ export const useCheckout = () => {
     currentCountryName,
     initializeCheckout,
     updateCheckoutData,
-    selectPaymentMethod,
-    selectShippingMethod,
     updateCheckout,
     completeCheckout,
   };

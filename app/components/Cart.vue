@@ -55,7 +55,9 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
             :class="{ 'text-sale': firstItem.totalPrice?.isDiscounted }"
           >
             {{ getSellingPrice(firstItem.totalPrice) }}
-            <span v-if="!vatIncluded" class="text-sm text-card-foreground/80">ex. VAT</span>
+            <span v-if="!vatIncluded" class="text-sm text-card-foreground/80">
+              {{ $t('ex_vat') }}
+            </span>
           </div>
           <!-- Product Image -->
           <div class="relative mb-5 h-[45vh] w-full">
@@ -116,7 +118,9 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
                   :class="{ 'text-sale': item.totalPrice?.isDiscounted }"
                 >
                   {{ getSellingPrice(item.totalPrice) }}
-                  <span v-if="!vatIncluded" class="text-[0.65rem] text-card-foreground/80">ex. VAT</span>
+                  <span v-if="!vatIncluded" class="text-[0.65rem] text-card-foreground/80">
+                    {{ $t('ex_vat') }}
+                  </span>
                 </div>
               </div>
             </div>

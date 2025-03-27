@@ -17,12 +17,12 @@ const showDetails = ref(false);
         <span>{{ $t('cart_summary_total') }}</span>
         <span
           class="mb-1 ml-2 mr-auto text-[0.7rem] font-normal leading-[0.8rem] text-card-foreground/80 lg:text-xs"
-          >inc. VAT and shipping</span
+          >{{ $t('cart_summary_inc_vat_and_shipping') }}</span
         >
         <span>{{ summary.total.sellingPriceIncVatFormatted }}</span>
       </div>
       <button class="text-xs text-card-foreground/80 underline" @click="showDetails = !showDetails">
-        Show details
+        {{ showDetails ? $t('hide_details') : $t('show_details') }}
       </button>
     </div>
     <div v-if="showDetails" class="mt-2 w-full space-y-0.5 rounded-lg border bg-background/10 p-4 text-sm">

@@ -9,8 +9,6 @@
 - [x] Fix image urls from - https://labs.commerce.services/product/raw/ (Add base img url to token!) + create one proxy domain for all images since we need to whitleist the domain for nuxtImage
 - [x] Address inputs and validation in components
 - [x] Leave message on order (payment method 18)
-- [ ] Fix so that all external checkouts works properly
-- [ ] Special Avarda implementations
 - [ ] Structure of repository and components
 - [x] Use Types from `@geins/types`
 - [ ] Debug mode with logging to console
@@ -24,7 +22,6 @@
 - [x] Change order in url
 - [x] Global inc/ex vat state set from token settings
 - [x] Address country from market
-- [ ] See to that all available payment methods are working as intended, redirecting to correct page
 
 ### Before v0 release
 
@@ -37,4 +34,8 @@
 - [ ] Ability to change the cart in the checkout
 - [ ] Add a discount code to the order
 - [ ] Add a way to add custom fields to the checkout form
-- [ ] User authentication ?
+- [ ] User authentication
+- [ ] Show sku in cart
+- [ ] Special Avarda implementations
+- [ ] Fix so that all external checkouts works properly
+- [ ] See to that all available payment methods are working as intended, redirecting to correct page

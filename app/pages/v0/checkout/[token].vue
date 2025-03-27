@@ -42,14 +42,7 @@ const nextStep = async () => {
           <div v-else-if="externalPaymentSelected" class="rounded-lg bg-white p-3 lg:p-8">
             <ExternalSnippet :type="ExternalSnippetType.Checkout" />
           </div>
-          <!-- Manual Invoice -->
         </div>
-        <!--         <div
-          v-if="paymentMethods.length > 1"
-          class="card absolute bottom-0 left-0 rounded-lg bg-white p-6 shadow"
-        >
-          <PaymentMethodSelector :methods="paymentMethods" @select="selectPaymentMethod" />
-        </div> -->
       </template>
     </NuxtLayout>
   </div>

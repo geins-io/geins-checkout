@@ -100,7 +100,6 @@ export const useGeinsClient = () => {
   };
 
   const initializeSummary = async (): Promise<boolean> => {
-    // set all the checkoutSettings from the token
     try {
       await setGeinsClient();
     } catch (e) {
@@ -133,11 +132,17 @@ export const useGeinsClient = () => {
     paymentMethod: string,
     cartId: string,
   ): Promise<CheckoutSummaryType | undefined> => {
-    const summary = await $geinsOMS.value?.checkout.summary({ orderId, paymentMethod });
-    if (!summary) {
-      throw new Error('Failed to get order summary');
+    if (!$geinsOMS.value) {
+      throw new Error('Geins OMS is not initialized');
     }
-    const orderCart = await $geinsOMS.value?.cart.get(cartId);
+    const summary = await fetchFromClient(
+      'get-summary',
+      $geinsOMS.value.checkout.summary({ orderId, paymentMethod }),
+    );
+    if (!summary) {
+      throw new Error('Failed to get summary');
+    }
+    const orderCart = await fetchFromClient('get-cart', $geinsOMS.value?.cart.get(cartId));
     if (!orderCart) {
       throw new Error('Failed to get cart');
     }
@@ -185,16 +190,25 @@ export const useGeinsClient = () => {
       },
     };
 
-    try {
-      const checkout = await $geinsOMS.value?.checkout.get(args);
-      if (!checkout) {
-        throw new Error('Failed to get checkout');
-      }
-      return checkout;
-    } catch (error) {
-      console.error('Error during getCheckout:', error);
-      throw error;
+    if (!$geinsOMS.value) {
+      throw new Error('Geins OMS is not initialized');
     }
+    const checkout = await fetchFromClient('get-checkout', $geinsOMS.value.checkout.get(args));
+
+    if (!checkout) {
+      throw new Error('Failed to get checkout');
+    }
+    return checkout;
+  };
+
+  const fetchFromClient = async <T>(key: string, promise: Promise<T>) => {
+    const { data, error } = await useAsyncData(key, () => {
+      return promise;
+    });
+    if (error.value) {
+      throw new Error(`Failed to fetch ${key}: ${error.value}`);
+    }
+    return data.value;
   };
 
   const getCheckoutUrls = (paymentMethodId?: number): CheckoutUrlsInputType | undefined => {

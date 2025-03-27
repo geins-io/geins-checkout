@@ -1,4 +1,4 @@
-import type { CartType, CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types';
+import type { CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types';
 
 export const useSummary = () => {
   const geinsClient = useGeinsClient();
@@ -70,20 +70,12 @@ export const useSummary = () => {
     return { orderId, paymentMethod, cartId };
   };
 
-  const orderCart = computed(() => {
-    return {
-      id: '',
-      items: orderSummary.value?.order?.rows,
-    } as CartType;
-  });
-
   return {
     checkoutLoading,
     error,
     cart,
     continueShoppingUrl,
     orderSummary,
-    orderCart,
     summaryOrderId,
     initializeSummary,
   };

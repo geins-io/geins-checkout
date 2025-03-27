@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 const { vatIncluded } = usePrice();
+const { t } = useI18n();
 
 const props = defineProps<{
   data: CheckoutFormType;
@@ -12,15 +13,17 @@ const props = defineProps<{
   hideMessageInput?: boolean;
 }>();
 
-const emailSchema = props.onlyAddress ? z.string().optional() : z.string().email('Invalid email address');
-const phoneSchema = props.onlyAddress ? z.string().optional() : z.string().min(1, 'Phone number is required');
+const emailSchema = props.onlyAddress ? z.string().optional() : z.string().email(t('form_validation_email'));
+const phoneSchema = props.onlyAddress
+  ? z.string().optional()
+  : z.string().min(1, t('form_validation_phone_required'));
 const identityNumberSchema =
   !vatIncluded.value && !props.onlyAddress
-    ? z.string().min(1, 'Identity number is required')
+    ? z.string().min(1, t('form_validation_identity_number_required'))
     : z.string().optional();
 
 const companyNameSchema = !vatIncluded.value
-  ? z.string().min(1, 'Company name is required')
+  ? z.string().min(1, t('form_validation_company_required'))
   : z.string().optional();
 
 const formSchema = toTypedSchema(
@@ -30,12 +33,12 @@ const formSchema = toTypedSchema(
     address: z.object({
       phone: phoneSchema,
       company: companyNameSchema,
-      firstName: z.string().min(1, 'First name is required'),
-      lastName: z.string().min(1, 'Last name is required'),
+      firstName: z.string().min(1, t('form_validation_first_name_required')),
+      lastName: z.string().min(1, t('form_validation_last_name_required')),
       careOf: z.string().optional(),
-      addressLine1: z.string().min(1, 'Street address is required'),
-      zip: z.string().min(1, 'Zip code is required'),
-      city: z.string().min(1, 'City is required'),
+      addressLine1: z.string().min(1, t('form_validation_street_address_required')),
+      zip: z.string().min(1, t('form_validation_zip_required')),
+      city: z.string().min(1, t('form_validation_city_required')),
       country: z.string().optional(),
     }),
     message: z.string().optional(),
@@ -85,7 +88,7 @@ const onSubmit = form.handleSubmit((values) => {
         :validate-on-model-update="false"
       >
         <FormItem v-auto-animate>
-          <FormLabel>Email</FormLabel>
+          <FormLabel>{{ $t('form_label_email') }}</FormLabel>
           <FormControl>
             <Input v-bind="componentField" type="email" />
           </FormControl>
@@ -95,7 +98,7 @@ const onSubmit = form.handleSubmit((values) => {
 
       <FormField v-slot="{ componentField }" name="address.phone">
         <FormItem v-auto-animate>
-          <FormLabel>Phone</FormLabel>
+          <FormLabel>{{ $t('form_label_phone') }}</FormLabel>
           <FormControl>
             <Input v-bind="componentField" type="tel" />
           </FormControl>
@@ -105,7 +108,7 @@ const onSubmit = form.handleSubmit((values) => {
     </div>
     <FormField v-if="!vatIncluded && !onlyAddress" v-slot="{ componentField }" name="identityNumber">
       <FormItem v-auto-animate>
-        <FormLabel>Organization Number</FormLabel>
+        <FormLabel>{{ $t('form_label_org_nr') }}</FormLabel>
         <FormControl>
           <Input v-bind="componentField" />
         </FormControl>
@@ -114,7 +117,7 @@ const onSubmit = form.handleSubmit((values) => {
     </FormField>
     <FormField v-if="!vatIncluded" v-slot="{ componentField }" name="address.company">
       <FormItem v-auto-animate>
-        <FormLabel>Company</FormLabel>
+        <FormLabel>{{ $t('form_label_company') }}</FormLabel>
         <FormControl>
           <Input v-bind="componentField" />
         </FormControl>
@@ -123,7 +126,7 @@ const onSubmit = form.handleSubmit((values) => {
     </FormField>
     <FormField v-if="onlyAddress" v-slot="{ componentField }" name="address.phone">
       <FormItem v-auto-animate>
-        <FormLabel>Phone</FormLabel>
+        <FormLabel>{{ $t('form_label_phone') }}</FormLabel>
         <FormControl>
           <Input v-bind="componentField" type="tel" />
         </FormControl>
@@ -133,7 +136,7 @@ const onSubmit = form.handleSubmit((values) => {
     <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
       <FormField v-slot="{ componentField }" name="address.firstName">
         <FormItem v-auto-animate>
-          <FormLabel>First Name</FormLabel>
+          <FormLabel>{{ $t('form_label_first_name') }}</FormLabel>
           <FormControl>
             <Input v-bind="componentField" />
           </FormControl>
@@ -143,7 +146,7 @@ const onSubmit = form.handleSubmit((values) => {
 
       <FormField v-slot="{ componentField }" name="address.lastName">
         <FormItem v-auto-animate>
-          <FormLabel>Last Name</FormLabel>
+          <FormLabel>{{ $t('form_label_last_name') }}</FormLabel>
           <FormControl>
             <Input v-bind="componentField" />
           </FormControl>
@@ -154,7 +157,10 @@ const onSubmit = form.handleSubmit((values) => {
 
     <FormField v-slot="{ componentField }" name="address.careOf">
       <FormItem v-auto-animate>
-        <FormLabel>C/O <span class="text-card-foreground/60">(optional)</span></FormLabel>
+        <FormLabel>
+          {{ $t('form_label_care_of') }}
+          <span class="text-card-foreground/60">({{ $t('form_label_optional') }})</span>
+        </FormLabel>
         <FormControl>
           <Input v-bind="componentField" />
         </FormControl>
@@ -164,7 +170,7 @@ const onSubmit = form.handleSubmit((values) => {
 
     <FormField v-slot="{ componentField }" name="address.addressLine1">
       <FormItem v-auto-animate>
-        <FormLabel>Street Address</FormLabel>
+        <FormLabel>{{ $t('form_label_street_address') }}</FormLabel>
         <FormControl>
           <Input v-bind="componentField" />
         </FormControl>
@@ -175,7 +181,7 @@ const onSubmit = form.handleSubmit((values) => {
     <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
       <FormField v-slot="{ componentField }" name="address.zip">
         <FormItem v-auto-animate>
-          <FormLabel>Postal Code</FormLabel>
+          <FormLabel>{{ $t('form_label_zip') }}</FormLabel>
           <FormControl>
             <Input v-bind="componentField" />
           </FormControl>
@@ -184,7 +190,7 @@ const onSubmit = form.handleSubmit((values) => {
       </FormField>
       <FormField v-slot="{ componentField }" name="address.city">
         <FormItem v-auto-animate>
-          <FormLabel>City</FormLabel>
+          <FormLabel>{{ $t('form_label_city') }}</FormLabel>
           <FormControl>
             <Input v-bind="componentField" />
           </FormControl>
@@ -194,7 +200,10 @@ const onSubmit = form.handleSubmit((values) => {
     </div>
     <FormField v-if="!onlyAddress && !hideMessageInput" v-slot="{ componentField }" name="message">
       <FormItem v-auto-animate>
-        <FormLabel>Message <span class="text-card-foreground/60">(optional)</span></FormLabel>
+        <FormLabel>
+          {{ $t('form_label_message') }}
+          <span class="text-card-foreground/60">({{ $t('form_label_optional') }})</span>
+        </FormLabel>
         <FormControl>
           <Textarea v-bind="componentField" />
         </FormControl>
