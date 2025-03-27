@@ -50,7 +50,6 @@ export const useCheckoutToken = () => {
     if (!token.value) return false;
     try {
       parsedCheckoutToken.value = await parseToken(token.value);
-      console.log('🚀 ~ initSettingsFromToken ~ parsedCheckoutToken.value:', parsedCheckoutToken.value);
     } catch (error) {
       token.value = '';
       console.warn('Failed to parse checkout token', error);
