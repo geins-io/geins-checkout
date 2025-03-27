@@ -8,12 +8,16 @@ const { vatIncluded } = usePrice();
 await initializeCheckout();
 
 const isPaymentInvoice = computed(() => state.value.selectedPaymentId === PaymentMethodId.ManualInvoice);
+console.log('🚀 ~ state.value.selectedPaymentId:', state.value.selectedPaymentId);
+console.log('🚀 ~ isPaymentInvoice:', isPaymentInvoice.value);
 const useManualCheckout = computed(
   () =>
     !externalPaymentSelected.value &&
     (isPaymentInvoice.value ||
       (vatIncluded.value && state.value.selectedPaymentId === PaymentMethodId.GeinsPay)),
 );
+console.log('🚀 ~ useManualCheckout:', useManualCheckout.value);
+console.log('🚀 ~ externalPaymentSelected.value:', externalPaymentSelected.value);
 
 const nextStep = async () => {
   await updateCheckout();

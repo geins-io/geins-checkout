@@ -10,13 +10,15 @@ export const useCheckout = () => {
   const checkoutLoading = useState<boolean>('checkout-loading', () => true);
 
   const error = ref('');
-  const paymentMethods = ref();
-  const shippingMethods = ref();
 
   const checkoutSettings = computed(() => geinsClient.checkoutSettings.value);
   const cart = computed(() => geinsClient.cart.value);
   const redirectUrls = computed(() => geinsClient.redirectUrls.value);
   const currentCountryName = computed(() => geinsClient.currentCountryName.value);
+
+  watch(geinsClient.selectedPaymentMethod, (selectedPaymentMethod) => {
+    console.log('🚀 ~ useCheckout ~ selectedPaymentMethod:', selectedPaymentMethod);
+  });
 
   const defaultAddress: AddressInputType = {
     phone: '',
@@ -48,6 +50,7 @@ export const useCheckout = () => {
       try {
         checkoutLoading.value = true;
         await geinsClient.initializeCheckout();
+        await nextTick();
         setShippingMethods();
         setPaymentMethods();
       } catch (e) {
@@ -108,17 +111,12 @@ export const useCheckout = () => {
   };
 
   const setShippingMethods = () => {
-    shippingMethods.value = geinsClient.shippingMethods.value;
-    if (geinsClient.selectedShippingMethod.value) {
-      state.value.selectedShippingId = Number(geinsClient.selectedShippingMethod.value.id);
-    }
+    state.value.selectedShippingId = Number(geinsClient.selectedShippingMethod.value?.id);
   };
 
   const setPaymentMethods = () => {
-    paymentMethods.value = geinsClient.paymentMethods.value;
-    if (geinsClient.selectedPaymentMethod.value) {
-      state.value.selectedPaymentId = Number(geinsClient.selectedPaymentMethod.value.id);
-    }
+    state.value.selectedPaymentId = Number(geinsClient.selectedPaymentMethod.value?.id);
+    console.log('🚀 ~ setPaymentMethods ~ state.value.selectedPaymentId:', state.value.selectedPaymentId);
   };
 
   const updateCheckout = async () => {
@@ -220,8 +218,6 @@ export const useCheckout = () => {
     globalLoading,
     checkoutLoading,
     error,
-    paymentMethods,
-    shippingMethods,
     checkoutSettings,
     cart,
     redirectUrls,
