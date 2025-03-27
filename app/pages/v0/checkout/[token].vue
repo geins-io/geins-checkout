@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ExternalSnippetType } from '#shared/types';
+import { ExternalSnippetType, PaymentMethodId } from '#shared/types';
 const { urls } = useCheckoutToken();
 const { state, cart, initializeCheckout, updateCheckout } = useCheckout();
 const { externalPaymentSelected } = useExternalSnippet();
@@ -7,11 +7,12 @@ const { vatIncluded } = usePrice();
 
 await initializeCheckout();
 
-const isPaymentInvoice = computed(() => state.value.selectedPaymentId === 18);
+const isPaymentInvoice = computed(() => state.value.selectedPaymentId === PaymentMethodId.ManualInvoice);
 const useManualCheckout = computed(
   () =>
     !externalPaymentSelected.value &&
-    (isPaymentInvoice.value || (vatIncluded.value && state.value.selectedPaymentId === 27)),
+    (isPaymentInvoice.value ||
+      (vatIncluded.value && state.value.selectedPaymentId === PaymentMethodId.GeinsPay)),
 );
 
 const nextStep = async () => {

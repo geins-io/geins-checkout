@@ -89,21 +89,16 @@ export const useCheckout = () => {
         state.value.identityNumber = data.identityNumber || '';
         state.value.message = data.message || '';
 
-        state.value.billingAddress = {
-          ...state.value.billingAddress,
+        state.value.billingAddress = markRaw({
           ...data.address,
           country: currentCountryName.value || '',
-        };
-
-        if (!state.value.useShippingAddress) {
-          state.value.shippingAddress = state.value.billingAddress;
-        }
+        });
+        console.log('🚀 ~ updateCheckoutData ~ state.value.billingAddress:', state.value.billingAddress);
       } else {
-        state.value.shippingAddress = {
-          ...state.value.shippingAddress,
+        state.value.shippingAddress = markRaw({
           ...data.address,
           country: currentCountryName.value || '',
-        };
+        });
       }
     } catch (e) {
       error.value = `Failed to update ${type} address`;
@@ -217,7 +212,9 @@ export const useCheckout = () => {
 
     try {
       const checkoutInput = createCheckoutInput();
+      console.log('🚀 ~ completeCheckout ~ checkoutInput:', checkoutInput);
       const orderResult = await geinsClient.createOrder(checkoutInput);
+      console.log('🚀 ~ completeCheckout ~ orderResult:', orderResult);
       if (orderResult) {
         response.success = true;
         response.orderId = orderResult.orderId || '';

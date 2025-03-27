@@ -18,5 +18,14 @@ export default defineI18nLocale(async () => {
     confirmation_page_title: 'Thank you for your order!',
     confirmation_page_text:
       'Your order has been successfully placed. You will receive an email confirmation shortly.',
+    billing_address: 'Billing Address',
+    your_information: 'Your Information',
+    address_must_be_in_country: 'The address must be in {country}.',
+    ship_to_different_address: 'Ship to a different address',
+    shipping_address: 'Shipping Address',
+    complete_checkout: 'Complete Checkout',
+    processing: 'Processing',
+    go_to_payment: 'Go to Payment',
+    loading: 'Loading',
   };
 });

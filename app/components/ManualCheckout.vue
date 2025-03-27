@@ -1,7 +1,6 @@
 <script setup lang="ts">
-const { state, checkoutLoading, cart, updateCheckoutData, completeCheckout } = useCheckout();
-const { currentCountryName } = useGeinsClient();
-console.log('🚀 ~ currentCountryName:', currentCountryName.value);
+const { state, checkoutLoading, cart, currentCountryName, updateCheckoutData, completeCheckout } =
+  useCheckout();
 
 const _props = defineProps<{
   enableCompleteCheckout: boolean;
@@ -43,25 +42,27 @@ const handleCheckout = async () => {
 const handleNextStep = async () => {
   emit('completed', true);
 };
-
-// TODO: fix country name not working anymore
 </script>
 <template>
   <div class="lg:px-7">
     <h2 class="text-lg font-bold">
-      {{ state.useShippingAddress ? 'Billing Address' : 'Your Information' }}
+      {{ state.useShippingAddress ? $t('billing_address') : $t('your_information') }}
     </h2>
-    <p class="mb-2 text-card-foreground/60">The address must be in {{ currentCountryName }}.</p>
+    <p class="mb-2 text-card-foreground/60">
+      {{ $t('address_must_be_in_country', { country: currentCountryName }) }}
+    </p>
     <CheckoutForm :data="billingFormData" @update="handleFormUpdate($event, 'billing')" />
     <!-- Shipping Information -->
     <ContentSwitch
       v-model:checked="state.useShippingAddress"
-      label="Ship to a different address"
+      :label="$t('ship_to_different_address')"
       :inside-box="true"
       class="mt-4"
     >
-      <h2 class="text-lg font-bold">Shipping Address</h2>
-      <p class="mb-2 text-card-foreground/60">The address must be in {{ currentCountryName }}.</p>
+      <h2 class="text-lg font-bold">{{ $t('shipping_address') }}</h2>
+      <p class="mb-2 text-card-foreground/60">
+        {{ $t('address_must_be_in_country', { country: currentCountryName }) }}
+      </p>
       <CheckoutForm
         :data="shippingFormData"
         :only-address="true"
@@ -77,7 +78,7 @@ const handleNextStep = async () => {
       :disabled="!formTouched || !formValid"
       @click="handleCheckout"
     >
-      {{ checkoutLoading ? 'Processing...' : 'Complete Checkout' }}
+      {{ checkoutLoading ? $t('processing') + '...' : $t('complete_checkout') }}
     </Button>
     <Button
       v-else
@@ -87,7 +88,7 @@ const handleNextStep = async () => {
       :disabled="!formTouched || !formValid"
       @click="handleNextStep"
     >
-      {{ checkoutLoading ? 'Loading...' : 'Go to Payment' }}
+      {{ checkoutLoading ? $t('loading') + '...' : $t('go_to_payment') }}
     </Button>
   </div>
 </template>

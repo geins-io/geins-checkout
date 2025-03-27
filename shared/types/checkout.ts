@@ -5,6 +5,15 @@ export const enum ExternalSnippetType {
   Summary = 'summary',
 }
 
+export const enum PaymentMethodId {
+  ManualInvoice = 18,
+  Klarna = 23,
+  Svea = 24,
+  Walley = 25,
+  Avarda = 26,
+  GeinsPay = 27,
+}
+
 export interface CheckoutFormType {
   email?: string;
   message?: string;
