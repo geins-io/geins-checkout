@@ -188,12 +188,14 @@ export const useCheckout = () => {
         response.success = false;
         response.redirectUrl = getRedirectUrl(response);
         response.message = error.value;
+        checkoutLoading.value = false;
       }
     } catch (e) {
       error.value = 'Failed to complete checkout';
       console.error(e);
       response.success = false;
       response.redirectUrl = getRedirectUrl(response);
+      checkoutLoading.value = false;
     }
     return response;
   };

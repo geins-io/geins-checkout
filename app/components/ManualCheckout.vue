@@ -79,8 +79,8 @@ const handleNextStep = async () => {
     </ContentSwitch>
     <CartSummary v-if="cart?.summary" :summary="cart.summary" class="mt-4" />
     <Alert v-if="errorMessage" variant="error" class="mt-4">
-      <AlertCircle class="size-4" />
-      <AlertTitle>Something went wrong</AlertTitle>
+      <AlertCircle class="size-5" />
+      <AlertTitle>Error</AlertTitle>
       <AlertDescription>{{ errorMessage }}</AlertDescription>
     </Alert>
     <Button
