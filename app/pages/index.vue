@@ -7,7 +7,7 @@ import Logo from '@/assets/logos/geins.svg';
       <p class="text-muted-foreground text-xs">{{ $t('powered_by') }}</p>
       <Logo :font-controlled="false" class="h-28 w-auto text-card-foreground" />
     </div>
-    <NuxtLayout name="default">
+    <NuxtLayout name="default" class="hidden lg:grid">
       <template #checkout>
         <div class="flex h-screen" />
       </template>

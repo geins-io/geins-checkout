@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { state, checkoutLoading, cart, currentCountryName, updateCheckoutData, completeCheckout } =
+import { AlertCircle } from 'lucide-vue-next';
+
+const { state, checkoutLoading, cart, currentCountryName, error, updateCheckoutData, completeCheckout } =
   useCheckout();
 
 const _props = defineProps<{
@@ -22,6 +24,7 @@ const shippingFormData = ref<CheckoutFormType>({
 
 const formValid = ref(false);
 const formTouched = ref(false);
+const errorMessage = ref();
 
 const handleFormUpdate = async (data: CheckoutFormUpdateEvent, addressType: 'billing' | 'shipping') => {
   updateCheckoutData(addressType, data.values);
@@ -32,7 +35,12 @@ const handleFormUpdate = async (data: CheckoutFormUpdateEvent, addressType: 'bil
 const handleCheckout = async () => {
   const response = await completeCheckout();
 
-  if (response.redirectUrl) {
+  if (!response.success) {
+    errorMessage.value = response.message;
+    return;
+  }
+
+  if (response.success && response.redirectUrl) {
     navigateTo(response.redirectUrl, { external: true });
   } else {
     console.warn('Unknown response:', response);
@@ -70,6 +78,11 @@ const handleNextStep = async () => {
       />
     </ContentSwitch>
     <CartSummary v-if="cart?.summary" :summary="cart.summary" class="mt-4" />
+    <Alert v-if="errorMessage" variant="error" class="mt-4">
+      <AlertCircle class="size-4" />
+      <AlertTitle>Something went wrong</AlertTitle>
+      <AlertDescription>{{ errorMessage }}</AlertDescription>
+    </Alert>
     <Button
       v-if="enableCompleteCheckout"
       :loading="checkoutLoading"

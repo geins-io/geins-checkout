@@ -39,6 +39,7 @@ export interface CompleteCheckoutResponse {
   orderId: string;
   publicOrderId: string;
   redirectUrl: string;
+  message: string;
 }
 
 export interface CheckoutFormUpdateEvent {

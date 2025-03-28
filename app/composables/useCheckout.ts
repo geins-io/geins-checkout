@@ -16,10 +16,6 @@ export const useCheckout = () => {
   const redirectUrls = computed(() => geinsClient.redirectUrls.value);
   const currentCountryName = computed(() => geinsClient.currentCountryName.value);
 
-  watch(geinsClient.selectedPaymentMethod, (selectedPaymentMethod) => {
-    console.log('🚀 ~ useCheckout ~ selectedPaymentMethod:', selectedPaymentMethod);
-  });
-
   const defaultAddress: AddressInputType = {
     phone: '',
     company: '',
@@ -116,7 +112,6 @@ export const useCheckout = () => {
 
   const setPaymentMethods = () => {
     state.value.selectedPaymentId = Number(geinsClient.selectedPaymentMethod.value?.id);
-    console.log('🚀 ~ setPaymentMethods ~ state.value.selectedPaymentId:', state.value.selectedPaymentId);
   };
 
   const updateCheckout = async () => {
@@ -177,16 +172,22 @@ export const useCheckout = () => {
       orderId: '',
       publicOrderId: '',
       redirectUrl: '',
+      message: '',
     };
 
     try {
       const checkoutInput = createCheckoutInput();
       const orderResult = await geinsClient.createOrder(checkoutInput);
-      if (orderResult) {
+      if (orderResult?.created) {
         response.success = true;
         response.orderId = orderResult.orderId || '';
         response.publicOrderId = orderResult.publicId || '';
         response.redirectUrl = getRedirectUrl(response);
+      } else {
+        error.value = orderResult?.message || 'Failed to create order';
+        response.success = false;
+        response.redirectUrl = getRedirectUrl(response);
+        response.message = error.value;
       }
     } catch (e) {
       error.value = 'Failed to complete checkout';
