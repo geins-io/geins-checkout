@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AlertCircle } from 'lucide-vue-next';
 
-const { state, checkoutLoading, cart, currentCountryName, error, updateCheckoutData, completeCheckout } =
+const { state, checkoutLoading, cart, currentCountryName, updateCheckoutData, completeCheckout } =
   useCheckout();
 
 const _props = defineProps<{
