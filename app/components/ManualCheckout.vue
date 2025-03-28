@@ -1,6 +1,8 @@
 <script setup lang="ts">
-const { confirmationPageUrl } = useCheckoutToken();
-const { state, checkoutLoading, cart, updateCheckoutData, completeCheckout } = useCheckout();
+import { AlertCircle } from 'lucide-vue-next';
+
+const { state, checkoutLoading, cart, currentCountryName, updateCheckoutData, completeCheckout } =
+  useCheckout();
 
 const _props = defineProps<{
   enableCompleteCheckout: boolean;
@@ -22,6 +24,7 @@ const shippingFormData = ref<CheckoutFormType>({
 
 const formValid = ref(false);
 const formTouched = ref(false);
+const errorMessage = ref();
 
 const handleFormUpdate = async (data: CheckoutFormUpdateEvent, addressType: 'billing' | 'shipping') => {
   updateCheckoutData(addressType, data.values);
@@ -32,10 +35,13 @@ const handleFormUpdate = async (data: CheckoutFormUpdateEvent, addressType: 'bil
 const handleCheckout = async () => {
   const response = await completeCheckout();
 
-  if (response.redirectUrl) {
+  if (!response.success) {
+    errorMessage.value = response.message;
+    return;
+  }
+
+  if (response.success && response.redirectUrl) {
     navigateTo(response.redirectUrl, { external: true });
-  } else if (response.success && response.publicOrderId) {
-    navigateTo(`${confirmationPageUrl.value}/${response.publicOrderId}`, { external: true });
   } else {
     console.warn('Unknown response:', response);
   }
@@ -48,26 +54,35 @@ const handleNextStep = async () => {
 <template>
   <div class="lg:px-7">
     <h2 class="text-lg font-bold">
-      {{ state.useShippingAddress ? 'Billing Address' : 'Your Information' }}
+      {{ state.useShippingAddress ? $t('billing_address') : $t('your_information') }}
     </h2>
-    <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+    <p class="mb-2 text-card-foreground/60">
+      {{ $t('address_must_be_in_country', { country: currentCountryName }) }}
+    </p>
     <CheckoutForm :data="billingFormData" @update="handleFormUpdate($event, 'billing')" />
     <!-- Shipping Information -->
     <ContentSwitch
       v-model:checked="state.useShippingAddress"
-      label="Ship to a different address"
+      :label="$t('ship_to_different_address')"
       :inside-box="true"
       class="mt-4"
     >
-      <h2 class="text-lg font-bold">Shipping Address</h2>
-      <p class="mb-2 text-card-foreground/60">The address must be in Sweden.</p>
+      <h2 class="text-lg font-bold">{{ $t('shipping_address') }}</h2>
+      <p class="mb-2 text-card-foreground/60">
+        {{ $t('address_must_be_in_country', { country: currentCountryName }) }}
+      </p>
       <CheckoutForm
         :data="shippingFormData"
         :only-address="true"
         @update="handleFormUpdate($event, 'shipping')"
       />
     </ContentSwitch>
-    <CartSummary v-if="cart" :summary="cart.summary" class="mt-4" />
+    <CartSummary v-if="cart?.summary" :summary="cart.summary" class="mt-4" />
+    <Alert v-if="errorMessage" variant="error" class="mt-4">
+      <AlertCircle class="size-4" />
+      <AlertTitle>Something went wrong</AlertTitle>
+      <AlertDescription>{{ errorMessage }}</AlertDescription>
+    </Alert>
     <Button
       v-if="enableCompleteCheckout"
       :loading="checkoutLoading"
@@ -76,7 +91,7 @@ const handleNextStep = async () => {
       :disabled="!formTouched || !formValid"
       @click="handleCheckout"
     >
-      {{ checkoutLoading ? 'Processing...' : 'Complete Checkout' }}
+      {{ checkoutLoading ? $t('processing') + '...' : $t('complete_checkout') }}
     </Button>
     <Button
       v-else
@@ -86,7 +101,7 @@ const handleNextStep = async () => {
       :disabled="!formTouched || !formValid"
       @click="handleNextStep"
     >
-      Till betalning
+      {{ checkoutLoading ? $t('loading') + '...' : $t('go_to_payment') }}
     </Button>
   </div>
 </template>

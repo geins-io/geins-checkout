@@ -29,7 +29,7 @@ export const useCheckoutToken = () => {
   });
   // Return confirmation url for current version
   const confirmationPageUrl = computed(() => {
-    return `${config.public.baseUrl}/${currentVersion.value}/thank-you/${token.value}`;
+    return `${config.public.baseUrl}/${currentVersion.value}/thank-you/${token.value}/{orderId}`;
   });
   const iconFallback = computed(() => {
     return branding.value?.title
@@ -55,10 +55,16 @@ export const useCheckoutToken = () => {
       console.warn('Failed to parse checkout token', error);
       return false;
     }
-    if (!parsedCheckoutToken.value?.checkoutSettings) return false;
+    if (!parsedCheckoutToken.value?.checkoutSettings) {
+      return false;
+    }
+
     branding.value = parsedCheckoutToken.value?.checkoutSettings?.branding;
     urls.value = parsedCheckoutToken.value?.checkoutSettings?.redirectUrls;
-    if (!branding.value) return false;
+
+    if (!branding.value) {
+      return false;
+    }
     parseStyles(branding.value?.styles);
     return true;
   };
@@ -143,7 +149,7 @@ export const useCheckoutToken = () => {
     });
   };
 
-  watch(cssVariables, setCssVarsToHead);
+  watch(cssVariables, setCssVarsToHead, { once: true });
 
   const getProductImageUrl = (filename?: string) => {
     const accountName = parsedCheckoutToken.value?.geinsSettings?.accountName || '';

@@ -29,7 +29,10 @@ module.exports = {
           foreground: 'hsl(var(--card-foreground))',
         },
         sale: 'hsl(var(--sale))',
-        destructive: 'hsl(var(--destructive))',
+        error: 'hsl(var(--error))',
+      },
+      height: {
+        logo: 'var(--logo-size)',
       },
       fontSize: {
         body: 'var(--font-size)',

@@ -1,23 +1,25 @@
-import type { CartType, CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types';
+import type { CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types';
 
 export const useSummary = () => {
   const geinsClient = useGeinsClient();
   const { parsedCheckoutToken } = useCheckoutToken();
+  const { externalSnippetHtml } = useExternalSnippet();
 
   const checkoutLoading = useState<boolean>('checkout-loading', () => true);
   const continueShoppingUrl = ref('');
-  const isExternalSummary = ref(false);
   const error = ref('');
   const orderSummary = ref<CheckoutSummaryType>();
+  const cart = computed(() => geinsClient.cart.value);
+  const summaryOrderId = ref('');
 
-  const initializeSummary = async (orderId: string, paymentdata: CheckoutQueryParameters) => {
+  const initializeSummary = async (orderId: string, checkoutQueryParams: CheckoutQueryParameters) => {
     const init = async () => {
       try {
         checkoutLoading.value = true;
         await geinsClient.initializeSummary();
         continueShoppingUrl.value = geinsClient.redirectUrls.value?.cancel || '';
 
-        orderSummary.value = await getCheckoutSummary({ orderId, paymentdata });
+        orderSummary.value = await getCheckoutSummary({ orderId, checkoutQueryParams });
       } catch (e) {
         error.value = 'Failed to initialize summary';
         console.error(e);
@@ -36,48 +38,45 @@ export const useSummary = () => {
 
   const getCheckoutSummary = async (args: {
     orderId: string;
-    paymentdata: CheckoutQueryParameters;
+    checkoutQueryParams: CheckoutQueryParameters;
   }): Promise<CheckoutSummaryType> => {
-    const queryStringArgs = parseQueryParameters(args.paymentdata);
-    if (args.orderId === undefined || queryStringArgs.orderId === undefined) {
+    const queryStringArgs = parseQueryParameters(args.checkoutQueryParams);
+    summaryOrderId.value = queryStringArgs.orderId;
+    if (!args.orderId && !queryStringArgs.orderId) {
       throw new Error('Missing orderId');
     }
-    const orderId = args.orderId ?? queryStringArgs.orderId;
-    const paymentType = queryStringArgs.paymentType;
-    const orderSummary = await geinsClient.getCheckoutSummary(orderId, paymentType);
+
+    queryStringArgs.orderId = args.orderId || queryStringArgs.orderId;
+
+    const { orderId, paymentMethod, cartId } = queryStringArgs;
+
+    const orderSummary = await geinsClient.getCheckoutSummary(orderId, paymentMethod, cartId);
 
     if (!orderSummary) {
       throw new Error('Failed to get order summary');
     }
     if (orderSummary.htmlSnippet) {
-      isExternalSummary.value = true;
-      // await setExternalSummary(orderSummary.htmlSnippet);
+      externalSnippetHtml.value = orderSummary.htmlSnippet;
     }
 
     return orderSummary;
   };
 
-  const parseQueryParameters = (paymentdata: CheckoutQueryParameters) => {
-    const orderId = paymentdata['geins-uid'] ?? '';
-    const paymentType = paymentdata['geins-pt'] ?? 'STANDARD';
+  const parseQueryParameters = (checkoutQueryParams: CheckoutQueryParameters) => {
+    const orderId = checkoutQueryParams['geins-uid'] ?? '';
+    const paymentMethod = checkoutQueryParams['geins-pt'] ?? 'STANDARD';
+    const cartId = checkoutQueryParams['geins-cart'] ?? '';
 
-    return { orderId, paymentType };
+    return { orderId, paymentMethod, cartId };
   };
-
-  const orderCart = computed(() => {
-    return {
-      id: '',
-      items: orderSummary.value?.order?.rows,
-    } as CartType;
-  });
 
   return {
     checkoutLoading,
     error,
-    isExternalSummary,
+    cart,
     continueShoppingUrl,
     orderSummary,
-    orderCart,
+    summaryOrderId,
     initializeSummary,
   };
 };

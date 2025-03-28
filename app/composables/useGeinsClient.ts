@@ -1,5 +1,5 @@
-import { extractParametersFromUrl, GeinsCore, RuntimeContext } from '@geins/core';
-import { GeinsOMS } from '@geins/oms';
+import { PaymentMethodId } from '#shared/types';
+import { Channel, extractParametersFromUrl } from '@geins/core';
 import type {
   CartType,
   CheckoutInputType,
@@ -8,6 +8,7 @@ import type {
   CheckoutSummaryType,
   CheckoutType,
   CheckoutUrlsInputType,
+  GeinsChannelTypeType,
   GeinsSettings,
   GeinsUserType,
   GetCheckoutOptions,
@@ -16,23 +17,33 @@ import type {
 } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
-// Keep core instances outside the composable state
-let geinsCore: GeinsCore;
-let geinsOMS: GeinsOMS;
-
 export const useGeinsClient = () => {
+  const { $geinsOMS, $createGeinsClient } = useNuxtApp();
+  const geinsChannel = useState<GeinsChannelTypeType | undefined>('geins-channel');
+
   const { parsedCheckoutToken, confirmationPageUrl, checkoutPageUrl } = useCheckoutToken();
   const { vatIncluded } = usePrice();
 
   const geinsSettings = ref<GeinsSettings>();
   const checkoutSettings = ref<CheckoutSettings>();
-  const cart = useState<CartType>('cart');
-  const paymentMethods = useState<PaymentOptionType[]>('payment-methods', () => []);
-  const shippingMethods = useState<ShippingOptionType[]>('shipping-methods', () => []);
   const user = ref<GeinsUserType>();
   const checkoutObject = ref<CheckoutType>();
   const redirectUrls = ref<CheckoutRedirectsType>();
+  const checkoutUrls = ref<CheckoutUrlsInputType>();
   const orderSummary = ref<CheckoutSummaryType>();
+
+  const cart = useState<CartType>('cart');
+  const paymentMethods = useState<PaymentOptionType[]>('payment-methods', () => []);
+  const shippingMethods = useState<ShippingOptionType[]>('shipping-methods', () => []);
+  const currentCountryName = useState<string>('country-name');
+
+  const selectedPaymentMethod = computed(() => {
+    return paymentMethods.value?.find((method) => method.isSelected);
+  });
+
+  const selectedShippingMethod = computed(() => {
+    return shippingMethods.value?.find((method) => method.isSelected);
+  });
 
   const initializeClientFromToken = async (): Promise<void> => {
     checkoutSettings.value = parsedCheckoutToken.value.checkoutSettings;
@@ -52,12 +63,26 @@ export const useGeinsClient = () => {
       throw new Error('Failed to initialize geinsSettings from token');
     }
 
-    // initialize Geins core
-    geinsCore = new GeinsCore(geinsSettings.value);
-    // initialize Geins OMS
-    geinsOMS = new GeinsOMS(geinsCore, {
-      omsSettings: { context: RuntimeContext.HYBRID },
-    });
+    await $createGeinsClient(geinsSettings.value);
+    await setGeinsChannel();
+  };
+
+  const setGeinsChannel = async (): Promise<void> => {
+    if (!geinsSettings.value) {
+      throw new Error('Geins settings are missing');
+    }
+    try {
+      const channel = Channel.getInstance(geinsSettings.value);
+      geinsChannel.value = await channel.get();
+      if (geinsChannel.value) {
+        const currentMarketObj = geinsChannel.value.markets?.find(
+          (m) => m?.alias === geinsSettings.value?.market,
+        );
+        currentCountryName.value = currentMarketObj?.country?.name || '';
+      }
+    } catch (e) {
+      console.error('Failed to set Geins channel', e);
+    }
   };
 
   const copyCart = async (): Promise<void> => {
@@ -66,7 +91,7 @@ export const useGeinsClient = () => {
         if (!cart.value?.id) {
           throw new Error('Cart ID is missing');
         }
-        const newCartId = await geinsOMS.cart.copy({ id: cart.value?.id, loadCopy: true });
+        const newCartId = await $geinsOMS.value?.cart.copy({ id: cart.value?.id, loadCopy: true });
         cart.value = { id: newCartId } as CartType;
       } catch (e) {
         console.error('Failed to copy cart', e);
@@ -75,7 +100,6 @@ export const useGeinsClient = () => {
   };
 
   const initializeSummary = async (): Promise<boolean> => {
-    // set all the checkoutSettings from the token
     try {
       await setGeinsClient();
     } catch (e) {
@@ -106,10 +130,25 @@ export const useGeinsClient = () => {
   const getCheckoutSummary = async (
     orderId: string,
     paymentMethod: string,
+    cartId: string,
   ): Promise<CheckoutSummaryType | undefined> => {
-    const summary = await geinsOMS.checkout.summary({ orderId, paymentMethod });
+    if (!$geinsOMS.value) {
+      throw new Error('Geins OMS is not initialized');
+    }
+    const summary = await fetchFromClient(
+      'get-summary',
+      $geinsOMS.value.checkout.summary({ orderId, paymentMethod }),
+    );
     if (!summary) {
-      throw new Error('Failed to get order summary');
+      throw new Error('Failed to get summary');
+    }
+    const orderCart = await fetchFromClient('get-cart', $geinsOMS.value?.cart.get(cartId));
+    if (!orderCart) {
+      throw new Error('Failed to get cart');
+    }
+    cart.value = orderCart;
+    if (!cart.value.completed) {
+      await completeCart();
     }
     return summary;
   };
@@ -138,7 +177,7 @@ export const useGeinsClient = () => {
     const paymentMethodId = checkoutSettings.value?.selectedPaymentMethodId || options?.paymentMethodId;
     const shippingMethodId = checkoutSettings.value?.selectedShippingMethodId || options?.shippingMethodId;
 
-    const checkoutUrls = getCheckoutUrls(paymentMethodId);
+    checkoutUrls.value = getCheckoutUrls(paymentMethodId);
 
     const args: GetCheckoutOptions = {
       cartId: cart.value?.id,
@@ -146,21 +185,30 @@ export const useGeinsClient = () => {
       shippingMethodId,
       checkoutOptions: {
         customerType: checkoutSettings.value?.customerType,
-        checkoutUrls,
+        checkoutUrls: checkoutUrls.value,
         ...options?.checkoutOptions,
       },
     };
 
-    try {
-      const checkout = await geinsOMS.checkout.get(args);
-      if (!checkout) {
-        throw new Error('Failed to get checkout');
-      }
-      return checkout;
-    } catch (error) {
-      console.error('Error during getCheckout:', error);
-      throw error;
+    if (!$geinsOMS.value) {
+      throw new Error('Geins OMS is not initialized');
     }
+    const checkout = await fetchFromClient('get-checkout', $geinsOMS.value.checkout.get(args));
+
+    if (!checkout) {
+      throw new Error('Failed to get checkout');
+    }
+    return checkout;
+  };
+
+  const fetchFromClient = async <T>(key: string, promise: Promise<T>) => {
+    const { data, error } = await useAsyncData(key, () => {
+      return promise;
+    });
+    if (error.value) {
+      throw new Error(`Failed to fetch ${key}: ${error.value}`);
+    }
+    return data.value;
   };
 
   const getCheckoutUrls = (paymentMethodId?: number): CheckoutUrlsInputType | undefined => {
@@ -172,7 +220,7 @@ export const useGeinsClient = () => {
     if (checkoutSettings.value?.redirectUrls?.success) {
       urls.redirectUrl = checkoutSettings.value.redirectUrls.success;
     } else {
-      urls.redirectUrl = `${confirmationPageUrl.value}/{payment.uid}`;
+      urls.redirectUrl = confirmationPageUrl.value.replace('{orderId}', '{payment.uid}');
     }
 
     urls.redirectUrl = updateCheckoutUrlWithParameters({
@@ -193,7 +241,8 @@ export const useGeinsClient = () => {
 
   const updateCheckoutUrlWithParameters = (args: { url: string; paymentMethodId: number }): string => {
     const { url, params } = extractParametersFromUrl(args.url);
-    const parameters = geinsOMS.checkout.generateExternalCheckoutUrlParameters(params);
+
+    const parameters = $geinsOMS.value?.checkout.generateExternalCheckoutUrlParameters(params);
     if (!parameters) {
       return url;
     }
@@ -202,6 +251,12 @@ export const useGeinsClient = () => {
       .join('&');
     let newUrl = `${url}?${queryParams}`;
     newUrl = newUrl.replace('{geins.paymentMethodId}', args.paymentMethodId.toString());
+    if (args.paymentMethodId === PaymentMethodId.ManualInvoice) {
+      newUrl = newUrl
+        .replace('{geins.cartid}', cart.value?.id || '')
+        .replace('{geins.paymentType}', 'STANDARD');
+    }
+
     return newUrl;
   };
 
@@ -242,17 +297,19 @@ export const useGeinsClient = () => {
   };
 
   const createOrder = async (checkoutInput: { cartId: string; checkoutOptions: CheckoutInputType }) => {
-    const result = await geinsOMS.checkout.createOrder(checkoutInput);
+    const result = await $geinsOMS.value?.checkout.createOrder(checkoutInput);
     return result;
   };
 
-  const selectedPaymentMethod = computed(() => {
-    return paymentMethods.value?.find((method) => method.isSelected);
-  });
-
-  const selectedShippingMethod = computed(() => {
-    return shippingMethods.value?.find((method) => method.isSelected);
-  });
+  const completeCart = async () => {
+    try {
+      const result = await $geinsOMS.value?.cart.complete();
+      return result;
+    } catch (error) {
+      console.error('Error during completeCart:', error);
+      throw error;
+    }
+  };
 
   return {
     geinsSettings,
@@ -263,14 +320,18 @@ export const useGeinsClient = () => {
     user,
     checkoutObject,
     redirectUrls,
+    checkoutUrls,
     orderSummary,
     selectedPaymentMethod,
     selectedShippingMethod,
+    currentCountryName,
     initializeSummary,
     initializeCheckout,
     getCheckout,
     getCheckoutSummary,
     updateCheckout,
+    updateCheckoutUrlWithParameters,
     createOrder,
+    completeCart,
   };
 };

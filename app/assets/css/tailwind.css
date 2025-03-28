@@ -14,11 +14,12 @@
     --accent-foreground: 100 100% 100%;
 
     --border: 0 0% 92%;
-    --sale: 0 100% 36%;
-    --destructive: 0 100% 36%;
+    --sale: 118 84% 29%;
+    --error: 0 100% 36%;
 
     --radius: 0.5rem;
-    --font-size: 0.875rem;
+    --logo-size: 2rem;
+    --font-size: 1rem;
   }
 }
 

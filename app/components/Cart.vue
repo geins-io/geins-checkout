@@ -18,10 +18,10 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
 };
 </script>
 <template>
-  <Card class="mx-auto w-full max-w-3xl overflow-y-auto overflow-x-hidden lg:max-h-[72vh]">
-    <CardContent>
+  <Card class="mx-auto w-full max-w-3xl">
+    <CardContent v-if="cart?.items?.length">
       <!-- Single Item Cart -->
-      <div v-if="items.length === 1 && firstItem">
+      <div v-if="items?.length === 1 && firstItem">
         <div class="flex flex-col gap-3 lg:gap-6">
           <!-- Product Details -->
           <div class="flex justify-between">
@@ -55,7 +55,9 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
             :class="{ 'text-sale': firstItem.totalPrice?.isDiscounted }"
           >
             {{ getSellingPrice(firstItem.totalPrice) }}
-            <span v-if="!vatIncluded" class="text-sm text-card-foreground/80">ex. VAT</span>
+            <span v-if="!vatIncluded" class="text-sm text-card-foreground/80">
+              {{ $t('ex_vat') }}
+            </span>
           </div>
           <!-- Product Image -->
           <div class="relative mb-5 h-[45vh] w-full">
@@ -98,13 +100,13 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
                 <div class="flex items-center text-xs text-card-foreground/65 lg:mb-1">
                   <span class="text-xs lg:text-sm">{{ item.quantity }}</span>
                   <span class="mx-1 lg:mx-3">×</span>
-                  <span v-if="item.unitPrice" class="flex lg:flex-col text-xs lg:text-sm">
+                  <span v-if="item.unitPrice" class="flex text-xs lg:flex-col lg:text-sm">
                     <span :class="{ 'text-sale': item.unitPrice?.isDiscounted }">
                       {{ getSellingPrice(item.unitPrice) }}
                     </span>
                     <span
                       v-if="item.unitPrice?.isDiscounted"
-                      class="ml-2 text-[0.7rem] lg:leading-[0.8rem] line-through"
+                      class="ml-2 text-[0.7rem] line-through lg:leading-[0.8rem]"
                     >
                       {{ getRegularPrice(item.unitPrice) }}
                     </span>
@@ -116,7 +118,9 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
                   :class="{ 'text-sale': item.totalPrice?.isDiscounted }"
                 >
                   {{ getSellingPrice(item.totalPrice) }}
-                  <span v-if="!vatIncluded" class="text-[0.65rem] text-card-foreground/80">ex. VAT</span>
+                  <span v-if="!vatIncluded" class="text-[0.65rem] text-card-foreground/80">
+                    {{ $t('ex_vat') }}
+                  </span>
                 </div>
               </div>
             </div>
