@@ -51,7 +51,6 @@ export const useGeinsClient = () => {
     geinsSettings.value = parsedCheckoutToken.value.geinsSettings;
     redirectUrls.value = checkoutSettings.value?.redirectUrls;
 
-    // Set vatIncluded based on customer type
     vatIncluded.value = parsedCheckoutToken.value.checkoutSettings.customerType === CustomerType.PERSON;
     cart.value = { id: parsedCheckoutToken.value.cartId } as CartType;
   };
@@ -109,13 +108,14 @@ export const useGeinsClient = () => {
     return true;
   };
 
-  const initializeCheckout = async (): Promise<void> => {
+  const initializeCheckout = async (checkoutOptions: CheckoutInputType): Promise<void> => {
     await setGeinsClient();
     await copyCart();
 
     const checkout = await getCheckout({
-      paymentMethodId: checkoutSettings.value?.selectedPaymentMethodId,
-      shippingMethodId: checkoutSettings.value?.selectedShippingMethodId,
+      paymentMethodId: checkoutOptions.paymentId,
+      shippingMethodId: checkoutOptions.shippingId,
+      checkoutOptions,
     });
 
     if (checkout) {
@@ -184,7 +184,6 @@ export const useGeinsClient = () => {
       paymentMethodId,
       shippingMethodId,
       checkoutOptions: {
-        customerType: checkoutSettings.value?.customerType,
         checkoutUrls: checkoutUrls.value,
         ...options?.checkoutOptions,
       },

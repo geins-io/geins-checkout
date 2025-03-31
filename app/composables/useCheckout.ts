@@ -1,4 +1,4 @@
-import type { AddressInputType, CheckoutInputType, GeinsUserType } from '@geins/types';
+import type { CheckoutInputType, GeinsAddressType, GeinsUserType } from '@geins/types';
 import { CustomerType } from '@geins/types';
 
 export const useCheckout = () => {
@@ -16,16 +16,21 @@ export const useCheckout = () => {
   const redirectUrls = computed(() => geinsClient.redirectUrls.value);
   const currentCountryName = computed(() => geinsClient.currentCountryName.value);
 
-  const defaultAddress: AddressInputType = {
+  const defaultAddress: GeinsAddressType = {
     phone: '',
+    mobile: '',
     company: '',
     firstName: '',
     lastName: '',
     addressLine1: '',
+    addressLine2: '',
+    addressLine3: '',
     zip: '',
     careOf: '',
     city: '',
+    state: '',
     country: '',
+    entryCode: '',
   };
 
   const state = useState<CheckoutState>('checkout', () => ({
@@ -45,10 +50,11 @@ export const useCheckout = () => {
     const init = async () => {
       try {
         checkoutLoading.value = true;
-        await geinsClient.initializeCheckout();
-        await nextTick();
-        setShippingMethods();
-        setPaymentMethods();
+        loadUser(parsedCheckoutToken.value?.user);
+        setPaymentAndShippingIds();
+
+        const checkoutOptions = createCheckoutInput().checkoutOptions;
+        await geinsClient.initializeCheckout(checkoutOptions);
       } catch (e) {
         error.value = 'Failed to initialize checkout';
         console.error(e);
@@ -65,9 +71,13 @@ export const useCheckout = () => {
     watch(parsedCheckoutToken, init, { once: true });
   };
 
-  const _loadUser = async (user: GeinsUserType) => {
+  const loadUser = (user?: GeinsUserType) => {
+    if (!user) {
+      return;
+    }
     try {
       state.value.email = user.email;
+      state.value.identityNumber = user.personalId || '';
       if (user.address) {
         state.value.billingAddress = { ...user.address };
       }
@@ -106,12 +116,11 @@ export const useCheckout = () => {
     }
   };
 
-  const setShippingMethods = () => {
-    state.value.selectedShippingId = Number(geinsClient.selectedShippingMethod.value?.id);
-  };
-
-  const setPaymentMethods = () => {
-    state.value.selectedPaymentId = Number(geinsClient.selectedPaymentMethod.value?.id);
+  const setPaymentAndShippingIds = (paymentId?: number, shippingId?: number) => {
+    state.value.selectedPaymentId =
+      paymentId || parsedCheckoutToken.value?.checkoutSettings.selectedPaymentMethodId || 0;
+    state.value.selectedShippingId =
+      shippingId || parsedCheckoutToken.value?.checkoutSettings.selectedShippingMethodId || 0;
   };
 
   const updateCheckout = async () => {
@@ -128,8 +137,9 @@ export const useCheckout = () => {
         checkoutOptions: checkoutInput.checkoutOptions,
       });
 
-      setShippingMethods();
-      setPaymentMethods();
+      const paymentId = geinsClient.selectedPaymentMethod.value?.id;
+      const shippingId = geinsClient.selectedShippingMethod.value?.id;
+      setPaymentAndShippingIds(paymentId, shippingId);
     } catch (e) {
       error.value = 'Failed to update checkout';
       console.error(e);
@@ -141,10 +151,7 @@ export const useCheckout = () => {
     }
   };
 
-  const createCheckoutInput = (): {
-    cartId: string;
-    checkoutOptions: CheckoutInputType;
-  } => {
+  const createCheckoutInput = (): { cartId: string; checkoutOptions: CheckoutInputType } => {
     const cartId = geinsClient.cart.value?.id || '';
 
     return {
@@ -153,6 +160,7 @@ export const useCheckout = () => {
         email: state.value.email,
         customerType: parsedCheckoutToken.value?.checkoutSettings?.customerType ?? CustomerType.PERSON,
         paymentId: state.value.selectedPaymentId,
+        shippingId: state.value.selectedShippingId,
         billingAddress: state.value.billingAddress,
         acceptedConsents: ['order'],
         shippingAddress: state.value.useShippingAddress

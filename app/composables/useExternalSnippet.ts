@@ -20,7 +20,14 @@ export const useExternalSnippet = () => {
       }
       externalSnippetHtml.value = '';
       if (paymentMethod.paymentType === GeinsPaymentType.AvardaType) {
-        externalSnippetHtml.value = `<script src="https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>`;
+        useHead({
+          script: [
+            {
+              src: 'https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js',
+              async: true,
+            },
+          ],
+        });
       }
       externalSnippetHtml.value += paymentMethod.paymentData || '';
     }

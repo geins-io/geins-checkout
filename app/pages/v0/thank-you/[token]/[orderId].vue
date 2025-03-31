@@ -11,7 +11,6 @@ if (!orderId) {
 }
 
 await initializeSummary(orderId, query);
-console.log(orderSummary.value);
 </script>
 
 <template>
