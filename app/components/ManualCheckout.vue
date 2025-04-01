@@ -42,8 +42,6 @@ const handleCheckout = async () => {
 
   if (response.success && response.redirectUrl) {
     navigateTo(response.redirectUrl, { external: true });
-  } else {
-    console.warn('Unknown response:', response);
   }
 };
 

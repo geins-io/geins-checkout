@@ -8,12 +8,15 @@ import type {
 
 export const useCheckoutToken = () => {
   const config = useRuntimeConfig();
+  const { geinsLog, geinsLogError } = useGeinsLog('composables/useCheckoutToken.ts');
+
   const token = useState<string>('checkout-token');
   const parsedCheckoutToken = useState<CheckoutTokenPayload>('parsed-checkout-token');
   const latestVersion = useState<string>('latest-version', () => config.public.latestVersion);
   const currentVersion = useState<string>('current-version', () => config.public.latestVersion);
   const branding = useState<CheckoutBrandingType | undefined>('checkout-branding');
   const urls = useState<CheckoutRedirectsType | undefined>('checkout-urls');
+
   const logo = computed(() => branding.value?.logo);
   const icon = computed(() => branding.value?.icon);
   const title = computed(() => branding.value?.title);
@@ -50,9 +53,10 @@ export const useCheckoutToken = () => {
     if (!token.value) return false;
     try {
       parsedCheckoutToken.value = await parseToken(token.value);
+      geinsLog('parsed checkout token', parsedCheckoutToken.value);
     } catch (error) {
       token.value = '';
-      console.warn('Failed to parse checkout token', error);
+      geinsLogError('Failed to parse checkout token', error);
       return false;
     }
     if (!parsedCheckoutToken.value?.checkoutSettings) {
