@@ -29,6 +29,7 @@ export default defineI18nLocale(async () => {
     complete_checkout: 'Complete Checkout',
     processing: 'Processing',
     go_to_payment: 'Go to Payment',
+    continue_shopping: 'Continue shopping',
     loading: 'Loading',
     terms_and_conditions: 'Terms and Conditions',
     privacy_policy: 'Privacy Policy',

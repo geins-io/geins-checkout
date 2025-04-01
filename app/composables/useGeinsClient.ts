@@ -1,4 +1,3 @@
-import { PaymentMethodId } from '#shared/types';
 import { Channel, extractParametersFromUrl } from '@geins/core';
 import type {
   CartType,
@@ -15,11 +14,11 @@ import type {
   PaymentOptionType,
   ShippingOptionType,
 } from '@geins/types';
-import { CustomerType } from '@geins/types';
+import { CustomerType, PaymentOptionCheckoutType } from '@geins/types';
 
 export const useGeinsClient = () => {
   const { $geinsOMS, $createGeinsClient } = useNuxtApp();
-  const { geinsLog, geinsLogError } = useGeinsLog('composables/useGeinsClient.ts');
+  const { geinsLog, geinsLogError } = useGeinsLog('useGeinsClient.ts');
   const { parsedCheckoutToken, confirmationPageUrl, checkoutPageUrl } = useCheckoutToken();
   const { vatIncluded } = usePrice();
 
@@ -264,10 +263,10 @@ export const useGeinsClient = () => {
       .join('&');
     let newUrl = `${url}?${queryParams}`;
     newUrl = newUrl.replace('{geins.paymentMethodId}', args.paymentMethodId.toString());
-    if (args.paymentMethodId === PaymentMethodId.ManualInvoice) {
+    if (selectedPaymentMethod.value?.checkoutType === PaymentOptionCheckoutType.STANDARD) {
       newUrl = newUrl
         .replace('{geins.cartid}', cart.value?.id || '')
-        .replace('{geins.paymentType}', 'STANDARD');
+        .replace('{geins.paymentType}', PaymentOptionCheckoutType.STANDARD);
     }
 
     return newUrl;

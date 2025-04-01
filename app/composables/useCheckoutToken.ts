@@ -8,7 +8,7 @@ import type {
 
 export const useCheckoutToken = () => {
   const config = useRuntimeConfig();
-  const { geinsLog, geinsLogError } = useGeinsLog('composables/useCheckoutToken.ts');
+  const { geinsLog, geinsLogError } = useGeinsLog('useCheckoutToken.ts');
 
   const token = useState<string>('checkout-token');
   const parsedCheckoutToken = useState<CheckoutTokenPayload>('parsed-checkout-token');

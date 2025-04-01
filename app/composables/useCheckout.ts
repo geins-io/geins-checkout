@@ -1,13 +1,13 @@
 import type { CheckoutInputType, GeinsAddressType } from '@geins/types';
-import { CustomerType } from '@geins/types';
+import { CustomerType, PaymentOptionCheckoutType } from '@geins/types';
 
 export const useCheckout = () => {
   const geinsClient = useGeinsClient();
-  const { geinsLog, geinsLogError } = useGeinsLog('composables/useCheckout.ts');
+  const { geinsLog, geinsLogError } = useGeinsLog('useCheckout.ts');
+  const { vatIncluded } = usePrice();
   const { parsedCheckoutToken, urls, confirmationPageUrl } = useCheckoutToken();
   const { externalPaymentSelected, suspend, resume } = useExternalSnippet();
 
-  const globalLoading = useState<boolean>('global-loading', () => false);
   const checkoutLoading = useState<boolean>('checkout-loading', () => true);
 
   const error = ref('');
@@ -16,6 +16,15 @@ export const useCheckout = () => {
   const cart = computed(() => geinsClient.cart.value);
   const redirectUrls = computed(() => geinsClient.redirectUrls.value);
   const currentCountryName = computed(() => geinsClient.currentCountryName.value);
+  const checkoutType = computed(() => geinsClient.selectedPaymentMethod.value?.checkoutType);
+
+  const isPaymentInvoice = computed(() => checkoutType.value === PaymentOptionCheckoutType.STANDARD);
+  const useManualCheckout = computed(
+    () =>
+      !externalPaymentSelected.value &&
+      (isPaymentInvoice.value ||
+        (vatIncluded.value && checkoutType.value === PaymentOptionCheckoutType.GEINS_PAY)),
+  );
 
   const defaultAddress: GeinsAddressType = {
     phone: '',
@@ -155,6 +164,8 @@ export const useCheckout = () => {
   const createCheckoutInput = (): { cartId: string; checkoutOptions: CheckoutInputType } => {
     const cartId = geinsClient.cart.value?.id || '';
 
+    const skipShippingValidation = !state.value.billingAddress?.zip;
+
     return {
       cartId: cartId,
       checkoutOptions: {
@@ -169,7 +180,7 @@ export const useCheckout = () => {
           : state.value.billingAddress,
         message: state.value.message,
         identityNumber: state.value.identityNumber,
-        skipShippingValidation: true,
+        skipShippingValidation,
       },
     };
   };
@@ -234,13 +245,14 @@ export const useCheckout = () => {
 
   return {
     state,
-    globalLoading,
     checkoutLoading,
     error,
     checkoutSettings,
     cart,
     redirectUrls,
     currentCountryName,
+    isPaymentInvoice,
+    useManualCheckout,
     initializeCheckout,
     updateCheckoutData,
     updateCheckout,

@@ -1,8 +1,9 @@
 import type { CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types';
+import { PaymentOptionCheckoutType } from '@geins/types';
 
 export const useSummary = () => {
   const geinsClient = useGeinsClient();
-  const { geinsLog, geinsLogError } = useGeinsLog('composables/useSummary.ts');
+  const { geinsLog, geinsLogError } = useGeinsLog('useSummary.ts');
   const { parsedCheckoutToken } = useCheckoutToken();
   const { externalSnippetHtml } = useExternalSnippet();
 
@@ -66,7 +67,7 @@ export const useSummary = () => {
 
   const parseQueryParameters = (checkoutQueryParams: CheckoutQueryParameters) => {
     const orderId = checkoutQueryParams['geins-uid'] ?? '';
-    const paymentMethod = checkoutQueryParams['geins-pt'] ?? 'STANDARD';
+    const paymentMethod = checkoutQueryParams['geins-pt'] ?? PaymentOptionCheckoutType.STANDARD;
     const cartId = checkoutQueryParams['geins-cart'] ?? '';
 
     return { orderId, paymentMethod, cartId };

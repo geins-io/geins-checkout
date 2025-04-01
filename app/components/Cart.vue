@@ -22,7 +22,7 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
     <CardContent v-if="cart?.items?.length">
       <!-- Single Item Cart -->
       <div v-if="items?.length === 1 && firstItem">
-        <div class="flex flex-col gap-3 lg:gap-6">
+        <div class="flex flex-col gap-3 lg:gap-[2vh]">
           <!-- Product Details -->
           <div class="flex justify-between">
             <div>

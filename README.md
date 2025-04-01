@@ -22,7 +22,9 @@
 - [x] Change order in url
 - [x] Global inc/ex vat state set from token settings
 - [x] Address country from market
-- [ ] Use paymentType and not paymentId
+- [x] Use paymentType and not paymentId
+- [ ] Size in cart
+- [ ] If checkout cart empty
 
 ### Before v0 release
 
