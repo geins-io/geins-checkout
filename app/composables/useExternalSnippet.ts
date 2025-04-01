@@ -3,11 +3,15 @@ import type { PaymentOptionType } from '@geins/types';
 import { GeinsPaymentType } from '@geins/types';
 
 export const useExternalSnippet = () => {
+  const { geinsLog, geinsLogError, geinsLogInfo } = useGeinsLog('composables/useExternalSnippet.ts');
   const { selectedPaymentMethod } = useGeinsClient();
+
   const externalSnippetHtml = useState<string>('external-html', () => '');
+  const externalSnippetRendered = useState<boolean>('external-rendered', () => false);
+  const suspended = useState<boolean>('external-suspended', () => false);
+
   const externalPaymentSelected = computed(() => !!selectedPaymentMethod.value?.paymentData);
   const hasExternalSnippet = computed(() => !!externalSnippetHtml.value);
-  const suspended = ref(false);
 
   const renderExternalSnippet = async (
     type: ExternalSnippetType = ExternalSnippetType.Checkout,
@@ -20,13 +24,20 @@ export const useExternalSnippet = () => {
       }
       externalSnippetHtml.value = '';
       if (paymentMethod.paymentType === GeinsPaymentType.AvardaType) {
-        externalSnippetHtml.value = `<script src="https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js"></script>`;
+        useHead({
+          script: [
+            {
+              src: 'https://stage.checkout-cdn.avarda.com/cdn/static/js/main.js',
+              async: true,
+            },
+          ],
+        });
       }
       externalSnippetHtml.value += paymentMethod.paymentData || '';
     }
 
     if (!externalSnippetHtml.value) {
-      console.warn('No external snippet found');
+      geinsLogError('no external snippet found');
       return;
     }
 
@@ -49,23 +60,26 @@ export const useExternalSnippet = () => {
         checkoutExternal.appendChild(newScript);
         initExternalEventListeners();
       } else {
-        console.error('Container not found');
+        geinsLogError('external snippet container missing');
+        return;
       }
     });
+    externalSnippetRendered.value = true;
+    geinsLog('external snippet rendered');
   };
 
   const initExternalEventListeners = () => {
     if (selectedPaymentMethod.value?.paymentType === GeinsPaymentType.GeinsPayType) {
       if (window._briqpay) {
-        window._briqpay.subscribe('make_desicion', function (data) {
-          console.log('make_desicion', data);
+        window._briqpay.subscribe('make_decision', function (data) {
+          geinsLogInfo('make_decision', data);
         });
       }
     }
   };
 
   const suspend = () => {
-    if (externalSnippetHtml.value) {
+    if (externalSnippetRendered.value) {
       switch (selectedPaymentMethod.value?.paymentType) {
         case GeinsPaymentType.KlarnaType:
           if (window._klarnaCheckout) {
@@ -97,7 +111,7 @@ export const useExternalSnippet = () => {
     }
   };
   const resume = () => {
-    if (externalSnippetHtml.value && suspended.value) {
+    if (externalSnippetRendered.value && suspended.value) {
       switch (selectedPaymentMethod.value?.paymentType) {
         case GeinsPaymentType.KlarnaType:
           if (window._klarnaCheckout) {
@@ -130,7 +144,7 @@ export const useExternalSnippet = () => {
           return;
       }
       suspended.value = false;
-    } else {
+    } else if (!externalSnippetRendered.value) {
       renderExternalSnippet();
     }
   };
@@ -138,7 +152,9 @@ export const useExternalSnippet = () => {
   return {
     externalSnippetHtml,
     externalPaymentSelected,
+    externalSnippetRendered,
     hasExternalSnippet,
+    suspended,
     renderExternalSnippet,
     initExternalEventListeners,
     suspend,

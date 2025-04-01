@@ -1,4 +1,4 @@
-import type { AddressInputType } from '@geins/types';
+import type { GeinsAddressType } from '@geins/types';
 
 export const enum ExternalSnippetType {
   Checkout = 'checkout',
@@ -18,15 +18,15 @@ export interface CheckoutFormType {
   email?: string;
   message?: string;
   identityNumber?: string;
-  address?: AddressInputType;
+  address?: GeinsAddressType;
 }
 
 export interface CheckoutState {
   email: string;
   identityNumber: string;
   message: string;
-  billingAddress?: AddressInputType;
-  shippingAddress?: AddressInputType;
+  billingAddress?: GeinsAddressType;
+  shippingAddress?: GeinsAddressType;
   selectedPaymentId: number;
   selectedShippingId: number;
   externalSnippetHtml: string;

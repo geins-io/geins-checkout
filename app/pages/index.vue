@@ -9,7 +9,7 @@ import Logo from '@/assets/logos/geins.svg';
     </div>
     <NuxtLayout name="default" class="hidden lg:grid">
       <template #checkout>
-        <div class="flex h-screen" />
+        <div />
       </template>
     </NuxtLayout>
   </div>

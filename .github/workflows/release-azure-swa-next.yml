@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     env:
+      GEINS_DEBUG: ${{ vars.GEINS_DEBUG }}
       NITRO_PRESET: ${{ vars.NITRO_PRESET_AZURE_SWA }}
       LATEST_VERSION: ${{ vars.LATEST_VERSION }}
       BASE_URL: ${{ vars.BASE_URL }}

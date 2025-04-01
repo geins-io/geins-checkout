@@ -2,27 +2,29 @@ import type { CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types'
 
 export const useSummary = () => {
   const geinsClient = useGeinsClient();
+  const { geinsLog, geinsLogError } = useGeinsLog('composables/useSummary.ts');
   const { parsedCheckoutToken } = useCheckoutToken();
   const { externalSnippetHtml } = useExternalSnippet();
 
   const checkoutLoading = useState<boolean>('checkout-loading', () => true);
-  const continueShoppingUrl = ref('');
+
   const error = ref('');
   const orderSummary = ref<CheckoutSummaryType>();
-  const cart = computed(() => geinsClient.cart.value);
   const summaryOrderId = ref('');
+
+  const cart = computed(() => geinsClient.cart.value);
 
   const initializeSummary = async (orderId: string, checkoutQueryParams: CheckoutQueryParameters) => {
     const init = async () => {
       try {
         checkoutLoading.value = true;
         await geinsClient.initializeSummary();
-        continueShoppingUrl.value = geinsClient.redirectUrls.value?.cancel || '';
 
         orderSummary.value = await getCheckoutSummary({ orderId, checkoutQueryParams });
+        geinsLog('order summary fetched', orderSummary.value);
       } catch (e) {
         error.value = 'Failed to initialize summary';
-        console.error(e);
+        geinsLogError(error.value, e);
       } finally {
         checkoutLoading.value = false;
       }
@@ -39,7 +41,7 @@ export const useSummary = () => {
   const getCheckoutSummary = async (args: {
     orderId: string;
     checkoutQueryParams: CheckoutQueryParameters;
-  }): Promise<CheckoutSummaryType> => {
+  }): Promise<CheckoutSummaryType | undefined> => {
     const queryStringArgs = parseQueryParameters(args.checkoutQueryParams);
     summaryOrderId.value = queryStringArgs.orderId;
     if (!args.orderId && !queryStringArgs.orderId) {
@@ -74,7 +76,6 @@ export const useSummary = () => {
     checkoutLoading,
     error,
     cart,
-    continueShoppingUrl,
     orderSummary,
     summaryOrderId,
     initializeSummary,

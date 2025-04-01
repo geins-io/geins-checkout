@@ -10,13 +10,13 @@ const isHomePage = computed(() => path === '/');
     <div
       :class="
         cn(
-          'bg-background px-[4vw] py-6 text-foreground lg:h-screen lg:overflow-y-auto lg:overflow-x-hidden lg:py-0',
+          'bg-background px-[4vw] py-6 text-foreground lg:overflow-y-auto lg:overflow-x-hidden lg:py-0',
           `${!globalLoading ? 'lg:pb-16' : ''}`,
         )
       "
     >
-      <div v-if="!globalLoading" class="flex flex-col gap-6 lg:h-full lg:justify-center lg:gap-[2vh]">
-        <Header v-if="!isHomePage" />
+      <div v-if="!globalLoading" class="flex flex-col gap-6 lg:h-full lg:justify-center lg:gap-6">
+        <Header v-if="!isHomePage" class="lg:mt-4" />
         <slot name="cart" />
       </div>
       <div v-else-if="!isHomePage" class="flex h-full items-center justify-center">
