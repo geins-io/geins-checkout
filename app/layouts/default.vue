@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Logo from '@/assets/logos/geins.svg';
 const { path } = useRoute();
-const { globalLoading } = useCheckout();
 const isHomePage = computed(() => path === '/');
 </script>
 
@@ -9,28 +8,19 @@ const isHomePage = computed(() => path === '/');
   <div class="grid lg:grid-cols-2">
     <div
       :class="
-        cn(
-          'bg-background px-[4vw] py-6 text-foreground lg:overflow-y-auto lg:overflow-x-hidden lg:py-0',
-          `${!globalLoading ? 'lg:pb-16' : ''}`,
-        )
+        cn('bg-background px-[4vw] py-6 text-foreground lg:overflow-y-auto lg:overflow-x-hidden lg:py-0')
       "
     >
-      <div v-if="!globalLoading" class="flex flex-col gap-6 lg:h-full lg:justify-center lg:gap-6">
-        <Header v-if="!isHomePage" class="lg:mt-4" />
+      <div class="flex flex-col gap-6 lg:h-full lg:justify-center lg:py-4">
+        <Header v-if="!isHomePage" class="lg:mt-[-5vh]" />
         <slot name="cart" />
-      </div>
-      <div v-else-if="!isHomePage" class="flex h-full items-center justify-center">
-        <Loading class="m-auto size-10" />
       </div>
     </div>
     <div
       class="bg-card px-[4vw] py-12 text-card-foreground lg:flex lg:h-screen lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:py-[8vh]"
     >
-      <div v-if="!globalLoading" class="lg:my-auto">
+      <div class="lg:my-auto">
         <slot name="checkout" />
-      </div>
-      <div v-else-if="!isHomePage" class="flex h-full items-center justify-center">
-        <Loading class="m-auto size-10 rotate-90" />
       </div>
     </div>
     <footer

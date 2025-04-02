@@ -1,19 +1,10 @@
 <script setup lang="ts">
-import { ExternalSnippetType, PaymentMethodId } from '#shared/types';
+import { ExternalSnippetType } from '#shared/types';
 const { urls } = useCheckoutToken();
-const { state, cart, initializeCheckout, updateCheckout } = useCheckout();
+const { cart, useManualCheckout, isPaymentInvoice, initializeCheckout, updateCheckout } = useCheckout();
 const { externalPaymentSelected } = useExternalSnippet();
-const { vatIncluded } = usePrice();
 
 await initializeCheckout();
-
-const isPaymentInvoice = computed(() => state.value.selectedPaymentId === PaymentMethodId.ManualInvoice);
-const useManualCheckout = computed(
-  () =>
-    !externalPaymentSelected.value &&
-    (isPaymentInvoice.value ||
-      (vatIncluded.value && state.value.selectedPaymentId === PaymentMethodId.GeinsPay)),
-);
 
 const nextStep = async () => {
   await updateCheckout();

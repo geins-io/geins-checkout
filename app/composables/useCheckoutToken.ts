@@ -8,7 +8,7 @@ import type {
 
 export const useCheckoutToken = () => {
   const config = useRuntimeConfig();
-  const { geinsLog, geinsLogError } = useGeinsLog('composables/useCheckoutToken.ts');
+  const { geinsLog, geinsLogError } = useGeinsLog('useCheckoutToken.ts');
 
   const token = useState<string>('checkout-token');
   const parsedCheckoutToken = useState<CheckoutTokenPayload>('parsed-checkout-token');
@@ -56,7 +56,7 @@ export const useCheckoutToken = () => {
       geinsLog('parsed checkout token', parsedCheckoutToken.value);
     } catch (error) {
       token.value = '';
-      geinsLogError('Failed to parse checkout token', error);
+      geinsLogError('failed to parse checkout token :::', error);
       return false;
     }
     if (!parsedCheckoutToken.value?.checkoutSettings) {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ExternalSnippetType } from '#shared/types';
+const { urls } = useCheckoutToken();
 const { orderSummary, summaryOrderId, initializeSummary } = useSummary();
 const { hasExternalSnippet } = useExternalSnippet();
 const { cart } = useCheckout();
@@ -20,7 +21,7 @@ await initializeSummary(orderId, query);
         <Card class="mx-auto w-full max-w-3xl">
           <CardContent>
             <ExternalSnippet v-if="hasExternalSnippet" :type="ExternalSnippetType.Summary" />
-            <div v-else-if="orderSummary" class="lg:p-6 lg:pb-3">
+            <div v-else-if="orderSummary" class="flex flex-col items-center lg:p-6 lg:pb-3">
               <p class="mt-2 text-center text-xs font-light uppercase text-card-foreground lg:text-sm">
                 {{ $t('order_number') }}:
                 <span class="inline-block rounded-lg bg-background px-2 py-1 font-bold text-foreground">
@@ -35,9 +36,19 @@ await initializeSummary(orderId, query);
               >
                 {{ $t('confirmation_page_text') }}
               </p>
-              <CartSummary v-if="cart?.summary" :summary="cart.summary" class="mt-4" />
+              <Button
+                v-if="urls?.continue"
+                as-child
+                variant="outline"
+                class="inline-flex items-center border-foreground/60 hover:border-foreground/20 hover:bg-transparent hover:text-foreground md:hidden"
+              >
+                <a :href="urls.continue">
+                  {{ $t('continue_shopping') }}
+                  <LucideArrowRight />
+                </a>
+              </Button>
+              <CartSummary v-if="cart?.summary" :summary="cart.summary" class="mt-4 w-full" />
             </div>
-            <Loading v-else />
           </CardContent>
         </Card>
       </template>

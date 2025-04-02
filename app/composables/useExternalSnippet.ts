@@ -1,16 +1,18 @@
 import { ExternalSnippetType } from '#shared/types';
 import type { PaymentOptionType } from '@geins/types';
-import { GeinsPaymentType } from '@geins/types';
+import { GeinsPaymentType, PaymentOptionCheckoutType } from '@geins/types';
 
 export const useExternalSnippet = () => {
-  const { geinsLog, geinsLogError, geinsLogInfo } = useGeinsLog('composables/useExternalSnippet.ts');
+  const { geinsLog, geinsLogError, geinsLogInfo } = useGeinsLog('useExternalSnippet.ts');
   const { selectedPaymentMethod } = useGeinsClient();
 
   const externalSnippetHtml = useState<string>('external-html', () => '');
   const externalSnippetRendered = useState<boolean>('external-rendered', () => false);
   const suspended = useState<boolean>('external-suspended', () => false);
 
-  const externalPaymentSelected = computed(() => !!selectedPaymentMethod.value?.paymentData);
+  const externalPaymentSelected = computed(
+    () => selectedPaymentMethod.value?.checkoutType === PaymentOptionCheckoutType.EXTERNAL,
+  );
   const hasExternalSnippet = computed(() => !!externalSnippetHtml.value);
 
   const renderExternalSnippet = async (

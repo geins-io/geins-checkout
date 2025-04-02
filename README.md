@@ -22,7 +22,10 @@
 - [x] Change order in url
 - [x] Global inc/ex vat state set from token settings
 - [x] Address country from market
-- [ ] Use paymentType and not paymentId
+- [x] Use paymentType and not paymentId
+- [x] SKU in cart
+- [ ] If checkout cart empty
+- [x] Meta title
 
 ### Before v0 release
 
@@ -36,7 +39,6 @@
 - [ ] Add a discount code to the order
 - [ ] Add a way to add custom fields to the checkout form
 - [ ] User authentication
-- [ ] Show sku in cart
 - [ ] Special Avarda implementations
 - [ ] Fix so that all external checkouts works properly
-- [ ] See to that all available payment methods are working as intended, redirecting to correct page
+- [ ] Show address in step 2 for Geins Pay - with option to edit

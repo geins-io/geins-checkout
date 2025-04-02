@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Logo from '@/assets/logos/geins.svg';
-const { globalLoading } = useCheckout();
 </script>
 
 <template>
@@ -11,11 +10,8 @@ const { globalLoading } = useCheckout();
       )
     "
   >
-    <div
-      v-if="!globalLoading"
-      class="my-auto flex flex-col gap-6 lg:size-full lg:justify-center lg:gap-[2vh]"
-    >
-      <Header />
+    <div class="my-auto flex flex-col gap-6 lg:size-full lg:justify-center lg:gap-[2vh]">
+      <Header :confirm-page="true" />
       <slot name="summary" />
       <slot name="cart" />
       <footer class="mx-auto flex gap-2 py-6">
