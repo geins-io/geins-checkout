@@ -44,7 +44,7 @@ const getSkuName = (item: CartItemType): string => {
               >
                 {{ getSkuName(firstItem) }}
               </div>
-              <div class="mb-1 flex items-center justify-end text-xs text-card-foreground/65">
+              <div class="mb-0.5 flex items-center justify-end text-xs text-card-foreground/65">
                 <span class="text-sm">{{ firstItem.quantity }}</span>
                 <span class="mx-2">×</span>
                 <span v-if="firstItem?.unitPrice" class="flex flex-col text-sm">
