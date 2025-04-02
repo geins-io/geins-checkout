@@ -31,7 +31,7 @@ export default defineI18nLocale(async () => {
     go_to_payment: 'Go to Payment',
     continue_shopping: 'Continue shopping',
     loading: 'Loading',
-    terms_and_conditions: 'Terms and Conditions',
+    terms_and_conditions: 'Terms & Conditions',
     privacy_policy: 'Privacy Policy',
     ex_vat: 'ex. VAT',
     form_label_email: 'Email',

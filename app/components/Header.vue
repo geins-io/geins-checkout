@@ -24,12 +24,8 @@ const _props = defineProps<{
       <AvatarImage v-if="icon" :src="icon" :alt="title" />
       <AvatarFallback class="text-xl font-bold tracking-wider">{{ iconFallback }}</AvatarFallback>
     </Avatar>
-    <img
-      v-if="logo"
-      :src="logo"
-      :class="cn(`h-logo w-auto pr-6 mr-6`, `${!!title ? 'border-r border-foreground' : ''}`)"
-    />
-    <h1 v-if="title" class="text-xl font-semibold tracking-wide">{{ title }}</h1>
+    <img v-if="logo" :src="logo" :class="cn(`h-logo w-auto pr-6 mr-6`)" />
+    <h1 v-if="title && !logo" class="text-xl font-semibold tracking-wide">{{ title }}</h1>
     <Button
       v-if="urls?.continue && confirmPage"
       as-child

@@ -56,7 +56,7 @@ export const useCheckoutToken = () => {
       geinsLog('parsed checkout token', parsedCheckoutToken.value);
     } catch (error) {
       token.value = '';
-      geinsLogError('Failed to parse checkout token', error);
+      geinsLogError('failed to parse checkout token :::', error);
       return false;
     }
     if (!parsedCheckoutToken.value?.checkoutSettings) {

@@ -16,22 +16,34 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
   const fileName = item?.product?.productImages?.[0]?.fileName;
   return getProductImageUrl(fileName) || undefined;
 };
+
+const getSkuName = (item: CartItemType): string => {
+  const skuId = item?.skuId;
+  const sku = item.product?.skus?.find((skuItem) => skuItem.skuId === skuId);
+  const name = !sku?.name || sku?.name === '-' ? 'ONE SIZE' : sku.name;
+  return name;
+};
 </script>
 <template>
   <Card class="mx-auto w-full max-w-3xl">
     <CardContent v-if="cart?.items?.length">
       <!-- Single Item Cart -->
       <div v-if="items?.length === 1 && firstItem">
-        <div class="flex flex-col gap-3 lg:gap-[2vh]">
+        <div class="flex flex-col">
           <!-- Product Details -->
           <div class="flex justify-between">
-            <div>
-              <p class="text-md font-bold uppercase text-card-foreground/80">
+            <div class="pr-2">
+              <p class="md:text-md text-sm font-bold uppercase text-card-foreground/80">
                 {{ firstItem.product?.brand?.name }}
               </p>
-              <h3 class="pr-2 text-lg font-thin lg:text-4xl">{{ firstItem.title }}</h3>
+              <h3 class="text-xl font-thin lg:text-[3.1vh] lg:leading-[3.1vh]">{{ firstItem.title }}</h3>
             </div>
             <div class="flex flex-col justify-end">
+              <div
+                class="mb-auto self-end rounded-lg bg-background px-2 py-0.5 text-[0.7rem] text-foreground md:text-xs lg:text-sm"
+              >
+                {{ getSkuName(firstItem) }}
+              </div>
               <div class="mb-1 flex items-center justify-end text-xs text-card-foreground/65">
                 <span class="text-sm">{{ firstItem.quantity }}</span>
                 <span class="mx-2">×</span>
@@ -51,7 +63,7 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
           </div>
           <div
             v-if="firstItem.totalPrice"
-            class="text-3xl text-card-foreground lg:mb-5 lg:text-[40px]"
+            class="mt-[1vh] text-3xl text-card-foreground lg:text-[3.5vh] lg:leading-[3.5vh]"
             :class="{ 'text-sale': firstItem.totalPrice?.isDiscounted }"
           >
             {{ getSellingPrice(firstItem.totalPrice) }}
@@ -60,7 +72,7 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
             </span>
           </div>
           <!-- Product Image -->
-          <div class="relative mb-5 h-[45vh] w-full">
+          <div class="relative mb-[1vh] mt-[3vh] h-[45vh] w-full">
             <NuxtImg
               v-if="getImgUrl(firstItem)"
               :src="getImgUrl(firstItem)"
@@ -90,11 +102,16 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
 
             <!-- Product Details -->
             <div class="flex w-full flex-col pt-1 lg:gap-2">
-              <div>
+              <div class="mb-2 lg:mb-0">
                 <p class="text-[0.65rem] font-bold uppercase text-card-foreground/80 lg:text-xs">
                   {{ item.product?.brand?.name }}
                 </p>
-                <h3 class="mb-1 text-lg font-thin lg:text-xl">{{ item.title }}</h3>
+                <h3 class="mb-0.5 text-lg font-thin leading-5 lg:mb-1 lg:text-xl">{{ item.title }}</h3>
+                <div
+                  class="inline-block rounded-lg bg-background px-2 py-0.5 text-[0.7rem] text-foreground md:text-xs lg:text-sm"
+                >
+                  {{ getSkuName(item) }}
+                </div>
               </div>
               <div class="w-full items-center justify-between lg:flex">
                 <div class="flex items-center text-xs text-card-foreground/65 lg:mb-1">
@@ -130,5 +147,3 @@ const getImgUrl = (item?: CartItemType): string | undefined => {
     </CardContent>
   </Card>
 </template>
-
-<style></style>
