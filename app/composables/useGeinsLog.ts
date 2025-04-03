@@ -17,10 +17,7 @@ interface GeinsLogger {
  */
 export function useGeinsLog(scope: string = ''): GeinsLogger {
   const config = useRuntimeConfig();
-  const { geinsLog, geinsLogError, geinsLogInfo, geinsLogWarn } = log(
-    scope,
-    config.public.debug,
-  );
+  const { geinsLog, geinsLogError, geinsLogInfo, geinsLogWarn } = log(scope, config.public.debug);
 
   return {
     geinsLog,

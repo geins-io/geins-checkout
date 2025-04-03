@@ -16,7 +16,36 @@ import type {
 } from '@geins/types';
 import { CustomerType, PaymentOptionCheckoutType } from '@geins/types';
 
-export const useGeinsClient = () => {
+/**
+ * A composable function that provides functionality for managing the Geins client.
+ * It includes state management, computed properties, and methods for initializing,
+ * updating, and interacting with the checkout process, cart, and orders.
+ *
+ * @returns {UseGeinsClientComposable} An object containing state, computed properties, and methods for managing the Geins client.
+ *
+ * @property {Ref<GeinsSettings | undefined>} geinsSettings - Reactive state for Geins settings.
+ * @property {Ref<CheckoutSettings | undefined>} checkoutSettings - Reactive state for checkout settings.
+ * @property {Ref<CartType | undefined>} cart - Reactive state for the current cart.
+ * @property {Ref<PaymentOptionType[]>} paymentMethods - Reactive state for available payment methods.
+ * @property {Ref<ShippingOptionType[]>} shippingMethods - Reactive state for available shipping methods.
+ * @property {Ref<GeinsUserType | undefined>} user - Reactive state for the user information.
+ * @property {Ref<CheckoutType | undefined>} checkoutObject - Reactive state for the checkout object.
+ * @property {Ref<CheckoutRedirectsType | undefined>} redirectUrls - Reactive state for redirect URLs.
+ * @property {Ref<CheckoutUrlsInputType | undefined>} checkoutUrls - Reactive state for checkout URLs.
+ * @property {Ref<CheckoutSummaryType | undefined>} orderSummary - Reactive state for the checkout summary.
+ * @property {ComputedRef<PaymentOptionType | undefined>} selectedPaymentMethod - Computed property for the selected payment method.
+ * @property {ComputedRef<ShippingOptionType | undefined>} selectedShippingMethod - Computed property for the selected shipping method.
+ * @property {Ref<string>} currentCountryName - Reactive state for the current country name.
+ * @property {() => Promise<boolean>} initializeSummary - Method to initialize the summary.
+ * @property {(checkoutOptions: CheckoutInputType) => Promise<void>} initializeCheckout - Method to initialize the checkout process.
+ * @property {(options?: { paymentMethodId?: number; shippingMethodId?: number; checkoutOptions?: CheckoutInputType }, useSSR?: boolean) => Promise<CheckoutType>} getCheckout - Method to retrieve the checkout object.
+ * @property {(orderId: string, paymentMethod: string, cartId: string) => Promise<CheckoutSummaryType | undefined>} getCheckoutSummary - Method to retrieve the checkout summary.
+ * @property {(options?: { paymentMethodId?: number; shippingMethodId?: number; checkoutOptions?: CheckoutInputType }) => Promise<void>} updateCheckout - Method to update the checkout process.
+ * @property {(args: { url: string; paymentMethodId: number }) => string} updateCheckoutUrlWithParameters - Method to update a checkout URL with parameters.
+ * @property {(checkoutInput: { cartId: string; checkoutOptions: CheckoutInputType }) => Promise<any>} createOrder - Method to create an order.
+ * @property {() => Promise<any>} completeCart - Method to complete the cart.
+ */
+export const useGeinsClient = (): UseGeinsClientComposable => {
   const { $geinsOMS, $createGeinsClient } = useNuxtApp();
   const { geinsLog, geinsLogError } = useGeinsLog('useGeinsClient.ts');
   const { parsedCheckoutToken, confirmationPageUrl, checkoutPageUrl } = useCheckoutToken();

@@ -1,7 +1,29 @@
 import type { CheckoutInputType, GeinsAddressType } from '@geins/types';
 import { CustomerType, PaymentOptionCheckoutType } from '@geins/types';
-
-export const useCheckout = () => {
+/**
+ * A composable function that provides functionality for managing the checkout process.
+ * It includes state management, computed properties, and methods for initializing,
+ * updating, and completing the checkout process.
+ *
+ * @returns {UseCheckoutComposable} An object containing state, computed properties, and methods for checkout management.
+ *
+ * @property {Ref<CheckoutState>} state - Reactive state object for checkout data.
+ * @property {Ref<boolean>} checkoutLoading - Reactive boolean indicating if a checkout operation is in progress.
+ * @property {Ref<string>} error - Reactive string for storing error messages.
+ * @property {ComputedRef<CheckoutSettings>} checkoutSettings - Computed property for checkout settings.
+ * @property {ComputedRef<CartType>} cart - Computed property for the current cart.
+ * @property {ComputedRef<boolean>} cartEmpty - Computed property indicating if the cart is empty.
+ * @property {ComputedRef<CheckoutRedirectsType>} redirectUrls - Computed property for redirect URLs.
+ * @property {ComputedRef<string>} currentCountryName - Computed property for the current country name.
+ * @property {ComputedRef<boolean>} isPaymentInvoice - Computed property indicating if the payment method is invoice.
+ * @property {ComputedRef<boolean>} useManualCheckout - Computed property indicating if manual checkout is used.
+ * @property {() => Promise<void>} initializeCheckout - Method to initialize the checkout process.
+ * @property {(type: 'billing' | 'shipping', data: CheckoutFormType) => Promise<void>} updateCheckoutData - Method to update billing or shipping data.
+ * @property {() => Promise<void>} updateCheckout - Method to update the checkout process.
+ * @property {() => Promise<CompleteCheckoutResponse>} completeCheckout - Method to complete the checkout process.
+ * @property {(response: CompleteCheckoutResponse) => string} getRedirectUrl - Method to get the redirect URL based on the checkout response.
+ */
+export const useCheckout = (): UseCheckoutComposable => {
   const geinsClient = useGeinsClient();
   const { geinsLog, geinsLogWarn, geinsLogError } = useGeinsLog('useCheckout.ts');
   const { vatIncluded } = usePrice();
@@ -263,5 +285,6 @@ export const useCheckout = () => {
     updateCheckoutData,
     updateCheckout,
     completeCheckout,
+    getRedirectUrl,
   };
 };
