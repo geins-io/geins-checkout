@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import chalk from 'chalk';
-import type { LogMethod, GeinsLogger } from '#shared/types';
+
+type LogMethod = 'log' | 'warn' | 'error' | 'info';
+interface GeinsLogger {
+  geinsLog: (...args: any[]) => void;
+  geinsLogWarn: (...args: any[]) => void;
+  geinsLogError: (...args: any[]) => void;
+  geinsLogInfo: (...args: any[]) => void;
+}
 
 /**
  * Utility to log messages with a Geins tag
@@ -22,13 +29,8 @@ export function log(scope?: string, debug: boolean = false): GeinsLogger {
       }
       let formattedMessage = scope ? `${scope} ::: ${message}` : message;
       if (import.meta.nitro || import.meta.server) {
-        formattedMessage = scope
-          ? `${chalk.bold.bgBlack(scope)} ::: ${message}`
-          : message;
-        console[method](
-          `${chalk.bgWhite.bold.red(' geins ')} ${formattedMessage}`,
-          ...args,
-        );
+        formattedMessage = scope ? `${chalk.bold.bgBlack(scope)} ::: ${message}` : message;
+        console[method](`${chalk.bgWhite.bold.red(' geins ')} ${formattedMessage}`, ...args);
       } else {
         console[method](logTag, logStyle, formattedMessage, ...args);
       }

@@ -126,3 +126,11 @@ export interface UseGeinsClientComposable {
   }) => Promise<CreateOrderResponseType>;
   completeCart: () => Promise<boolean>;
 }
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface UseGeinsLogComposable {
+  geinsLog: (...args: any[]) => void;
+  geinsLogError: (...args: any[]) => void;
+  geinsLogInfo: (...args: any[]) => void;
+  geinsLogWarn: (...args: any[]) => void;
+}
