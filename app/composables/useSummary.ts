@@ -1,7 +1,19 @@
 import type { CheckoutQueryParameters, CheckoutSummaryType } from '@geins/types';
 import { PaymentOptionCheckoutType } from '@geins/types';
 
-export const useSummary = () => {
+/**
+ * A composable function for managing the checkout summary.
+ *
+ * @returns {UseSummaryComposable} An object containing state and methods for summary management.
+ *
+ * @property {Ref<boolean>} checkoutLoading - Reactive boolean indicating if the summary is loading.
+ * @property {Ref<string>} error - Reactive string for storing error messages.
+ * @property {ComputedRef<CartType>} cart - Computed property for the current cart.
+ * @property {Ref<CheckoutSummaryType | undefined>} orderSummary - Reactive reference for the order summary.
+ * @property {Ref<string>} summaryOrderId - Reactive string for the summary order ID.
+ * @property {(orderId: string, checkoutQueryParams: CheckoutQueryParameters) => Promise<void>} initializeSummary - Method to initialize the summary.
+ */
+export const useSummary = (): UseSummaryComposable => {
   const geinsClient = useGeinsClient();
   const { geinsLog, geinsLogError } = useGeinsLog('useSummary.ts');
   const { parsedCheckoutToken } = useCheckoutToken();

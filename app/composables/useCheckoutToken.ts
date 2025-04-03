@@ -6,7 +6,33 @@ import type {
   CheckoutTokenPayload,
 } from '@geins/types';
 
-export const useCheckoutToken = () => {
+/**
+ * A composable function that provides functionality for managing and parsing checkout tokens.
+ * It includes state management, computed properties, and methods for initializing settings,
+ * parsing tokens, and applying styles based on checkout branding.
+ *
+ * @returns {UseCheckoutTokenComposable} An object containing state, computed properties, and methods for managing checkout tokens.
+ *
+ * @property {Ref<string>} token - Reactive state for the checkout token.
+ * @property {Ref<CheckoutTokenPayload>} parsedCheckoutToken - Reactive state for the parsed checkout token payload.
+ * @property {Ref<string>} latestVersion - Reactive state for the latest version of the checkout.
+ * @property {ComputedRef<string>} latestCheckoutUrl - Computed property for the checkout URL of the latest version.
+ * @property {ComputedRef<string>} checkoutPageUrl - Computed property for the checkout page URL of the current version.
+ * @property {ComputedRef<string>} confirmationPageUrl - Computed property for the confirmation page URL of the current version.
+ * @property {Ref<CheckoutBrandingType | undefined>} branding - Reactive state for the checkout branding settings.
+ * @property {ComputedRef<string | undefined>} iconFallback - Computed property for the fallback icon text derived from the branding title.
+ * @property {ComputedRef<string | undefined>} icon - Computed property for the branding icon URL.
+ * @property {ComputedRef<string | undefined>} logo - Computed property for the branding logo URL.
+ * @property {ComputedRef<string | undefined>} title - Computed property for the branding title.
+ * @property {Ref<CheckoutRedirectsType | undefined>} urls - Reactive state for the checkout redirect URLs.
+ * @property {(filename?: string) => string | null} getProductImageUrl - Method to generate a product image URL based on the filename and account settings.
+ * @property {(version?: string) => void} setCurrentVersion - Method to set the current version of the checkout.
+ * @property {() => Promise<boolean>} initSettingsFromToken - Method to initialize settings from the checkout token.
+ * @property {(token: string) => Promise<CheckoutTokenPayload>} parseToken - Method to parse the checkout token and return its payload.
+ * @property {(styles?: CheckoutStyleType) => void} parseStyles - Method to parse and apply styles from the checkout branding.
+ * @property {() => Promise<void>} setCssVarsToHead - Method to apply parsed CSS variables to the document's `<head>` for styling.
+ */
+export const useCheckoutToken = (): UseCheckoutTokenComposable => {
   const config = useRuntimeConfig();
   const { geinsLog, geinsLogError } = useGeinsLog('useCheckoutToken.ts');
 

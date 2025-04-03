@@ -5,9 +5,8 @@ import Logo from '@/assets/logos/geins.svg';
 const _props = defineProps({
   error: Object as () => NuxtError,
 });
-
+const debug = useRuntimeConfig().public.debug;
 const handleError = () => clearError({ redirect: '/' });
-// TODO: Remove message and callstack before launch
 </script>
 
 <template>
@@ -21,7 +20,7 @@ const handleError = () => clearError({ redirect: '/' });
         <p v-if="error?.message" class="mb-5">{{ error?.message }}</p>
         <p v-else>No message</p>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="mb-5 max-w-xl text-xs" v-html="error?.stack" />
+        <div v-if="debug" class="mb-5 max-w-xl text-xs" v-html="error?.stack" />
         <Button @click="handleError">Clear errors</Button>
       </div>
     </template>
