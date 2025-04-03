@@ -5,12 +5,12 @@ export { default as AlertDescription } from './AlertDescription.vue';
 export { default as AlertTitle } from './AlertTitle.vue';
 
 export const alertVariants = cva(
-  'relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
+  'relative w-full rounded-lg border-l-4 p-4 shadow-md [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-3 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2 [&>svg]:text-foreground [&>svg~*]:pl-7',
   {
     variants: {
       variant: {
         default: 'bg-background text-foreground',
-        error: 'border-error/50 text-error dark:border-error [&>svg]:text-error',
+        error: 'border-l-error bg-error/5 dark:border-error [&>svg]:text-error',
       },
     },
     defaultVariants: {

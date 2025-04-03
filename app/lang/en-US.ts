@@ -55,5 +55,8 @@ export default defineI18nLocale(async () => {
     form_validation_street_address_required: 'Street address is required',
     form_validation_zip_required: 'Zip code is required',
     form_validation_city_required: 'City is required',
+    cart_empty: 'Your cart is empty',
+    cart_empty_desc: 'Add items to your cart to proceed with checkout.',
+    error_create_order: 'Failed to create order',
   };
 });

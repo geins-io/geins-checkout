@@ -3,7 +3,7 @@ import { CustomerType, PaymentOptionCheckoutType } from '@geins/types';
 
 export const useCheckout = () => {
   const geinsClient = useGeinsClient();
-  const { geinsLog, geinsLogError } = useGeinsLog('useCheckout.ts');
+  const { geinsLog, geinsLogWarn, geinsLogError } = useGeinsLog('useCheckout.ts');
   const { vatIncluded } = usePrice();
   const { parsedCheckoutToken, urls, confirmationPageUrl } = useCheckoutToken();
   const { externalPaymentSelected, suspend, resume } = useExternalSnippet();
@@ -18,6 +18,7 @@ export const useCheckout = () => {
   const currentCountryName = computed(() => geinsClient.currentCountryName.value);
   const checkoutType = computed(() => geinsClient.selectedPaymentMethod.value?.checkoutType);
 
+  const cartEmpty = computed(() => cart.value?.items?.length === 0);
   const isPaymentInvoice = computed(() => checkoutType.value === PaymentOptionCheckoutType.STANDARD);
   const useManualCheckout = computed(
     () =>
@@ -66,6 +67,12 @@ export const useCheckout = () => {
         const checkoutInput = createCheckoutInput();
         const checkoutOptions = checkoutInput.checkoutOptions;
         await geinsClient.initializeCheckout(checkoutOptions);
+
+        if (cart.value?.items?.length === 0) {
+          geinsLogWarn('cart is empty');
+          return;
+        }
+
         geinsLog('checkout initialized', checkoutInput);
       } catch (e) {
         error.value = 'Failed to initialize checkout';
@@ -232,8 +239,6 @@ export const useCheckout = () => {
           paymentMethodId: state.value.selectedPaymentId,
         });
         return url.replace('{orderId}', response.publicOrderId).replace('{payment.uid}', response.orderId);
-      } else if (urls.value?.error) {
-        return urls.value.error;
       }
       return '';
     } catch (e) {
@@ -249,6 +254,7 @@ export const useCheckout = () => {
     error,
     checkoutSettings,
     cart,
+    cartEmpty,
     redirectUrls,
     currentCountryName,
     isPaymentInvoice,

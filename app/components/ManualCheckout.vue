@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { AlertCircle } from 'lucide-vue-next';
-
 const { state, checkoutLoading, cart, currentCountryName, updateCheckoutData, completeCheckout } =
   useCheckout();
+const { t } = useI18n();
 
-const _props = defineProps<{
+const props = defineProps<{
   enableCompleteCheckout: boolean;
+  disabled: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -24,7 +25,10 @@ const shippingFormData = ref<CheckoutFormType>({
 
 const formValid = ref(false);
 const formTouched = ref(false);
-const errorMessage = ref();
+const error = ref({
+  title: '',
+  message: '',
+});
 
 const handleFormUpdate = async (data: CheckoutFormUpdateEvent, addressType: 'billing' | 'shipping') => {
   updateCheckoutData(addressType, data.values);
@@ -33,10 +37,13 @@ const handleFormUpdate = async (data: CheckoutFormUpdateEvent, addressType: 'bil
 };
 
 const handleCheckout = async () => {
+  if (props.disabled) return;
+
   const response = await completeCheckout();
 
   if (!response.success) {
-    errorMessage.value = response.message;
+    error.value.title = t('error_create_order');
+    error.value.message = response.message;
     return;
   }
 
@@ -50,7 +57,7 @@ const handleNextStep = async () => {
 };
 </script>
 <template>
-  <div class="lg:px-7">
+  <div :class="cn('lg:px-7', `${disabled ? 'pointer-events-none opacity-20' : ''}`)">
     <h2 class="text-lg font-bold">
       {{ state.useShippingAddress ? $t('billing_address') : $t('your_information') }}
     </h2>
@@ -76,10 +83,10 @@ const handleNextStep = async () => {
       />
     </ContentSwitch>
     <CartSummary v-if="cart?.summary" :summary="cart.summary" class="mt-4" />
-    <Alert v-if="errorMessage" variant="error" class="mt-4">
+    <Alert v-if="error.title && error.message" variant="error" class="mt-4">
       <AlertCircle class="size-5" />
-      <AlertTitle>Error</AlertTitle>
-      <AlertDescription>{{ errorMessage }}</AlertDescription>
+      <AlertTitle>{{ error.title }}</AlertTitle>
+      <AlertDescription>{{ error.message }}</AlertDescription>
     </Alert>
     <Button
       v-if="enableCompleteCheckout"

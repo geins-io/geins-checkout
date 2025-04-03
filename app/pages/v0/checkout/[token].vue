@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ExternalSnippetType } from '#shared/types';
 const { urls } = useCheckoutToken();
-const { cart, useManualCheckout, isPaymentInvoice, initializeCheckout, updateCheckout } = useCheckout();
+const { cart, cartEmpty, useManualCheckout, isPaymentInvoice, initializeCheckout, updateCheckout } =
+  useCheckout();
 const { externalPaymentSelected } = useExternalSnippet();
 
 await initializeCheckout();
@@ -26,8 +27,9 @@ const nextStep = async () => {
       <template #checkout>
         <div v-auto-animate class="mx-auto w-full max-w-2xl">
           <ManualCheckout
-            v-if="useManualCheckout"
+            v-if="useManualCheckout || cartEmpty"
             :enable-complete-checkout="isPaymentInvoice"
+            :disabled="cartEmpty"
             @completed="nextStep"
           />
           <div v-else-if="externalPaymentSelected" class="rounded-lg bg-white p-3 lg:p-8">
