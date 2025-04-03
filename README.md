@@ -24,13 +24,12 @@
 - [x] Address country from market
 - [x] Use paymentType and not paymentId
 - [x] SKU in cart
-- [ ] If checkout cart empty
+- [x] If checkout cart empty
 - [x] Meta title
 
 ### Before v0 release
 
 - [ ] Add tests
-- [ ] Add documentation
 - [ ] Add README.md
 
 ### After v0 release
@@ -42,3 +41,4 @@
 - [ ] Special Avarda implementations
 - [ ] Fix so that all external checkouts works properly
 - [ ] Show address in step 2 for Geins Pay - with option to edit
+- [ ] Add documentation
