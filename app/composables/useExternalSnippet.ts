@@ -54,10 +54,16 @@ export const useExternalSnippet = (): UseExternalSnippetComposable => {
   const externalSnippetRendered = useState<boolean>('external-rendered', () => false);
   const suspended = useState<boolean>('external-suspended', () => false);
 
-  const externalPaymentSelected = computed(
-    () => selectedPaymentMethod.value?.checkoutType === PaymentOptionCheckoutType.EXTERNAL,
-  );
   const hasExternalSnippet = computed(() => !!externalSnippetHtml.value);
+
+  const externalPaymentSelected = computed(() => {
+    const checkoutType = selectedPaymentMethod.value?.checkoutType;
+
+    return (
+      checkoutType === PaymentOptionCheckoutType.EXTERNAL ||
+      (checkoutType === PaymentOptionCheckoutType.GEINS_PAY && selectedPaymentMethod.value?.paymentData)
+    );
+  });
 
   const renderExternalSnippet = async (
     type: ExternalSnippetType = ExternalSnippetType.Checkout,
