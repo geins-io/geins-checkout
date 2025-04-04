@@ -6,12 +6,12 @@ Built on the [Geins SDK](https://github.com/geins-io/geins-sdk), Geins Checkout 
 
 ## Features
 
-- **Universal Checkout:** A complete checkout solution for ecommerce — even without a storefront.
-- **Custom Branding:** Tweak details to match your unique look and feel.
-- **Payment Methods Galore:** Integrates with almost every payment provider available.
-- **Built on Geins SDK:** Leverages our powerful SDK to streamline your checkout experience.
-- **Flexible Deployment:** Use our hosted version or clone the repo to run it on your own infrastructure.
-- **Developer Happiness:** Designed with a focus on simplicity, flexibility, and fun.
+- 🌐 **Universal Checkout:** A complete checkout solution for ecommerce — even without a storefront.
+- 🎨 **Custom Branding:** Tweak details to match your unique look and feel.
+- 💳 **Payment Methods Galore:** Integrates with almost every payment provider available.
+- 🛠️ **Built on Geins SDK:** Leverages our powerful SDK to streamline your checkout experience.
+- 🚀 **Flexible Deployment:** Use our hosted version or clone the repo to run it on your own infrastructure.
+- 😊 **Developer Happiness:** Designed with a focus on simplicity, flexibility, and fun.
 
 ## Latest Release
 

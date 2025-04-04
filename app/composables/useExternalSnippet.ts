@@ -59,9 +59,9 @@ export const useExternalSnippet = (): UseExternalSnippetComposable => {
   const externalPaymentSelected = computed(() => {
     const checkoutType = selectedPaymentMethod.value?.checkoutType;
 
-    return (
+    return Boolean(
       checkoutType === PaymentOptionCheckoutType.EXTERNAL ||
-      (checkoutType === PaymentOptionCheckoutType.GEINS_PAY && selectedPaymentMethod.value?.paymentData)
+        (checkoutType === PaymentOptionCheckoutType.GEINS_PAY && selectedPaymentMethod.value?.paymentData),
     );
   });
 

@@ -3,7 +3,6 @@
 ### Before v0 release
 
 - [ ] Add tests
-- [ ] Add README.md
 
 ### After v0 release
 

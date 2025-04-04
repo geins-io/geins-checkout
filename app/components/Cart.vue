@@ -126,7 +126,10 @@ const getSkuName = (item: CartItemType): string => {
                 <div class="flex items-center text-xs text-card-foreground/65">
                   <span class="text-xs lg:text-sm">{{ item.quantity }}</span>
                   <span class="mx-1 lg:mx-3">×</span>
-                  <span v-if="item.unitPrice" class="flex text-xs lg:flex-col lg:text-sm">
+                  <span
+                    v-if="item.unitPrice"
+                    class="flex text-xs lg:flex-col lg:text-sm xl:flex-row xl:items-center"
+                  >
                     <span :class="{ 'text-sale': item.unitPrice?.isDiscounted }">
                       {{ getSellingPrice(item.unitPrice) }}
                     </span>
