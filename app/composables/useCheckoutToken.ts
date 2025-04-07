@@ -75,28 +75,25 @@ export const useCheckoutToken = (): UseCheckoutTokenComposable => {
     currentVersion.value = version;
   };
 
-  const initSettingsFromToken = async (): Promise<boolean> => {
-    if (!token.value) return false;
+  const initSettingsFromToken = async (): Promise<CheckoutTokenPayload | undefined> => {
+    if (!token.value) return undefined;
     try {
       parsedCheckoutToken.value = await parseToken(token.value);
       geinsLog('parsed checkout token', parsedCheckoutToken.value);
     } catch (error) {
       token.value = '';
       geinsLogError('failed to parse checkout token :::', error);
-      return false;
-    }
-    if (!parsedCheckoutToken.value?.checkoutSettings) {
-      return false;
+      return undefined;
     }
 
     branding.value = parsedCheckoutToken.value?.checkoutSettings?.branding;
     urls.value = parsedCheckoutToken.value?.checkoutSettings?.redirectUrls;
 
-    if (!branding.value) {
-      return false;
+    if (branding.value) {
+      parseStyles(branding.value.styles);
     }
-    parseStyles(branding.value?.styles);
-    return true;
+
+    return parsedCheckoutToken.value;
   };
 
   const parseToken = async (token: string) => {
