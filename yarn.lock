@@ -843,27 +843,27 @@
   resolved "https://registry.yarnpkg.com/@formkit/auto-animate/-/auto-animate-0.8.2.tgz#24a56e816159fd5585405dcee6bb992f81c27585"
   integrity sha512-SwPWfeRa5veb1hOIBMdzI+73te5puUBHmqqaF1Bu7FjvxlYSz/kJcZKSa9Cg60zL0uRNeJL2SbRxV6Jp6Q1nFQ==
 
-"@geins/core@0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699":
-  version "0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699"
-  resolved "https://registry.yarnpkg.com/@geins/core/-/core-0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699.tgz#1bd6fee6f93cd1874e0a39a6d26fa121f2b7dbe8"
-  integrity sha512-s8V/dWcoBMbxMFQ0HDm/LvO9JXjDChcqUgqTyC6Iq3EKDrYcRPpi4gkAbyP1hDs0/CR4nHMI5XTuEpNp7L1UPw==
+"@geins/core@*", "@geins/core@0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@geins/core/-/core-0.5.0.tgz#0834a2723fc36d835c14efddf57a4116402c50c9"
+  integrity sha512-PnzgDAuxya4j0TjxLOMTSJ0YKxH7vfQBJ1LUMyo4R67ZYIggx5dCH8Zm8R8Qt+Rh5WdJ+2K9zulbr1qvFFOrug==
   dependencies:
     "@apollo/client" "^3.11.8"
     "@cacheable/node-cache" "^1.5.2"
     broadcast-channel "^7.0.0"
     cookie-universal "^2.2.2"
 
-"@geins/oms@0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699":
-  version "0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699"
-  resolved "https://registry.yarnpkg.com/@geins/oms/-/oms-0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699.tgz#ad5d42d534e915c9a31ad388911104eaa236d347"
-  integrity sha512-GLauB1DhK/E3MXnPL9wOnEXgLVgz/o0/t1Yp8jBgdWldK0BekWNi87M5tyO6J+OZh1iAyrbMXP4a+igPwFdVug==
+"@geins/oms@0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@geins/oms/-/oms-0.5.0.tgz#b31da8d056b70d6a069549ae4750c68b24f8736c"
+  integrity sha512-U/QHJn2PfsqpmuNKNazhSlESq3G3Ai8yVVkuXF6TTI3XBV106G3tiPQ9J3V0AnkPXNslvkfLwUxPs1UNPCP6aQ==
   dependencies:
-    "@geins/core" "0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699"
+    "@geins/core" "*"
 
-"@geins/types@0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699":
-  version "0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699"
-  resolved "https://registry.yarnpkg.com/@geins/types/-/types-0.5.0-canary-9d8fec2d68aad073e5e2bfe1ca467d9985cf1699.tgz#6133c14dcbf9c579ca969fabaeece5b0399bea28"
-  integrity sha512-HP97r4ibIHkyTnNrEfghJLqa1qdcexJTQ5dKsc0HWLQziPy+a8F9KbedNHGIDB+v+mmcY4lhD2sfx2G4zChVoQ==
+"@geins/types@0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@geins/types/-/types-0.5.0.tgz#2ed149397066e53ff012dc76badb5f9c435a9452"
+  integrity sha512-WfYwlK759xD9vw3B9PpU6SJQoqt43UIkqjUoX/2l3vZndHlCdsNMzCYLYZzugMsXZLwhcLuL8Bs+cqtmkpJdPg==
 
 "@graphql-typed-document-node/core@^3.1.1":
   version "3.2.0"
