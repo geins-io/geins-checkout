@@ -1,15 +1,17 @@
 # Geins Checkout TODOs
 
-### Before v0 release
+## Next up
 
+- [ ] Ability to change the cart
+- [ ] Add a promo code
+- [ ] Geins Pay - full implementation
+  - [ ] Ability to edit address in step 2
 - [ ] Add tests
 
-### After v0 release
+## Feature backlog
 
-- [ ] Ability to change the cart in the checkout
-- [ ] Add a discount code to the order
-- [ ] Add a way to add custom fields to the checkout form
 - [ ] User authentication
-- [ ] Special Avarda implementations
-- [ ] Fix so that all external checkouts works properly
-- [ ] Show address in step 2 for Geins Pay - with option to edit
+- [ ] Add a way to add custom fields to the checkout form
+- [ ] Avarda implementation
+- [ ] Svea Checkout implementation
+- [ ] Walley Checkout implementation
