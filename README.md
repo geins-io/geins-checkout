@@ -3,7 +3,6 @@
   <img width="150px" alt="Geins logo" src="app/assets/logos/geins.svg">
 </picture>
 <br>
-<br>
 
 # Geins Checkout
 
